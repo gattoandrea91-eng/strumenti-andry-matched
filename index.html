@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Strumenti Andry Matched</title>
+<style>
+:root{
+  --bg:#0f172a;
+  --panel:#111827;
+  --panel2:#1e293b;
+  --line:#334155;
+  --text:#ffffff;
+  --muted:#cbd5e1;
+  --green:#22c55e;
+  --green2:#16a34a;
+}
+body{
+  font-family:Arial, Helvetica, sans-serif;
+  background:linear-gradient(180deg,#0f172a 0%, #111827 100%);
+  color:var(--text);
+  margin:0;
+}
+
+.container{
+  max-width:900px;
+  margin:auto;
+  padding:40px 20px 60px;
+  text-align:center;
+}
+
+h1{
+  font-size:42px;
+  margin-bottom:12px;
+}
+
+.subtitle{
+  color:var(--muted);
+  margin-bottom:40px;
+}
+
+.menu{
+  display:flex;
+  flex-direction:column;
+  gap:20px;
+  max-width:420px;
+  margin:auto;
+}
+
+button{
+  padding:18px;
+  font-size:18px;
+  border-radius:14px;
+  border:none;
+  cursor:pointer;
+  background:var(--green);
+  color:#052e16;
+  font-weight:bold;
+  transition:0.2s;
+}
+
+button:hover{
+  background:var(--green2);
+  transform:translateY(-1px);
+}
+
+.section{
+  display:none;
+  margin-top:40px;
+}
+
+.hero-bonus{
+  max-width:760px;
+  margin:0 auto 24px;
+  padding:22px;
+  border:1px solid var(--line);
+  border-radius:18px;
+  background:
+    linear-gradient(rgba(10,20,40,.78), rgba(10,20,40,.78)),
+    url('https://images.unsplash.com/photo-1511512578047-dfb367046420?auto=format&fit=crop&w=1200&q=80') center/cover;
+  box-shadow:0 10px 30px rgba(0,0,0,.25);
+}
+
+.hero-bonus h3{
+  margin:0;
+  font-size:26px;
+}
+
+.box{
+  background:var(--panel);
+  padding:30px;
+  border-radius:16px;
+  max-width:430px;
+  margin:auto;
+  border:1px solid var(--line);
+  box-shadow:0 12px 30px rgba(0,0,0,.2);
+}
+
+label{
+  display:block;
+  text-align:left;
+  margin:14px 0 8px;
+  color:#e2e8f0;
+  font-size:15px;
+}
+
+input, select{
+  width:100%;
+  padding:12px;
+  border-radius:10px;
+  border:1px solid var(--line);
+  background:#020617;
+  color:white;
+  font-size:16px;
+}
+
+.result{
+  margin-top:15px;
+  font-size:20px;
+  background:var(--panel2);
+  padding:14px;
+  border-radius:12px;
+  border:1px solid var(--line);
+}
+
+.back{
+  margin-top:20px;
+  background:#334155;
+  color:white;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>Strumenti Andry Matched</h1>
+<p class="subtitle">Menu semplice con i tuoi tool principali</p>
+
+<div id="menu" class="menu">
+<button onclick="openSection('bonus')">Calcolatore Fun Bonus</button>
+<button onclick="openSection('surebet')">Surebet</button>
+<button onclick="openSection('vuoto')">Altro Tool</button>
+</div>
+
+
+<div id="bonus" class="section">
+
+<div class="hero-bonus">
+  <h3>Calcolatore Fun Bonus</h3>
+</div>
+
+<div class="box">
+
+<label>Saldo Bonus</label>
+<input id="saldo" type="number" value="30">
+
+<label>Wagering</label>
+<input id="wager" type="number" value="40">
+
+<label>Cap</label>
+<input id="cap" type="number" value="30">
+
+<label>Bonus Type</label>
+<select id="bonusType">
+  <option>Slot</option>
+  <option>Casino</option>
+  <option>Altro</option>
+</select>
+
+<button style="margin-top:18px;" onclick="calcola()">Calcola</button>
+
+<div class="result" id="target"></div>
+<div class="result" id="spin"></div>
+
+</div>
+
+<button class="back" onclick="goBack()">← Torna al menu</button>
+
+</div>
+
+
+<div id="surebet" class="section">
+
+<h2>Tool Surebet</h2>
+
+<div class="box">
+
+<label>Quota 1</label>
+<input id="quota1" type="number" step="0.01" value="2.00">
+
+<label>Puntata 1</label>
+<input id="puntata1" type="number" step="0.01" value="100">
+
+<label>Quota 2</label>
+<input id="quota2" type="number" step="0.01" value="2.10">
+
+<button style="margin-top:18px;" onclick="calcolaSurebet()">Calcola Surebet</button>
+
+<div class="result" id="puntata2"></div>
+<div class="result" id="profitto"></div>
+
+</div>
+
+<button class="back" onclick="goBack()">← Torna al menu</button>
+
+</div>
+
+
+<div id="vuoto" class="section">
+<h2>Nuovo Tool</h2>
+<p class="subtitle">Questo spazio è pronto per un altro strumento.</p>
+<button class="back" onclick="goBack()">← Torna al menu</button>
+</div>
+
+</div>
+
+<script>
+
+function openSection(id){
+ document.getElementById("menu").style.display="none";
+ document.querySelectorAll(".section").forEach(s => s.style.display="none");
+ document.getElementById(id).style.display="block";
+}
+
+function goBack(){
+ document.querySelectorAll(".section").forEach(s => s.style.display="none");
+ document.getElementById("menu").style.display="flex";
+}
+
+function calcola(){
+  let saldo = Number(document.getElementById("saldo").value || 0)
+  let wager = Number(document.getElementById("wager").value || 0)
+  let cap = Number(document.getElementById("cap").value || 0)
+
+  let target = (saldo * wager * 0.05) + cap
+  let spin = saldo / 20
+
+  document.getElementById("target").innerHTML = "Arrivi a target con: " + target.toFixed(2)
+  document.getElementById("spin").innerHTML = "Spin: " + spin.toFixed(2)
+}
+
+function calcolaSurebet(){
+  let quota1 = Number(document.getElementById("quota1").value || 0)
+  let puntata1 = Number(document.getElementById("puntata1").value || 0)
+  let quota2 = Number(document.getElementById("quota2").value || 0)
+
+  let ritorno = quota1 * puntata1
+  let puntata2 = Math.round(ritorno / quota2)
+  let profitto = ritorno - puntata1 - puntata2
+
+  document.getElementById("puntata2").innerHTML =
+  "Puntata da fare sulla quota 2: " + puntata2
+
+  document.getElementById("profitto").innerHTML =
+  "Profitto generato: " + profitto.toFixed(2)
+}
+
+</script>
+
+</body>
+</html>
