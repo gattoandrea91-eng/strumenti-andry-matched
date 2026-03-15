@@ -4,289 +4,495 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Strumenti Andry Matched</title>
-
 <style>
-
+:root{
+  --bg:#0b1220;
+  --bg2:#111827;
+  --panel:#111827;
+  --panel2:#1e293b;
+  --line:#334155;
+  --text:#ffffff;
+  --muted:#cbd5e1;
+  --green:#22c55e;
+  --green2:#16a34a;
+  --blue:#2563eb;
+  --red:#b91c1c;
+}
+*{box-sizing:border-box}
 body{
-font-family:Arial;
-background:#0f172a;
-color:white;
-text-align:center;
+  margin:0;
+  font-family:Arial, Helvetica, sans-serif;
+  background:linear-gradient(180deg,var(--bg) 0%, var(--bg2) 100%);
+  color:var(--text);
 }
-
 .container{
-max-width:900px;
-margin:auto;
-padding:40px;
+  max-width:1100px;
+  margin:auto;
+  padding:32px 18px 60px;
 }
-
-button{
-padding:15px;
-margin:10px;
-font-size:18px;
-border:none;
-border-radius:10px;
-background:#22c55e;
-cursor:pointer;
+.topbar{
+  text-align:center;
+  margin-bottom:26px;
 }
-
-input{
-padding:10px;
-width:100%;
-margin-top:10px;
-border-radius:8px;
-border:none;
+h1{
+  margin:0;
+  font-size:42px;
 }
-
-.box{
-background:#111827;
-padding:25px;
-border-radius:15px;
-max-width:400px;
-margin:auto;
+.subtitle{
+  color:var(--muted);
+  margin:10px 0 0;
 }
-
-.result{
-margin-top:15px;
-background:#1e293b;
-padding:10px;
-border-radius:10px;
+.menu{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:16px;
+  max-width:900px;
+  margin:0 auto;
 }
-
+.menu button{
+  padding:22px 18px;
+  border-radius:18px;
+  border:1px solid var(--line);
+  background:linear-gradient(180deg,#1f2937 0%, #111827 100%);
+  color:white;
+  font-size:20px;
+  font-weight:bold;
+  cursor:pointer;
+  box-shadow:0 12px 24px rgba(0,0,0,.18);
+}
+.menu button:hover{
+  border-color:#475569;
+  transform:translateY(-1px);
+}
 .section{
-display:none;
+  display:none;
+  margin-top:18px;
 }
-
+.section-wrap{
+  max-width:980px;
+  margin:0 auto;
+}
+.section-header{
+  margin-bottom:18px;
+  text-align:center;
+}
+.section-header h2{
+  margin:0 0 8px;
+  font-size:34px;
+}
+.section-header p{
+  margin:0;
+  color:var(--muted);
+}
+.hero-bonus{
+  max-width:980px;
+  margin:0 auto 18px;
+  padding:28px;
+  border:1px solid var(--line);
+  border-radius:22px;
+  background:
+    linear-gradient(rgba(10,20,40,.72), rgba(10,20,40,.82)),
+    url('https://images.unsplash.com/photo-1511512578047-dfb367046420?auto=format&fit=crop&w=1400&q=80') center/cover;
+  box-shadow:0 18px 38px rgba(0,0,0,.24);
+}
+.hero-bonus h3{
+  margin:0;
+  font-size:30px;
+}
+.card-grid{
+  display:grid;
+  grid-template-columns:1.05fr .95fr;
+  gap:18px;
+}
+.box{
+  background:rgba(17,24,39,.96);
+  padding:28px;
+  border-radius:20px;
+  border:1px solid var(--line);
+  box-shadow:0 16px 36px rgba(0,0,0,.22);
+}
+.result-box{
+  background:rgba(17,24,39,.96);
+  padding:28px;
+  border-radius:20px;
+  border:1px solid var(--line);
+  box-shadow:0 16px 36px rgba(0,0,0,.22);
+}
+label{
+  display:block;
+  text-align:left;
+  margin:0 0 8px;
+  color:#e2e8f0;
+  font-size:15px;
+  font-weight:bold;
+}
+.field{
+  margin-bottom:16px;
+}
+input, select{
+  width:100%;
+  padding:14px 14px;
+  border-radius:12px;
+  border:1px solid var(--line);
+  background:#020617;
+  color:white;
+  font-size:16px;
+}
+.action{
+  width:100%;
+  padding:16px;
+  border-radius:14px;
+  border:none;
+  cursor:pointer;
+  background:linear-gradient(180deg,var(--green) 0%, var(--green2) 100%);
+  color:#052e16;
+  font-weight:bold;
+  font-size:18px;
+  margin-top:4px;
+}
+.result{
+  margin-top:14px;
+  font-size:20px;
+  background:var(--panel2);
+  padding:16px;
+  border-radius:14px;
+  border:1px solid var(--line);
+}
+.result strong{
+  display:block;
+  font-size:14px;
+  color:var(--muted);
+  margin-bottom:6px;
+}
+.result-value{
+  font-size:28px;
+  font-weight:bold;
+  color:white;
+}
+.info{
+  margin-top:14px;
+  font-size:15px;
+  line-height:1.6;
+  color:var(--muted);
+  background:#0f172a;
+  padding:16px;
+  border-radius:14px;
+  border:1px solid var(--line);
+}
 .back{
-background:#334155;
+  display:block;
+  margin:20px auto 0;
+  padding:14px 22px;
+  border-radius:14px;
+  border:none;
+  background:#334155;
+  color:white;
+  font-size:16px;
+  cursor:pointer;
 }
-
+.choice-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:14px;
+  margin-top:8px;
+}
+.choice{
+  padding:18px;
+  border-radius:14px;
+  border:1px solid var(--line);
+  font-size:20px;
+  font-weight:bold;
+  color:white;
+}
+.player{
+  background:#1d4ed8;
+}
+.banker{
+  background:#b91c1c;
+}
+@media (max-width:850px){
+  .menu{grid-template-columns:1fr;}
+  .card-grid{grid-template-columns:1fr;}
+  h1{font-size:34px;}
+  .section-header h2{font-size:28px;}
+  .hero-bonus h3{font-size:26px;}
+}
 </style>
 </head>
-
 <body>
 
 <div class="container">
+  <div class="topbar">
+    <h1>Strumenti Andry Matched</h1>
+    <p class="subtitle">Tool ordinati, puliti e pronti da usare</p>
+  </div>
 
-<h1>Strumenti Andry Matched</h1>
+  <div id="menu" class="menu">
+    <button onclick="openSection('bonus')">Calcolatore Fun Bonus</button>
+    <button onclick="openSection('surebet')">Surebet</button>
+    <button onclick="openSection('puntabanca')">Punta Banca</button>
+    <button onclick="openSection('freebet')">Freebet</button>
+    <button onclick="openSection('casino')">Casino Live</button>
+  </div>
 
-<div id="menu">
+  <div id="bonus" class="section">
+    <div class="section-wrap">
+      <div class="hero-bonus">
+        <h3>Calcolatore Fun Bonus</h3>
+      </div>
 
-<button onclick="openSection('bonus')">Calcolatore Fun Bonus</button>
-<button onclick="openSection('surebet')">Surebet</button>
-<button onclick="openSection('puntabanca')">Punta Banca</button>
-<button onclick="openSection('freebet')">Freebet</button>
-<button onclick="openSection('casino')">Casino Live</button>
+      <div class="card-grid">
+        <div class="box">
+          <div class="field">
+            <label>Saldo Bonus</label>
+            <input id="saldo" type="number" value="30">
+          </div>
+          <div class="field">
+            <label>Wagering</label>
+            <input id="wager" type="number" value="40">
+          </div>
+          <div class="field">
+            <label>Cap</label>
+            <input id="cap" type="number" value="30">
+          </div>
+          <div class="field">
+            <label>Bonus Type</label>
+            <select id="bonusType">
+              <option>Slot</option>
+              <option>Casino</option>
+              <option>Altro</option>
+            </select>
+          </div>
+          <button class="action" onclick="calcola()">Calcola</button>
+        </div>
 
+        <div class="result-box">
+          <div class="result">
+            <strong>Arrivi a target con</strong>
+            <div class="result-value" id="target">—</div>
+          </div>
+          <div class="result">
+            <strong>Spin</strong>
+            <div class="result-value" id="spin">—</div>
+          </div>
+        </div>
+      </div>
+
+      <button class="back" onclick="goBack()">← Torna al menu</button>
+    </div>
+  </div>
+
+  <div id="surebet" class="section">
+    <div class="section-wrap">
+      <div class="section-header">
+        <h2>Surebet</h2>
+        <p>Calcolo semplice della seconda puntata e del profitto</p>
+      </div>
+
+      <div class="card-grid">
+        <div class="box">
+          <div class="field">
+            <label>Quota 1</label>
+            <input id="quota1" type="number" step="0.01" value="2.00">
+          </div>
+          <div class="field">
+            <label>Puntata 1</label>
+            <input id="puntata1" type="number" step="0.01" value="100">
+          </div>
+          <div class="field">
+            <label>Quota 2</label>
+            <input id="quota2" type="number" step="0.01" value="2.10">
+          </div>
+          <button class="action" onclick="calcolaSurebet()">Calcola</button>
+        </div>
+
+        <div class="result-box">
+          <div class="result">
+            <strong>Puntata da fare</strong>
+            <div class="result-value" id="puntata2">—</div>
+          </div>
+          <div class="result">
+            <strong>Profitto</strong>
+            <div class="result-value" id="profitto">—</div>
+          </div>
+        </div>
+      </div>
+
+      <button class="back" onclick="goBack()">← Torna al menu</button>
+    </div>
+  </div>
+
+  <div id="puntabanca" class="section">
+    <div class="section-wrap">
+      <div class="section-header">
+        <h2>Punta Banca</h2>
+        <p>Calcolo rapido della puntata banca</p>
+      </div>
+
+      <div class="card-grid">
+        <div class="box">
+          <div class="field">
+            <label>Quota Punta</label>
+            <input id="quotaPunta" type="number" step="0.01" value="2.00">
+          </div>
+          <div class="field">
+            <label>Puntata Punta</label>
+            <input id="puntataPunta" type="number" step="0.01" value="100">
+          </div>
+          <div class="field">
+            <label>Quota Banca</label>
+            <input id="quotaBanca" type="number" step="0.01" value="2.10">
+          </div>
+          <button class="action" onclick="calcolaPuntaBanca()">Calcola</button>
+        </div>
+
+        <div class="result-box">
+          <div class="result">
+            <strong>Puntata banca</strong>
+            <div class="result-value" id="puntataBancaResult">—</div>
+          </div>
+        </div>
+      </div>
+
+      <button class="back" onclick="goBack()">← Torna al menu</button>
+    </div>
+  </div>
+
+  <div id="freebet" class="section">
+    <div class="section-wrap">
+      <div class="section-header">
+        <h2>Freebet</h2>
+        <p>Calcolo rapido della puntata banca da usare</p>
+      </div>
+
+      <div class="card-grid">
+        <div class="box">
+          <div class="field">
+            <label>Importo Freebet</label>
+            <input id="importoFreebet" type="number" value="10">
+          </div>
+          <div class="field">
+            <label>Quota Punta</label>
+            <input id="quotaFreebetPunta" type="number" step="0.01" value="5.00">
+          </div>
+          <div class="field">
+            <label>Quota Banca</label>
+            <input id="quotaFreebetBanca" type="number" step="0.01" value="5.20">
+          </div>
+          <button class="action" onclick="calcolaFreebet()">Calcola</button>
+        </div>
+
+        <div class="result-box">
+          <div class="result">
+            <strong>Puntata banca</strong>
+            <div class="result-value" id="profittoFreebetResult">—</div>
+          </div>
+        </div>
+      </div>
+
+      <button class="back" onclick="goBack()">← Torna al menu</button>
+    </div>
+  </div>
+
+  <div id="casino" class="section">
+    <div class="section-wrap">
+      <div class="section-header">
+        <h2>Casino Live – Baccarat</h2>
+        <p>Inserisci l'importo su Player e ottieni la puntata su Banker</p>
+      </div>
+
+      <div class="card-grid">
+        <div class="box">
+          <div class="field">
+            <label>Inserisci importo su Player</label>
+            <input id="playerStake" type="number" value="100">
+          </div>
+          <div class="choice-grid">
+            <div class="choice player">PLAYER</div>
+            <div class="choice banker">BANKER</div>
+          </div>
+          <button class="action" onclick="calcolaBaccarat()">Calcola</button>
+        </div>
+
+        <div class="result-box">
+          <div class="result">
+            <strong>Metti su Banker</strong>
+            <div class="result-value" id="bankerStake">—</div>
+          </div>
+          <div class="result">
+            <strong>Profitto</strong>
+            <div class="result-value" id="baccaratProfit">—</div>
+          </div>
+        </div>
+      </div>
+
+      <button class="back" onclick="goBack()">← Torna al menu</button>
+    </div>
+  </div>
 </div>
-
-
-<div id="bonus" class="section">
-
-<div class="box">
-
-<label>Saldo Bonus</label>
-<input id="saldo" type="number">
-
-<label>Wagering</label>
-<input id="wager" type="number">
-
-<label>Cap</label>
-<input id="cap" type="number">
-
-<button onclick="calcola()">Calcola</button>
-
-<div class="result" id="target"></div>
-<div class="result" id="spin"></div>
-
-</div>
-
-<button class="back" onclick="goBack()">Menu</button>
-
-</div>
-
-
-
-<div id="surebet" class="section">
-
-<div class="box">
-
-<label>Quota 1</label>
-<input id="quota1" type="number">
-
-<label>Puntata</label>
-<input id="puntata1" type="number">
-
-<label>Quota 2</label>
-<input id="quota2" type="number">
-
-<button onclick="calcolaSurebet()">Calcola</button>
-
-<div class="result" id="puntata2"></div>
-<div class="result" id="profitto"></div>
-
-</div>
-
-<button class="back" onclick="goBack()">Menu</button>
-
-</div>
-
-
-
-<div id="puntabanca" class="section">
-
-<div class="box">
-
-<label>Quota Punta</label>
-<input id="quotaPunta" type="number">
-
-<label>Puntata</label>
-<input id="puntataPunta" type="number">
-
-<label>Quota Banca</label>
-<input id="quotaBanca" type="number">
-
-<button onclick="calcolaPuntaBanca()">Calcola</button>
-
-<div class="result" id="puntataBancaResult"></div>
-
-</div>
-
-<button class="back" onclick="goBack()">Menu</button>
-
-</div>
-
-
-
-<div id="freebet" class="section">
-
-<div class="box">
-
-<label>Importo Freebet</label>
-<input id="importoFreebet" type="number">
-
-<label>Quota Punta</label>
-<input id="quotaFreebetPunta" type="number">
-
-<label>Quota Banca</label>
-<input id="quotaFreebetBanca" type="number">
-
-<button onclick="calcolaFreebet()">Calcola</button>
-
-<div class="result" id="profittoFreebetResult"></div>
-
-</div>
-
-<button class="back" onclick="goBack()">Menu</button>
-
-</div>
-
-
-
-<div id="casino" class="section">
-
-<div class="box">
-
-<label>Inserisci importo su Player</label>
-<input id="playerStake" type="number">
-
-<button onclick="calcolaBaccarat()">Calcola</button>
-
-<div class="result" id="bankerStake"></div>
-<div class="result" id="baccaratProfit"></div>
-
-</div>
-
-<button class="back" onclick="goBack()">Menu</button>
-
-</div>
-
-</div>
-
-
 
 <script>
-
 function openSection(id){
-document.getElementById("menu").style.display="none";
-document.querySelectorAll(".section").forEach(s=>s.style.display="none");
-document.getElementById(id).style.display="block";
+  document.getElementById("menu").style.display="none";
+  document.querySelectorAll(".section").forEach(s => s.style.display="none");
+  document.getElementById(id).style.display="block";
 }
-
 function goBack(){
-document.querySelectorAll(".section").forEach(s=>s.style.display="none");
-document.getElementById("menu").style.display="block";
+  document.querySelectorAll(".section").forEach(s => s.style.display="none");
+  document.getElementById("menu").style.display="grid";
 }
-
 function calcola(){
+  let saldo = Number(document.getElementById("saldo").value || 0);
+  let wager = Number(document.getElementById("wager").value || 0);
+  let cap = Number(document.getElementById("cap").value || 0);
 
-let saldo=Number(document.getElementById("saldo").value)
-let wager=Number(document.getElementById("wager").value)
-let cap=Number(document.getElementById("cap").value)
+  let target = (saldo * wager * 0.05) + cap;
+  let spin = saldo / 20;
 
-let target=(saldo*wager*0.05)+cap
-let spin=saldo/20
-
-document.getElementById("target").innerHTML="Target: "+target.toFixed(2)
-document.getElementById("spin").innerHTML="Spin: "+spin.toFixed(2)
-
+  document.getElementById("target").innerHTML = target.toFixed(2);
+  document.getElementById("spin").innerHTML = spin.toFixed(2);
 }
-
 function calcolaSurebet(){
+  let q1 = Number(document.getElementById("quota1").value || 0);
+  let s1 = Number(document.getElementById("puntata1").value || 0);
+  let q2 = Number(document.getElementById("quota2").value || 0);
 
-let q1=Number(document.getElementById("quota1").value)
-let s1=Number(document.getElementById("puntata1").value)
-let q2=Number(document.getElementById("quota2").value)
+  let ritorno = q1 * s1;
+  let s2 = Math.round(ritorno / q2);
+  let profitto = ritorno - s1 - s2;
 
-let ritorno=q1*s1
-let s2=Math.round(ritorno/q2)
-let profitto=ritorno-s1-s2
-
-document.getElementById("puntata2").innerHTML="Puntata 2: "+s2
-document.getElementById("profitto").innerHTML="Profitto: "+profitto.toFixed(2)
-
+  document.getElementById("puntata2").innerHTML = s2;
+  document.getElementById("profitto").innerHTML = profitto.toFixed(2);
 }
-
 function calcolaPuntaBanca(){
+  let q1 = Number(document.getElementById("quotaPunta").value || 0);
+  let s1 = Number(document.getElementById("puntataPunta").value || 0);
+  let q2 = Number(document.getElementById("quotaBanca").value || 0);
 
-let q1=Number(document.getElementById("quotaPunta").value)
-let s1=Number(document.getElementById("puntataPunta").value)
-let q2=Number(document.getElementById("quotaBanca").value)
-
-let banca=(q1*s1)/q2
-
-document.getElementById("puntataBancaResult").innerHTML="Puntata banca: "+banca.toFixed(2)
-
+  let banca = (q1 * s1) / q2;
+  document.getElementById("puntataBancaResult").innerHTML = banca.toFixed(2);
 }
-
 function calcolaFreebet(){
+  let free = Number(document.getElementById("importoFreebet").value || 0);
+  let qP = Number(document.getElementById("quotaFreebetPunta").value || 0);
+  let qB = Number(document.getElementById("quotaFreebetBanca").value || 0);
 
-let free=Number(document.getElementById("importoFreebet").value)
-let qP=Number(document.getElementById("quotaFreebetPunta").value)
-let qB=Number(document.getElementById("quotaFreebetBanca").value)
-
-let lay=(free*(qP-1))/qB
-
-document.getElementById("profittoFreebetResult").innerHTML="Puntata banca: "+lay.toFixed(2)
-
+  let lay = (free * (qP - 1)) / qB;
+  document.getElementById("profittoFreebetResult").innerHTML = lay.toFixed(2);
 }
-
 function calcolaBaccarat(){
+  const playerOdds = 2.00;
+  const bankerOdds = 1.95;
 
-const playerOdds=2.00
-const bankerOdds=1.95
+  let playerStake = Number(document.getElementById("playerStake").value || 0);
 
-let playerStake=Number(document.getElementById("playerStake").value)
+  let ritorno = playerStake * playerOdds;
+  let bankerStake = Math.round(ritorno / bankerOdds);
+  let profit = ritorno - playerStake - bankerStake;
 
-let ritorno=playerStake*playerOdds
-let bankerStake=Math.round(ritorno/bankerOdds)
-let profit=ritorno-playerStake-bankerStake
-
-document.getElementById("bankerStake").innerHTML="Metti su Banker: "+bankerStake
-document.getElementById("baccaratProfit").innerHTML="Profitto: "+profit.toFixed(2)
-
+  document.getElementById("bankerStake").innerHTML = bankerStake;
+  document.getElementById("baccaratProfit").innerHTML = profit.toFixed(2);
 }
-
 </script>
 
 </body>
