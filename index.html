@@ -290,11 +290,6 @@ input, select{
   margin-top:10px;
   font-size:14px;
 }
-.small-note{
-  margin-top:10px;
-  color:#cbd5e1;
-  font-size:13px;
-}
 .cards-grid{
   display:grid;
   grid-template-columns:repeat(7,minmax(0,1fr));
@@ -569,20 +564,20 @@ input, select{
     <div class="section-wrap">
       <div class="hero-blackjack">
         <h3>Black Jack</h3>
-        <p>Il tool tiene traccia del tavolo, delle mani split e della memoria del mazzo.</p>
+        <p>Il tool tiene traccia del tavolo, delle mani split, del banco completo e della memoria del mazzo.</p>
         <div class="blackjack-chip">Tracking round attivo</div>
       </div>
 
       <div class="card-grid">
         <div class="box blackjack-card">
           <div class="field">
-            <label>Mano iniziale giocatore</label>
+            <label>Mano giocatore</label>
             <div id="playerCardsView" class="picked-cards">—</div>
           </div>
 
           <div class="field">
-            <label>Carta banco</label>
-            <div id="dealerCardView" class="picked-cards">—</div>
+            <label>Carte banco</label>
+            <div id="dealerCardsView" class="picked-cards">—</div>
           </div>
 
           <div class="field">
@@ -591,7 +586,7 @@ input, select{
           </div>
 
           <div class="field">
-            <label>Scegli carta del Banco</label>
+            <label>Aggiungi carte al Banco</label>
             <div class="cards-grid" id="dealerCardButtons"></div>
           </div>
 
@@ -619,7 +614,8 @@ input, select{
 
           <button class="action-secondary" onclick="consigliaBlackjack()">Consiglia Mossa</button>
           <button class="action" onclick="doSplit()">Fai Split</button>
-          <button class="action" onclick="removeLastCardFromCurrent()">Cancella ultima carta</button>
+          <button class="action" onclick="removeLastPlayerCard()">Cancella ultima carta giocatore</button>
+          <button class="action" onclick="removeLastDealerCard()">Cancella ultima carta banco</button>
           <button class="action" onclick="closeRound()">Chiudi Round</button>
           <button class="action-danger" onclick="resetDeckMemory()">Reset Mazzo</button>
 
@@ -710,7 +706,7 @@ input, select{
 <script>
 let usedCardsMemory = [];
 let bjPlayerCards = [];
-let bjDealerCard = "";
+let bjDealerCards = [];
 let splitMode = false;
 let splitHand1 = [];
 let splitHand2 = [];
@@ -802,7 +798,7 @@ function renderButtons(containerId, handler){
 
 function renderBlackjackButtons(){
   renderButtons("playerCardButtons", addPlayerCard);
-  renderButtons("dealerCardButtons", setDealerCard);
+  renderButtons("dealerCardButtons", addDealerCard);
   renderButtons("splitHand1Buttons", addSplitHand1Card);
   renderButtons("splitHand2Buttons", addSplitHand2Card);
   updateBlackjackViews();
@@ -814,8 +810,8 @@ function addPlayerCard(card){
   updateBlackjackViews();
 }
 
-function setDealerCard(card){
-  bjDealerCard = card;
+function addDealerCard(card){
+  bjDealerCards.push(card);
   updateBlackjackViews();
 }
 
@@ -833,7 +829,7 @@ function addSplitHand2Card(card){
   updateBlackjackViews();
 }
 
-function removeLastCardFromCurrent(){
+function removeLastPlayerCard(){
   if(splitMode){
     if(activeSplitHand === 1){
       splitHand1.pop();
@@ -846,9 +842,14 @@ function removeLastCardFromCurrent(){
   updateBlackjackViews();
 }
 
+function removeLastDealerCard(){
+  bjDealerCards.pop();
+  updateBlackjackViews();
+}
+
 function updateBlackjackViews(){
   const playerView = document.getElementById("playerCardsView");
-  const dealerView = document.getElementById("dealerCardView");
+  const dealerView = document.getElementById("dealerCardsView");
   const split1View = document.getElementById("splitHand1View");
   const split2View = document.getElementById("splitHand2View");
   const splitArea = document.getElementById("splitArea");
@@ -860,8 +861,8 @@ function updateBlackjackViews(){
   }
 
   if(dealerView){
-    dealerView.innerHTML = bjDealerCard
-      ? `<span class="picked-card">${bjDealerCard}</span>`
+    dealerView.innerHTML = bjDealerCards.length
+      ? bjDealerCards.map(c => `<span class="picked-card">${c}</span>`).join("")
       : "—";
   }
 
@@ -1061,18 +1062,18 @@ function getCurrentAdviceHand(){
 function consigliaBlackjack(){
   const cardsToCheck = getCurrentAdviceHand();
   const playerCards = cardsToCheck.map(normalizeCard).filter(Boolean);
-  const dealerCard = normalizeCard(bjDealerCard);
+  const dealerUpCard = normalizeCard(bjDealerCards[0] || "");
 
-  if(playerCards.length < 2 || !dealerCard){
+  if(playerCards.length < 2 || !dealerUpCard){
     document.getElementById("bjHandType").innerHTML = "Dati mancanti";
     document.getElementById("bjHandValue").innerHTML = "—";
     document.getElementById("bjAdvice").innerHTML = "—";
-    document.getElementById("bjNote").innerHTML = "Seleziona almeno 2 carte giocatore e 1 carta banco";
+    document.getElementById("bjNote").innerHTML = "Inserisci almeno 2 carte giocatore e la prima carta del banco";
     return;
   }
 
   const hand = evaluateHand(playerCards);
-  const strategy = basicStrategy(playerCards, dealerCard);
+  const strategy = basicStrategy(playerCards, dealerUpCard);
 
   let handType = "Hard";
   if(playerCards.length === 2 && sameRank(playerCards[0], playerCards[1])) handType = "Pair";
@@ -1115,7 +1116,7 @@ function closeRound(){
   const roundCards = [];
 
   roundCards.push(...bjPlayerCards);
-  if(bjDealerCard) roundCards.push(bjDealerCard);
+  roundCards.push(...bjDealerCards);
   roundCards.push(...splitHand1);
   roundCards.push(...splitHand2);
 
@@ -1123,7 +1124,7 @@ function closeRound(){
   updateDeckMemoryUI();
 
   bjPlayerCards = [];
-  bjDealerCard = "";
+  bjDealerCards = [];
   splitHand1 = [];
   splitHand2 = [];
   splitMode = false;
@@ -1140,7 +1141,7 @@ function closeRound(){
 function resetDeckMemory(){
   usedCardsMemory = [];
   bjPlayerCards = [];
-  bjDealerCard = "";
+  bjDealerCards = [];
   splitHand1 = [];
   splitHand2 = [];
   splitMode = false;
