@@ -309,9 +309,49 @@ input, select{
   color:#cbd5e1;
   font-size:13px;
 }
+.cards-grid{
+  display:grid;
+  grid-template-columns:repeat(7,minmax(0,1fr));
+  gap:10px;
+}
+.card-btn{
+  padding:12px 8px;
+  border-radius:12px;
+  border:1px solid rgba(255,255,255,.15);
+  background:#ffffff;
+  color:#111827;
+  font-size:18px;
+  font-weight:bold;
+  cursor:pointer;
+  transition:all .15s ease;
+}
+.card-btn:hover{
+  transform:translateY(-1px);
+}
+.picked-cards{
+  min-height:52px;
+  padding:14px;
+  border-radius:12px;
+  border:1px solid var(--line);
+  background:#020617;
+  color:#fff;
+  font-size:20px;
+  display:flex;
+  align-items:center;
+  flex-wrap:wrap;
+  gap:8px;
+}
+.picked-card{
+  padding:8px 12px;
+  border-radius:10px;
+  background:#fff;
+  color:#111827;
+  font-weight:bold;
+}
 @media (max-width:850px){
   .menu{grid-template-columns:1fr;}
   .card-grid{grid-template-columns:1fr;}
+  .cards-grid{grid-template-columns:repeat(4,minmax(0,1fr));}
   h1{font-size:34px;}
   .section-header h2{font-size:28px;}
   .hero-bonus h3,
@@ -539,23 +579,34 @@ input, select{
     <div class="section-wrap">
       <div class="hero-blackjack">
         <h3>Black Jack</h3>
-        <p>Inserisci le tue carte e la carta del banco. Il tool ti consiglia la giocata.</p>
-        <div class="blackjack-chip">Memoria carte attiva</div>
+        <p>Clicca le carte del giocatore e del banco. Il tool ti consiglia la mossa.</p>
+        <div class="blackjack-chip">Modalità rapida con carte cliccabili</div>
       </div>
 
       <div class="card-grid">
         <div class="box blackjack-card">
           <div class="field">
-            <label>Le tue carte</label>
-            <input id="playerCards" type="text" placeholder="Esempio: A,8 oppure 10,6 oppure 8,8">
+            <label>Carte Giocatore</label>
+            <div id="playerCardsView" class="picked-cards">—</div>
           </div>
 
           <div class="field">
-            <label>Carta del banco</label>
-            <input id="dealerCard" type="text" placeholder="Esempio: 6 oppure A oppure 10">
+            <label>Carta Banco</label>
+            <div id="dealerCardView" class="picked-cards">—</div>
+          </div>
+
+          <div class="field">
+            <label>Aggiungi carta al Giocatore</label>
+            <div class="cards-grid" id="playerCardButtons"></div>
+          </div>
+
+          <div class="field">
+            <label>Scegli carta del Banco</label>
+            <div class="cards-grid" id="dealerCardButtons"></div>
           </div>
 
           <button class="action-secondary" onclick="consigliaBlackjack()">Consiglia Mossa</button>
+          <button class="action" onclick="removeLastPlayerCard()">Cancella ultima carta giocatore</button>
           <button class="action-danger" onclick="resetDeckMemory()">Reset Mazzo</button>
 
           <div class="memory-box">
@@ -564,7 +615,7 @@ input, select{
           </div>
 
           <div class="small-note">
-            Formati validi: A, K, Q, J, 10, 9, 8, 7, 6, 5, 4, 3, 2
+            Il tool salva in memoria le carte inserite finché non premi Reset Mazzo.
           </div>
         </div>
 
@@ -638,6 +689,9 @@ input, select{
 
 <script>
 let usedCardsMemory = [];
+let bjPlayerCards = [];
+let bjDealerCard = "";
+const CARD_SET = ["A","K","Q","J","10","9","8","7","6","5","4","3","2"];
 
 function openSection(id){
   document.getElementById("menu").style.display = "none";
@@ -707,6 +761,64 @@ function calcolaBaccarat(){
   document.getElementById("baccaratProfit").innerHTML = profit.toFixed(2);
 }
 
+function renderBlackjackButtons(){
+  const playerWrap = document.getElementById("playerCardButtons");
+  const dealerWrap = document.getElementById("dealerCardButtons");
+
+  if(!playerWrap || !dealerWrap) return;
+
+  playerWrap.innerHTML = "";
+  dealerWrap.innerHTML = "";
+
+  CARD_SET.forEach(card => {
+    const pBtn = document.createElement("button");
+    pBtn.className = "card-btn";
+    pBtn.textContent = card;
+    pBtn.onclick = () => addPlayerCard(card);
+    playerWrap.appendChild(pBtn);
+
+    const dBtn = document.createElement("button");
+    dBtn.className = "card-btn";
+    dBtn.textContent = card;
+    dBtn.onclick = () => setDealerCard(card);
+    dealerWrap.appendChild(dBtn);
+  });
+
+  updateBlackjackViews();
+}
+
+function addPlayerCard(card){
+  bjPlayerCards.push(card);
+  updateBlackjackViews();
+}
+
+function setDealerCard(card){
+  bjDealerCard = card;
+  updateBlackjackViews();
+}
+
+function removeLastPlayerCard(){
+  bjPlayerCards.pop();
+  updateBlackjackViews();
+}
+
+function updateBlackjackViews(){
+  const playerView = document.getElementById("playerCardsView");
+  const dealerView = document.getElementById("dealerCardView");
+
+  if(playerView){
+    playerView.innerHTML = bjPlayerCards.length
+      ? bjPlayerCards.map(c => `<span class="picked-card">${c}</span>`).join("")
+      : "—";
+  }
+
+  if(dealerView){
+    dealerView.innerHTML = bjDealerCard
+      ? `<span class="picked-card">${bjDealerCard}</span>`
+      : "—";
+  }
+}
+
 function normalizeCard(card){
   const c = String(card).trim().toUpperCase();
   if(c === "1") return "A";
@@ -724,13 +836,6 @@ function dealerUpValue(card){
   if(card === "A") return 11;
   if(["K","Q","J","10"].includes(card)) return 10;
   return Number(card);
-}
-
-function parseCards(text){
-  return text
-    .split(",")
-    .map(x => normalizeCard(x))
-    .filter(Boolean);
 }
 
 function evaluateHand(cards){
@@ -754,7 +859,6 @@ function evaluateHand(cards){
   }, 0);
 
   const isSoft = cards.includes("A") && total <= 21 && rawTotal === total;
-
   return { total, isSoft };
 }
 
@@ -772,7 +876,7 @@ function basicStrategy(cards, dealer){
     const first = cards[0];
 
     if(first === "A" || first === "8") return { move: "SPLIT", note: "Coppia favorevole da dividere" };
-    if(first === "10" || first === "J" || first === "Q" || first === "K") return { move: "STAND", note: "Hai già una mano forte" };
+    if(["10","J","Q","K"].includes(first)) return { move: "STAND", note: "Hai già una mano forte" };
     if(first === "9"){
       if([2,3,4,5,6,8,9].includes(dealerVal)) return { move: "SPLIT", note: "Dividi i 9 contro questa carta del banco" };
       return { move: "STAND", note: "Meglio stare" };
@@ -786,11 +890,11 @@ function basicStrategy(cards, dealer){
       return { move: "HIT", note: "Meglio chiedere carta" };
     }
     if(first === "5"){
-      if(dealerVal >= 2 && dealerVal <= 9) return { move: "DOUBLE", note: "Tratta la coppia di 5 come totale 10" };
+      if(dealerVal >= 2 && dealerVal <= 9) return { move: "DOUBLE", note: "Coppia di 5 trattata come 10" };
       return { move: "HIT", note: "Meglio chiedere carta" };
     }
     if(first === "4"){
-      if(dealerVal === 5 || dealerVal === 6) return { move: "SPLIT", note: "Dividi i 4 solo in questo caso" };
+      if(dealerVal === 5 || dealerVal === 6) return { move: "SPLIT", note: "Dividi i 4 solo qui" };
       return { move: "HIT", note: "Meglio chiedere carta" };
     }
     if(first === "3" || first === "2"){
@@ -855,14 +959,14 @@ function updateDeckMemoryUI(){
 }
 
 function consigliaBlackjack(){
-  const playerCards = parseCards(document.getElementById("playerCards").value || "");
-  const dealerCard = normalizeCard(document.getElementById("dealerCard").value || "");
+  const playerCards = bjPlayerCards.map(normalizeCard).filter(Boolean);
+  const dealerCard = normalizeCard(bjDealerCard);
 
   if(playerCards.length < 2 || !dealerCard){
     document.getElementById("bjHandType").innerHTML = "Dati mancanti";
     document.getElementById("bjHandValue").innerHTML = "—";
     document.getElementById("bjAdvice").innerHTML = "—";
-    document.getElementById("bjNote").innerHTML = "Inserisci almeno 2 carte tue e 1 del banco";
+    document.getElementById("bjNote").innerHTML = "Seleziona almeno 2 carte giocatore e 1 carta banco";
     return;
   }
 
@@ -873,11 +977,8 @@ function consigliaBlackjack(){
   updateDeckMemoryUI();
 
   let handType = "Hard";
-  if(playerCards.length === 2 && sameRank(playerCards[0], playerCards[1])) {
-    handType = "Pair";
-  } else if(hand.isSoft) {
-    handType = "Soft";
-  }
+  if(playerCards.length === 2 && sameRank(playerCards[0], playerCards[1])) handType = "Pair";
+  else if(hand.isSoft) handType = "Soft";
 
   document.getElementById("bjHandType").innerHTML = handType;
   document.getElementById("bjHandValue").innerHTML = hand.total;
@@ -887,9 +988,11 @@ function consigliaBlackjack(){
 
 function resetDeckMemory(){
   usedCardsMemory = [];
+  bjPlayerCards = [];
+  bjDealerCard = "";
   updateDeckMemoryUI();
-  document.getElementById("playerCards").value = "";
-  document.getElementById("dealerCard").value = "";
+  updateBlackjackViews();
+
   document.getElementById("bjHandType").innerHTML = "—";
   document.getElementById("bjHandValue").innerHTML = "—";
   document.getElementById("bjAdvice").innerHTML = "—";
@@ -910,34 +1013,40 @@ async function getCryptoPrice(){
   }
 
   try{
-    const res = await fetch("https://api.coincap.io/v2/assets");
-    if(!res.ok) throw new Error("Errore API");
+    const coinsRes = await fetch("https://api.coinpaprika.com/v1/coins");
+    if(!coinsRes.ok) throw new Error("Errore lista coin");
 
-    const data = await res.json();
-    const assets = data.data || [];
+    const coins = await coinsRes.json();
 
     const found =
-      assets.find(c => (c.symbol || "").toLowerCase() === query) ||
-      assets.find(c => (c.id || "").toLowerCase() === query) ||
-      assets.find(c => (c.name || "").toLowerCase() === query);
+      coins.find(c => (c.symbol || "").toLowerCase() === query) ||
+      coins.find(c => (c.name || "").toLowerCase() === query) ||
+      coins.find(c => (c.id || "").toLowerCase() === query);
 
     if(!found){
       document.getElementById("cryptoName").innerHTML = "Crypto non trovata";
       return;
     }
 
-    const price = Number(found.priceUsd || 0);
-    const marketCap = Number(found.marketCapUsd || 0);
+    const tickerRes = await fetch(`https://api.coinpaprika.com/v1/tickers/${found.id}`);
+    if(!tickerRes.ok) throw new Error("Errore ticker");
+
+    const ticker = await tickerRes.json();
+
+    const price = ticker?.quotes?.USD?.price;
+    const marketCap = ticker?.quotes?.USD?.market_cap;
 
     document.getElementById("cryptoName").innerHTML = found.name || "—";
     document.getElementById("cryptoSymbol").innerHTML = found.symbol || "—";
-    document.getElementById("cryptoPrice").innerHTML = "$ " + price.toLocaleString("it-IT", {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 8
-    });
-    document.getElementById("cryptoMarketCap").innerHTML = "$ " + marketCap.toLocaleString("it-IT", {
-      maximumFractionDigits: 0
-    });
+    document.getElementById("cryptoPrice").innerHTML =
+      price != null
+        ? "$ " + Number(price).toLocaleString("it-IT", { minimumFractionDigits: 2, maximumFractionDigits: 8 })
+        : "—";
+
+    document.getElementById("cryptoMarketCap").innerHTML =
+      marketCap != null
+        ? "$ " + Number(marketCap).toLocaleString("it-IT", { maximumFractionDigits: 0 })
+        : "—";
   }catch(error){
     console.error(error);
     document.getElementById("cryptoName").innerHTML = "Errore caricamento";
@@ -947,6 +1056,7 @@ async function getCryptoPrice(){
   }
 }
 
+renderBlackjackButtons();
 updateDeckMemoryUI();
 </script>
 
