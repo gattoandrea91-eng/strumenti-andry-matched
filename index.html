@@ -586,7 +586,7 @@ input, select{
           </div>
 
           <div class="field">
-            <label>Aggiungi carte iniziali al Giocatore (max 2)</label>
+            <label>Aggiungi carte al Giocatore</label>
             <div class="cards-grid" id="playerCardButtons"></div>
           </div>
 
@@ -619,6 +619,7 @@ input, select{
 
           <button class="action-secondary" onclick="consigliaBlackjack()">Consiglia Mossa</button>
           <button class="action" onclick="doSplit()">Fai Split</button>
+          <button class="action" onclick="removeLastCardFromCurrent()">Cancella ultima carta</button>
           <button class="action" onclick="closeRound()">Chiudi Round</button>
           <button class="action-danger" onclick="resetDeckMemory()">Reset Mazzo</button>
 
@@ -713,6 +714,7 @@ let bjDealerCard = "";
 let splitMode = false;
 let splitHand1 = [];
 let splitHand2 = [];
+let activeSplitHand = 1;
 
 const CARD_SET = ["A","K","Q","J","10","9","8","7","6","5","4","3","2"];
 
@@ -808,7 +810,6 @@ function renderBlackjackButtons(){
 
 function addPlayerCard(card){
   if(splitMode) return;
-  if(bjPlayerCards.length >= 2) return;
   bjPlayerCards.push(card);
   updateBlackjackViews();
 }
@@ -820,13 +821,28 @@ function setDealerCard(card){
 
 function addSplitHand1Card(card){
   if(!splitMode) return;
+  activeSplitHand = 1;
   splitHand1.push(card);
   updateBlackjackViews();
 }
 
 function addSplitHand2Card(card){
   if(!splitMode) return;
+  activeSplitHand = 2;
   splitHand2.push(card);
+  updateBlackjackViews();
+}
+
+function removeLastCardFromCurrent(){
+  if(splitMode){
+    if(activeSplitHand === 1){
+      splitHand1.pop();
+    }else{
+      splitHand2.pop();
+    }
+  }else{
+    bjPlayerCards.pop();
+  }
   updateBlackjackViews();
 }
 
@@ -1034,8 +1050,16 @@ function updateDeckMemoryUI(){
   statusEl.className = status.cls;
 }
 
+function getCurrentAdviceHand(){
+  if(splitMode){
+    if(activeSplitHand === 2 && splitHand2.length) return splitHand2;
+    return splitHand1;
+  }
+  return bjPlayerCards;
+}
+
 function consigliaBlackjack(){
-  let cardsToCheck = splitMode ? splitHand1 : bjPlayerCards;
+  const cardsToCheck = getCurrentAdviceHand();
   const playerCards = cardsToCheck.map(normalizeCard).filter(Boolean);
   const dealerCard = normalizeCard(bjDealerCard);
 
@@ -1057,23 +1081,32 @@ function consigliaBlackjack(){
   document.getElementById("bjHandType").innerHTML = handType;
   document.getElementById("bjHandValue").innerHTML = hand.total;
   document.getElementById("bjAdvice").innerHTML = strategy.move;
-  document.getElementById("bjNote").innerHTML = strategy.note;
+  document.getElementById("bjNote").innerHTML = splitMode
+    ? `Mano attiva: ${activeSplitHand} • ${strategy.note}`
+    : strategy.note;
 }
 
 function doSplit(){
-  if(bjPlayerCards.length !== 2){
-    document.getElementById("bjNote").innerHTML = "Per fare split servono esattamente 2 carte";
+  if(bjPlayerCards.length < 2){
+    document.getElementById("bjNote").innerHTML = "Per fare split servono almeno 2 carte iniziali";
+    return;
+  }
+
+  if(splitMode){
+    document.getElementById("bjNote").innerHTML = "Split già attivo";
     return;
   }
 
   if(!sameRank(bjPlayerCards[0], bjPlayerCards[1])){
-    document.getElementById("bjNote").innerHTML = "Le 2 carte non sono splittabili";
+    document.getElementById("bjNote").innerHTML = "Le prime 2 carte non sono splittabili";
     return;
   }
 
   splitMode = true;
   splitHand1 = [bjPlayerCards[0]];
   splitHand2 = [bjPlayerCards[1]];
+  activeSplitHand = 1;
+  bjPlayerCards = [];
   updateBlackjackViews();
   document.getElementById("bjNote").innerHTML = "Split attivo: completa le due mani";
 }
@@ -1094,6 +1127,7 @@ function closeRound(){
   splitHand1 = [];
   splitHand2 = [];
   splitMode = false;
+  activeSplitHand = 1;
 
   updateBlackjackViews();
 
@@ -1110,6 +1144,7 @@ function resetDeckMemory(){
   splitHand1 = [];
   splitHand2 = [];
   splitMode = false;
+  activeSplitHand = 1;
 
   updateDeckMemoryUI();
   updateBlackjackViews();
