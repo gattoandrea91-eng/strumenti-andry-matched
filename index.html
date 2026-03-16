@@ -232,16 +232,6 @@ input, select{
   color:white;
   word-break:break-word;
 }
-.info{
-  margin-top:14px;
-  font-size:15px;
-  line-height:1.6;
-  color:var(--muted);
-  background:#0f172a;
-  padding:16px;
-  border-radius:14px;
-  border:1px solid var(--line);
-}
 .memory-box{
   margin-top:14px;
   font-size:15px;
@@ -278,12 +268,8 @@ input, select{
   color:white;
   text-align:center;
 }
-.player{
-  background:#1d4ed8;
-}
-.banker{
-  background:#b91c1c;
-}
+.player{ background:#1d4ed8; }
+.banker{ background:#b91c1c; }
 .blackjack-card{
   background:linear-gradient(180deg,#14532d 0%, #052e16 100%);
   border:1px solid rgba(255,255,255,.12);
@@ -348,6 +334,10 @@ input, select{
   color:#111827;
   font-weight:bold;
 }
+.count-good{ color:#4ade80; }
+.count-neutral{ color:#facc15; }
+.count-bad{ color:#f87171; }
+
 @media (max-width:850px){
   .menu{grid-template-columns:1fr;}
   .card-grid{grid-template-columns:1fr;}
@@ -579,24 +569,24 @@ input, select{
     <div class="section-wrap">
       <div class="hero-blackjack">
         <h3>Black Jack</h3>
-        <p>Clicca le carte del giocatore e del banco. Il tool ti consiglia la mossa.</p>
-        <div class="blackjack-chip">Modalità rapida con carte cliccabili</div>
+        <p>Il tool tiene traccia del tavolo, delle mani split e della memoria del mazzo.</p>
+        <div class="blackjack-chip">Tracking round attivo</div>
       </div>
 
       <div class="card-grid">
         <div class="box blackjack-card">
           <div class="field">
-            <label>Carte Giocatore</label>
+            <label>Mano iniziale giocatore</label>
             <div id="playerCardsView" class="picked-cards">—</div>
           </div>
 
           <div class="field">
-            <label>Carta Banco</label>
+            <label>Carta banco</label>
             <div id="dealerCardView" class="picked-cards">—</div>
           </div>
 
           <div class="field">
-            <label>Aggiungi carta al Giocatore</label>
+            <label>Aggiungi carte iniziali al Giocatore (max 2)</label>
             <div class="cards-grid" id="playerCardButtons"></div>
           </div>
 
@@ -605,8 +595,31 @@ input, select{
             <div class="cards-grid" id="dealerCardButtons"></div>
           </div>
 
+          <div id="splitArea" style="display:none; margin-top:16px;">
+            <div class="field">
+              <label>Split - Mano 1</label>
+              <div id="splitHand1View" class="picked-cards">—</div>
+            </div>
+
+            <div class="field">
+              <label>Aggiungi carta a Mano 1</label>
+              <div class="cards-grid" id="splitHand1Buttons"></div>
+            </div>
+
+            <div class="field">
+              <label>Split - Mano 2</label>
+              <div id="splitHand2View" class="picked-cards">—</div>
+            </div>
+
+            <div class="field">
+              <label>Aggiungi carta a Mano 2</label>
+              <div class="cards-grid" id="splitHand2Buttons"></div>
+            </div>
+          </div>
+
           <button class="action-secondary" onclick="consigliaBlackjack()">Consiglia Mossa</button>
-          <button class="action" onclick="removeLastPlayerCard()">Cancella ultima carta giocatore</button>
+          <button class="action" onclick="doSplit()">Fai Split</button>
+          <button class="action" onclick="closeRound()">Chiudi Round</button>
           <button class="action-danger" onclick="resetDeckMemory()">Reset Mazzo</button>
 
           <div class="memory-box">
@@ -614,14 +627,20 @@ input, select{
             <div id="deckMemory">—</div>
           </div>
 
-          <div class="small-note">
-            Il tool salva in memoria le carte inserite finché non premi Reset Mazzo.
+          <div class="memory-box">
+            <strong>Conteggio mazzo:</strong>
+            <div id="countValue">0</div>
+          </div>
+
+          <div class="memory-box">
+            <strong>Stato mazzo:</strong>
+            <div id="countStatus">Neutro</div>
           </div>
         </div>
 
         <div class="result-box">
           <div class="result">
-            <strong>La tua mano</strong>
+            <strong>Tipo mano</strong>
             <div class="result-value" id="bjHandType">—</div>
           </div>
           <div class="result">
@@ -691,6 +710,10 @@ input, select{
 let usedCardsMemory = [];
 let bjPlayerCards = [];
 let bjDealerCard = "";
+let splitMode = false;
+let splitHand1 = [];
+let splitHand2 = [];
+
 const CARD_SET = ["A","K","Q","J","10","9","8","7","6","5","4","3","2"];
 
 function openSection(id){
@@ -761,33 +784,31 @@ function calcolaBaccarat(){
   document.getElementById("baccaratProfit").innerHTML = profit.toFixed(2);
 }
 
-function renderBlackjackButtons(){
-  const playerWrap = document.getElementById("playerCardButtons");
-  const dealerWrap = document.getElementById("dealerCardButtons");
-
-  if(!playerWrap || !dealerWrap) return;
-
-  playerWrap.innerHTML = "";
-  dealerWrap.innerHTML = "";
+function renderButtons(containerId, handler){
+  const wrap = document.getElementById(containerId);
+  if(!wrap) return;
+  wrap.innerHTML = "";
 
   CARD_SET.forEach(card => {
-    const pBtn = document.createElement("button");
-    pBtn.className = "card-btn";
-    pBtn.textContent = card;
-    pBtn.onclick = () => addPlayerCard(card);
-    playerWrap.appendChild(pBtn);
-
-    const dBtn = document.createElement("button");
-    dBtn.className = "card-btn";
-    dBtn.textContent = card;
-    dBtn.onclick = () => setDealerCard(card);
-    dealerWrap.appendChild(dBtn);
+    const btn = document.createElement("button");
+    btn.className = "card-btn";
+    btn.textContent = card;
+    btn.onclick = () => handler(card);
+    wrap.appendChild(btn);
   });
+}
 
+function renderBlackjackButtons(){
+  renderButtons("playerCardButtons", addPlayerCard);
+  renderButtons("dealerCardButtons", setDealerCard);
+  renderButtons("splitHand1Buttons", addSplitHand1Card);
+  renderButtons("splitHand2Buttons", addSplitHand2Card);
   updateBlackjackViews();
 }
 
 function addPlayerCard(card){
+  if(splitMode) return;
+  if(bjPlayerCards.length >= 2) return;
   bjPlayerCards.push(card);
   updateBlackjackViews();
 }
@@ -797,14 +818,24 @@ function setDealerCard(card){
   updateBlackjackViews();
 }
 
-function removeLastPlayerCard(){
-  bjPlayerCards.pop();
+function addSplitHand1Card(card){
+  if(!splitMode) return;
+  splitHand1.push(card);
+  updateBlackjackViews();
+}
+
+function addSplitHand2Card(card){
+  if(!splitMode) return;
+  splitHand2.push(card);
   updateBlackjackViews();
 }
 
 function updateBlackjackViews(){
   const playerView = document.getElementById("playerCardsView");
   const dealerView = document.getElementById("dealerCardView");
+  const split1View = document.getElementById("splitHand1View");
+  const split2View = document.getElementById("splitHand2View");
+  const splitArea = document.getElementById("splitArea");
 
   if(playerView){
     playerView.innerHTML = bjPlayerCards.length
@@ -816,6 +847,22 @@ function updateBlackjackViews(){
     dealerView.innerHTML = bjDealerCard
       ? `<span class="picked-card">${bjDealerCard}</span>`
       : "—";
+  }
+
+  if(split1View){
+    split1View.innerHTML = splitHand1.length
+      ? splitHand1.map(c => `<span class="picked-card">${c}</span>`).join("")
+      : "—";
+  }
+
+  if(split2View){
+    split2View.innerHTML = splitHand2.length
+      ? splitHand2.map(c => `<span class="picked-card">${c}</span>`).join("")
+      : "—";
+  }
+
+  if(splitArea){
+    splitArea.style.display = splitMode ? "block" : "none";
   }
 }
 
@@ -952,14 +999,44 @@ function basicStrategy(cards, dealer){
   return { move: "HIT", note: "Totale basso, chiedi carta" };
 }
 
+function getRunningCount(cards){
+  let count = 0;
+  cards.forEach(card => {
+    if(["2","3","4","5","6"].includes(card)) count += 1;
+    else if(["10","J","Q","K","A"].includes(card)) count -= 1;
+  });
+  return count;
+}
+
+function getCountStatus(count){
+  if(count >= 4) return { text: "Molto favorevole", cls: "count-good" };
+  if(count >= 2) return { text: "Favorevole", cls: "count-good" };
+  if(count <= -4) return { text: "Molto sfavorevole", cls: "count-bad" };
+  if(count <= -2) return { text: "Sfavorevole", cls: "count-bad" };
+  return { text: "Neutro", cls: "count-neutral" };
+}
+
 function updateDeckMemoryUI(){
   document.getElementById("deckMemory").innerHTML = usedCardsMemory.length
     ? usedCardsMemory.join(" - ")
     : "—";
+
+  const count = getRunningCount(usedCardsMemory);
+  const status = getCountStatus(count);
+
+  const countEl = document.getElementById("countValue");
+  const statusEl = document.getElementById("countStatus");
+
+  countEl.innerHTML = count > 0 ? `+${count}` : `${count}`;
+  countEl.className = status.cls;
+
+  statusEl.innerHTML = status.text;
+  statusEl.className = status.cls;
 }
 
 function consigliaBlackjack(){
-  const playerCards = bjPlayerCards.map(normalizeCard).filter(Boolean);
+  let cardsToCheck = splitMode ? splitHand1 : bjPlayerCards;
+  const playerCards = cardsToCheck.map(normalizeCard).filter(Boolean);
   const dealerCard = normalizeCard(bjDealerCard);
 
   if(playerCards.length < 2 || !dealerCard){
@@ -973,9 +1050,6 @@ function consigliaBlackjack(){
   const hand = evaluateHand(playerCards);
   const strategy = basicStrategy(playerCards, dealerCard);
 
-  usedCardsMemory.push(...playerCards, dealerCard);
-  updateDeckMemoryUI();
-
   let handType = "Hard";
   if(playerCards.length === 2 && sameRank(playerCards[0], playerCards[1])) handType = "Pair";
   else if(hand.isSoft) handType = "Soft";
@@ -986,10 +1060,57 @@ function consigliaBlackjack(){
   document.getElementById("bjNote").innerHTML = strategy.note;
 }
 
+function doSplit(){
+  if(bjPlayerCards.length !== 2){
+    document.getElementById("bjNote").innerHTML = "Per fare split servono esattamente 2 carte";
+    return;
+  }
+
+  if(!sameRank(bjPlayerCards[0], bjPlayerCards[1])){
+    document.getElementById("bjNote").innerHTML = "Le 2 carte non sono splittabili";
+    return;
+  }
+
+  splitMode = true;
+  splitHand1 = [bjPlayerCards[0]];
+  splitHand2 = [bjPlayerCards[1]];
+  updateBlackjackViews();
+  document.getElementById("bjNote").innerHTML = "Split attivo: completa le due mani";
+}
+
+function closeRound(){
+  const roundCards = [];
+
+  roundCards.push(...bjPlayerCards);
+  if(bjDealerCard) roundCards.push(bjDealerCard);
+  roundCards.push(...splitHand1);
+  roundCards.push(...splitHand2);
+
+  usedCardsMemory.push(...roundCards.filter(Boolean));
+  updateDeckMemoryUI();
+
+  bjPlayerCards = [];
+  bjDealerCard = "";
+  splitHand1 = [];
+  splitHand2 = [];
+  splitMode = false;
+
+  updateBlackjackViews();
+
+  document.getElementById("bjHandType").innerHTML = "—";
+  document.getElementById("bjHandValue").innerHTML = "—";
+  document.getElementById("bjAdvice").innerHTML = "—";
+  document.getElementById("bjNote").innerHTML = "Round chiuso e salvato in memoria";
+}
+
 function resetDeckMemory(){
   usedCardsMemory = [];
   bjPlayerCards = [];
   bjDealerCard = "";
+  splitHand1 = [];
+  splitHand2 = [];
+  splitMode = false;
+
   updateDeckMemoryUI();
   updateBlackjackViews();
 
