@@ -17,23 +17,22 @@
       --muted:#cbd5e1;
       --green:#22c55e;
       --green2:#16a34a;
-      --greenSoft:rgba(34,197,94,.14);
-      --blue:#2563eb;
-      --blue2:#1d4ed8;
+      --greenSoft:rgba(34,197,94,.12);
       --red:#ef4444;
       --red2:#b91c1c;
       --redSoft:rgba(239,68,68,.12);
+      --blue:#2563eb;
+      --blueSoft:rgba(37,99,235,.16);
       --gold:#fbbf24;
       --darkInput:#020617;
-      --cardShadow:0 16px 36px rgba(0,0,0,.22);
+      --shadow:0 16px 36px rgba(0,0,0,.22);
       --radius:20px;
     }
 
     *{box-sizing:border-box}
 
-    html,body{
+    body{
       margin:0;
-      padding:0;
       font-family:Arial, Helvetica, sans-serif;
       background:linear-gradient(180deg,var(--bg) 0%, var(--bg2) 100%);
       color:var(--text);
@@ -118,13 +117,13 @@
       max-width:1020px;
       margin:0 auto 18px;
       border-radius:22px;
-      box-shadow:0 18px 38px rgba(0,0,0,.24);
       overflow:hidden;
+      box-shadow:0 18px 38px rgba(0,0,0,.24);
+      border:1px solid var(--line);
     }
 
     .hero-bonus{
       padding:28px;
-      border:1px solid var(--line);
       background:
         linear-gradient(rgba(10,20,40,.72), rgba(10,20,40,.82)),
         url('https://images.unsplash.com/photo-1511512578047-dfb367046420?auto=format&fit=crop&w=1400&q=80') center/cover;
@@ -132,16 +131,15 @@
 
     .hero-blackjack{
       padding:32px 28px;
-      border:1px solid rgba(255,255,255,.12);
       background:
         radial-gradient(circle at center, rgba(22,101,52,.28), rgba(0,0,0,.45)),
         linear-gradient(rgba(0,0,0,.22), rgba(0,0,0,.42)),
         url('https://images.unsplash.com/photo-1511193311914-0346f16efe90?auto=format&fit=crop&w=1400&q=80') center/cover;
+      border:1px solid rgba(255,255,255,.12);
     }
 
     .hero-crypto{
       padding:28px;
-      border:1px solid var(--line);
       background:
         linear-gradient(rgba(8,15,30,.76), rgba(8,15,30,.88)),
         url('https://images.unsplash.com/photo-1621761191319-c6fb62004040?auto=format&fit=crop&w=1400&q=80') center/cover;
@@ -149,30 +147,55 @@
 
     .hero-profit{
       padding:28px;
-      border:1px solid var(--line);
       background:
-        linear-gradient(rgba(8,15,30,.75), rgba(8,15,30,.92)),
+        linear-gradient(rgba(8,15,30,.72), rgba(8,15,30,.92)),
         url('https://images.unsplash.com/photo-1554224155-6726b3ff858f?auto=format&fit=crop&w=1400&q=80') center/cover;
     }
 
-    .hero-bonus h3,
-    .hero-blackjack h3,
-    .hero-crypto h3,
-    .hero-profit h3{
-      margin:0 0 8px;
+    .hero-profit-inner{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:20px;
+      flex-wrap:wrap;
+    }
+
+    .profit-brand{
+      display:flex;
+      align-items:center;
+      gap:16px;
+    }
+
+    .profit-logo{
+      width:74px;
+      height:74px;
+      border-radius:22px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-size:28px;
+      font-weight:800;
+      letter-spacing:.05em;
+      color:#fff;
+      background:linear-gradient(135deg,#2563eb 0%, #111827 100%);
+      border:1px solid rgba(255,255,255,.18);
+      box-shadow:0 10px 24px rgba(0,0,0,.22);
+    }
+
+    .profit-brand-text h3{
+      margin:0 0 6px;
       font-size:30px;
       color:#fff;
     }
 
-    .hero-blackjack p,
-    .hero-crypto p,
-    .hero-profit p{
+    .profit-brand-text p{
       margin:0;
-      color:#f8fafc;
+      color:#e2e8f0;
+      font-size:15px;
     }
 
-    .blackjack-chip,
-    .profit-chip{
+    .profit-mini-pill,
+    .blackjack-chip{
       display:inline-block;
       margin-top:10px;
       padding:8px 14px;
@@ -181,16 +204,30 @@
       font-weight:bold;
     }
 
+    .profit-mini-pill{
+      background:var(--blueSoft);
+      border:1px solid rgba(37,99,235,.35);
+      color:#bfdbfe;
+    }
+
     .blackjack-chip{
       background:rgba(251,191,36,.18);
       border:1px solid rgba(251,191,36,.35);
       color:#fde68a;
     }
 
-    .profit-chip{
-      background:rgba(37,99,235,.15);
-      border:1px solid rgba(37,99,235,.35);
-      color:#bfdbfe;
+    .hero-bonus h3,
+    .hero-blackjack h3,
+    .hero-crypto h3{
+      margin:0 0 8px;
+      font-size:30px;
+      color:#fff;
+    }
+
+    .hero-blackjack p,
+    .hero-crypto p{
+      margin:0;
+      color:#f8fafc;
     }
 
     .card-grid{
@@ -201,16 +238,19 @@
 
     .profit-layout{
       display:grid;
-      grid-template-columns:1.15fr .85fr;
+      grid-template-columns:1.1fr .9fr;
       gap:18px;
       align-items:start;
     }
 
-    .box, .result-box, .stat-card, .chart-card{
+    .box,
+    .result-box,
+    .stat-card,
+    .chart-card{
       background:rgba(17,24,39,.96);
-      border-radius:var(--radius);
       border:1px solid var(--line);
-      box-shadow:var(--cardShadow);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
     }
 
     .box,
@@ -224,7 +264,7 @@
 
     .chart-card{
       padding:22px;
-      min-height:340px;
+      min-height:330px;
     }
 
     label{
@@ -253,7 +293,7 @@
 
     input:focus, select:focus{
       border-color:#4f46e5;
-      box-shadow:0 0 0 3px rgba(79,70,229,.15);
+      box-shadow:0 0 0 3px rgba(79,70,229,.14);
     }
 
     .action,
@@ -482,6 +522,7 @@
       position:sticky;
       top:0;
       z-index:1;
+      white-space:nowrap;
     }
 
     .auth-note{
@@ -506,6 +547,8 @@
       border-radius:10px;
       cursor:pointer;
       font-weight:bold;
+      background:#334155;
+      color:#fff;
     }
 
     .small-btn.delete{
@@ -515,6 +558,11 @@
 
     .small-btn.logout{
       background:#334155;
+      color:#fff;
+    }
+
+    .small-btn.cancel{
+      background:#475569;
       color:#fff;
     }
 
@@ -541,7 +589,7 @@
     }
 
     .toggle-pass{
-      min-width:64px;
+      min-width:72px;
       border:none;
       border-radius:12px;
       background:#334155;
@@ -582,6 +630,7 @@
       justify-content:space-between;
       gap:10px;
       margin-bottom:14px;
+      flex-wrap:wrap;
     }
 
     .toolbar-title h3{
@@ -602,6 +651,7 @@
       font-weight:bold;
       border:1px solid rgba(255,255,255,.12);
       background:rgba(255,255,255,.04);
+      white-space:nowrap;
     }
 
     .profit-badge{
@@ -610,6 +660,7 @@
       border-radius:999px;
       font-size:12px;
       font-weight:bold;
+      white-space:nowrap;
     }
 
     .profit-badge.pos{
@@ -622,6 +673,17 @@
       background:var(--redSoft);
       color:#fca5a5;
       border:1px solid rgba(239,68,68,.22);
+    }
+
+    .edit-banner{
+      margin-bottom:16px;
+      padding:12px 14px;
+      border-radius:14px;
+      background:rgba(37,99,235,.12);
+      border:1px solid rgba(37,99,235,.3);
+      color:#bfdbfe;
+      font-size:14px;
+      display:none;
     }
 
     canvas{
@@ -646,7 +708,8 @@
       .hero-bonus h3,
       .hero-blackjack h3,
       .hero-crypto h3,
-      .hero-profit h3{font-size:26px;}
+      .profit-brand-text h3{font-size:26px;}
+      .profit-logo{width:62px;height:62px;font-size:24px;}
     }
   </style>
 </head>
@@ -1011,14 +1074,21 @@
     <div id="profitTracker" class="section">
       <div class="section-wrap">
         <div class="hero-profit">
-          <h3>Profit Tracker Pro</h3>
-          <p>Dashboard personale con login, reset password, statistiche e grafici.</p>
-          <div class="profit-chip">Ogni utente vede solo i propri dati</div>
+          <div class="hero-profit-inner">
+            <div class="profit-brand">
+              <div class="profit-logo">AG</div>
+              <div class="profit-brand-text">
+                <h3>Andrea Gatto Privacy</h3>
+                <p>Profit Tracker personale con accesso riservato, statistiche e grafici.</p>
+                <div class="profit-mini-pill">Solo dati del tuo account</div>
+              </div>
+            </div>
+          </div>
         </div>
 
         <div class="section-header">
           <h2>Area personale</h2>
-          <p>Traccia il tuo profitto in modo ordinato e professionale</p>
+          <p>Registra, modifica e controlla il tuo profitto in modo ordinato</p>
           <div id="currentUserPill" class="user-pill hidden"></div>
         </div>
 
@@ -1098,8 +1168,12 @@
             <div>
               <div class="box">
                 <div class="toolbar-title">
-                  <h3>Aggiungi entry</h3>
-                  <span class="muted">Compila e salva</span>
+                  <h3 id="formTitle">Aggiungi entry</h3>
+                  <span class="muted" id="formSubtitle">Compila e salva</span>
+                </div>
+
+                <div id="editBanner" class="edit-banner">
+                  Stai modificando una entry esistente.
                 </div>
 
                 <div class="field">
@@ -1142,7 +1216,11 @@
                   <input id="profitNote" type="text" placeholder="Note facoltative">
                 </div>
 
-                <button class="action" onclick="addProfitEntry()">Salva entry</button>
+                <div class="inline-actions" style="margin-top:8px;">
+                  <button class="small-btn" id="saveEntryBtn" onclick="saveProfitEntry()" style="background:linear-gradient(180deg,var(--green) 0%, var(--green2) 100%); color:#052e16;">Salva entry</button>
+                  <button class="small-btn cancel hidden" id="cancelEditBtn" onclick="cancelEditProfitEntry()">Annulla modifica</button>
+                </div>
+
                 <div class="auth-note" id="entryMessage">—</div>
               </div>
 
@@ -1155,7 +1233,7 @@
                   <button class="small-btn logout" onclick="signOutProfitTracker()">Logout</button>
                 </div>
                 <div class="memory-box" style="margin-top:16px;">
-                  Questa sezione usa Supabase Auth + database. Ogni utente vede solo le proprie righe.
+                  Ogni utente vede solo i propri dati. Le entry possono essere aggiunte, modificate o eliminate.
                 </div>
               </div>
             </div>
@@ -1252,6 +1330,7 @@
 
     let currentProfitUser = null;
     let profitEntries = [];
+    let editingEntryId = null;
 
     let profitChart = null;
     let bookmakerChart = null;
@@ -1826,6 +1905,46 @@
       alert("Email di reset inviata.");
     }
 
+    function resetProfitForm(){
+      editingEntryId = null;
+      document.getElementById("formTitle").innerHTML = "Aggiungi entry";
+      document.getElementById("formSubtitle").innerHTML = "Compila e salva";
+      document.getElementById("editBanner").style.display = "none";
+      document.getElementById("saveEntryBtn").innerHTML = "Salva entry";
+      document.getElementById("cancelEditBtn").classList.add("hidden");
+
+      document.getElementById("profitBookmaker").value = "";
+      document.getElementById("profitStake").value = "";
+      document.getElementById("profitAmount").value = "";
+      document.getElementById("profitNote").value = "";
+      document.getElementById("profitType").value = "Surebet";
+      setDefaultProfitDate();
+    }
+
+    function fillProfitForm(entry){
+      editingEntryId = entry.id;
+      document.getElementById("formTitle").innerHTML = "Modifica entry";
+      document.getElementById("formSubtitle").innerHTML = "Aggiorna i dati e salva";
+      document.getElementById("editBanner").style.display = "block";
+      document.getElementById("saveEntryBtn").innerHTML = "Salva modifiche";
+      document.getElementById("cancelEditBtn").classList.remove("hidden");
+
+      document.getElementById("profitDate").value = entry.entry_date || "";
+      document.getElementById("profitBookmaker").value = entry.bookmaker || "";
+      document.getElementById("profitType").value = entry.operation_type || "Altro";
+      document.getElementById("profitStake").value = entry.stake ?? "";
+      document.getElementById("profitAmount").value = entry.profit ?? "";
+      document.getElementById("profitNote").value = entry.note || "";
+
+      document.getElementById("entryMessage").innerHTML = "Stai modificando una entry.";
+      window.scrollTo({ top: document.getElementById("profitTracker").offsetTop, behavior: "smooth" });
+    }
+
+    function cancelEditProfitEntry(){
+      resetProfitForm();
+      document.getElementById("entryMessage").innerHTML = "Modifica annullata.";
+    }
+
     async function initProfitTracker(){
       setDefaultProfitDate();
 
@@ -1859,6 +1978,7 @@
           renderProfitEntries();
           updateProfitStats();
           renderCharts();
+          resetProfitForm();
         }
       });
     }
@@ -1921,7 +2041,7 @@
       const { data: userData, error: userError } = await supabaseClient.auth.getUser();
 
       if(userError || !userData?.user){
-        msg.innerHTML = "Login non completato. Controlla di aver confermato la mail.";
+        msg.innerHTML = "Login non completato.";
         showProfitAuthState(false);
         return;
       }
@@ -1929,6 +2049,7 @@
       currentProfitUser = userData.user;
       showProfitAuthState(true);
       await loadProfitEntries();
+      resetProfitForm();
 
       msg.innerHTML = "Login effettuato.";
     }
@@ -1937,13 +2058,13 @@
       await supabaseClient.auth.signOut();
     }
 
-    async function addProfitEntry(){
+    async function saveProfitEntry(){
       if(!currentProfitUser){
         document.getElementById("entryMessage").innerHTML = "Devi prima fare login.";
         return;
       }
 
-      const entry = {
+      const payload = {
         user_id: currentProfitUser.id,
         entry_date: document.getElementById("profitDate").value || null,
         bookmaker: (document.getElementById("profitBookmaker").value || "").trim(),
@@ -1954,23 +2075,41 @@
       };
 
       const msg = document.getElementById("entryMessage");
-      msg.innerHTML = "Salvataggio in corso...";
+      msg.innerHTML = editingEntryId ? "Salvataggio modifiche..." : "Salvataggio in corso...";
 
-      const { error } = await supabaseClient.from("profit_entries").insert([entry]);
+      let response;
+      if(editingEntryId){
+        response = await supabaseClient
+          .from("profit_entries")
+          .update({
+            entry_date: payload.entry_date,
+            bookmaker: payload.bookmaker,
+            operation_type: payload.operation_type,
+            stake: payload.stake,
+            profit: payload.profit,
+            note: payload.note
+          })
+          .eq("id", editingEntryId);
+      }else{
+        response = await supabaseClient
+          .from("profit_entries")
+          .insert([payload]);
+      }
 
-      if(error){
-        msg.innerHTML = error.message;
+      if(response.error){
+        msg.innerHTML = response.error.message;
         return;
       }
 
-      msg.innerHTML = "Entry salvata.";
-
-      document.getElementById("profitBookmaker").value = "";
-      document.getElementById("profitStake").value = "";
-      document.getElementById("profitAmount").value = "";
-      document.getElementById("profitNote").value = "";
-
+      msg.innerHTML = editingEntryId ? "Entry modificata." : "Entry salvata.";
+      resetProfitForm();
       await loadProfitEntries();
+    }
+
+    function editProfitEntry(id){
+      const entry = profitEntries.find(e => e.id === id);
+      if(!entry) return;
+      fillProfitForm(entry);
     }
 
     async function loadProfitEntries(){
@@ -2066,13 +2205,21 @@
             <td>${euro(row.stake || 0)}</td>
             <td><span class="profit-badge ${profitBadgeClass}">${euro(profitNumber)}</span></td>
             <td>${row.note || "—"}</td>
-            <td><button class="small-btn delete" onclick="deleteProfitEntry('${row.id}')">Elimina</button></td>
+            <td>
+              <div class="inline-actions">
+                <button class="small-btn" onclick="editProfitEntry('${row.id}')">Modifica</button>
+                <button class="small-btn delete" onclick="deleteProfitEntry('${row.id}')">Elimina</button>
+              </div>
+            </td>
           </tr>
         `;
       }).join("");
     }
 
     async function deleteProfitEntry(id){
+      const yes = confirm("Vuoi eliminare questa entry?");
+      if(!yes) return;
+
       const { error } = await supabaseClient
         .from("profit_entries")
         .delete()
@@ -2083,7 +2230,12 @@
         return;
       }
 
+      if(editingEntryId === id){
+        resetProfitForm();
+      }
+
       await loadProfitEntries();
+      document.getElementById("entryMessage").innerHTML = "Entry eliminata.";
     }
 
     function destroyChart(chart){
