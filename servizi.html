@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Servizi - Andry</title>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+body{
+  margin:0;
+  font-family:Arial;
+  background:#0b1220;
+  color:white;
+}
+
+.container{
+  max-width:900px;
+  margin:auto;
+  padding:20px;
+}
+
+.box{
+  background:#111827;
+  padding:20px;
+  margin-top:15px;
+  border-radius:12px;
+}
+
+input,select{
+  width:100%;
+  padding:10px;
+  margin:5px 0;
+}
+
+button{
+  padding:10px;
+  cursor:pointer;
+  width:100%;
+  margin-top:5px;
+}
+
+.service{
+  background:#1e293b;
+  padding:10px;
+  margin-top:10px;
+  border-radius:10px;
+}
+
+.hidden{ display:none; }
+
+h1{ text-align:center; }
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>Servizi</h1>
+
+<!-- LOGIN -->
+<div id="auth">
+  <input id="email" placeholder="Email">
+  <input id="password" type="password" placeholder="Password">
+  <button onclick="login()">Login</button>
+</div>
+
+<!-- APP -->
+<div id="app" class="hidden">
+
+<h2>Totale Servizi: <span id="total">0</span> €</h2>
+
+<!-- CREA SERVIZIO -->
+<div class="box">
+  <input id="serviceName" placeholder="Nome servizio">
+  <button onclick="createService()">Crea servizio</button>
+</div>
+
+<!-- LISTA -->
+<div id="services"></div>
+
+<!-- PANEL -->
+<div id="panel" class="box hidden">
+
+<h3 id="serviceTitle"></h3>
+
+<input id="stake" placeholder="Stake">
+<input id="quota" placeholder="Quota">
+
+<select id="result">
+  <option value="win">Win</option>
+  <option value="loss">Loss</option>
+</select>
+
+<button onclick="addEntry()">Aggiungi puntata</button>
+
+<div id="entries"></div>
+
+<button onclick="closeService()">Chiudi</button>
+
+</div>
+
+<button onclick="window.location.href='index.html'">← Torna indietro</button>
+
+</div>
+
+</div>
+
+<script>
+
+const supabase = window.supabase.createClient(
+  "https://aihwrkqfzhwedqdbxbxh.supabase.co",
+  "sb_publishable_G_glT9ld2cqENlVSup38NQ_q8HWyZPd"
+);
+
+let user=null;
+let currentService=null;
+
+// LOGIN
+async function login(){
+  const email=document.getElementById("email").value;
+  const password=document.getElementById("password").value;
+
+  const {data,error}=await supabase.auth.signInWithPassword({email,password});
+  if(error) return alert(error.message);
+
+  user=data.user;
+  document.getElementById("auth").classList.add("hidden");
+  document.getElementById("app").classList.remove("hidden");
+
+  loadServices();
+}
+
+// CREA SERVIZIO
+async function createService(){
+  const name=document.getElementById("serviceName").value;
+
+  await supabase.from("services").insert([{
+    user_id:user.id,
+    name
+  }]);
+
+  document.getElementById("serviceName").value="";
+  loadServices();
+}
+
+// CARICA SERVIZI
+async function loadServices(){
+  const {data}=await supabase
+    .from("services")
+    .select("*")
+    .eq("user_id",user.id);
+
+  const div=document.getElementById("services");
+
+  div.innerHTML = data.map(s=>`
+    <div class="service">
+      <b>${s.name}</b>
+      <button onclick="openService('${s.id}','${s.name}')">Apri</button>
+    </div>
+  `).join("");
+
+  loadTotal();
+}
+
+// APRI
+async function openService(id,name){
+  currentService=id;
+  document.getElementById("panel").classList.remove("hidden");
+  document.getElementById("serviceTitle").innerText=name;
+  loadEntries();
+}
+
+// CHIUDI
+function closeService(){
+  document.getElementById("panel").classList.add("hidden");
+}
+
+// AGGIUNGI
+async function addEntry(){
+  const stake=Number(document.getElementById("stake").value);
+  const quota=Number(document.getElementById("quota").value);
+  const result=document.getElementById("result").value;
+
+  let profit = result==="win"
+    ? stake*quota - stake
+    : -stake;
+
+  await supabase.from("service_entries").insert([{
+    user_id:user.id,
+    service_id:currentService,
+    stake,
+    quota,
+    profit,
+    result
+  }]);
+
+  loadEntries();
+}
+
+// CARICA ENTRY
+async function loadEntries(){
+  const {data}=await supabase
+    .from("service_entries")
+    .select("*")
+    .eq("service_id",currentService);
+
+  document.getElementById("entries").innerHTML =
+    data.map(e=>`<div>€ ${e.profit.toFixed(2)}</div>`).join("");
+
+  loadTotal();
+}
+
+// TOTALE
+async function loadTotal(){
+  const {data}=await supabase
+    .from("service_entries")
+    .select("profit")
+    .eq("user_id",user.id);
+
+  let total=0;
+  (data||[]).forEach(e=> total+=Number(e.profit||0));
+
+  document.getElementById("total").innerText=total.toFixed(2);
+}
+
+</script>
+
+</body>
+</html>
