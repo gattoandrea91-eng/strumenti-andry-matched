@@ -1,4 +1,4 @@
-    <!DOCTYPE html>
+        <!DOCTYPE html>
 <html lang="it">
 <head>
   <meta charset="UTF-8" />
@@ -217,17 +217,93 @@
     }
 
     .hero-bonus h3,
-    .hero-blackjack h3,
+    .hero-blackjack h3{
+      margin:0 0 8px;
+      font-size:30px;
+      color:#fff;
+    }
+
+    .hero-blackjack p{
+      margin:0;
+      color:#f8fafc;
+    }
+
     .hero-crypto h3{
       margin:0 0 8px;
       font-size:30px;
       color:#fff;
     }
 
-    .hero-blackjack p,
     .hero-crypto p{
       margin:0;
       color:#f8fafc;
+    }
+
+    .crypto-hero-top{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:20px;
+      flex-wrap:wrap;
+    }
+
+    .crypto-hero-text{
+      max-width:620px;
+    }
+
+    .crypto-marquee{
+      width:100%;
+      overflow:hidden;
+      margin-top:18px;
+      padding:10px 0 2px;
+      position:relative;
+    }
+
+    .crypto-marquee-track{
+      display:flex;
+      gap:28px;
+      width:max-content;
+      animation: scrollCoins 22s linear infinite;
+      align-items:center;
+    }
+
+    .coin-mini{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      background:rgba(2,6,23,.48);
+      border:1px solid rgba(255,255,255,.1);
+      padding:10px 14px;
+      border-radius:999px;
+      backdrop-filter: blur(6px);
+      transform:translateY(0);
+      animation: floatCoin 3.5s ease-in-out infinite;
+    }
+
+    .coin-mini:nth-child(2n){ animation-delay:.4s; }
+    .coin-mini:nth-child(3n){ animation-delay:.8s; }
+
+    .coin-mini img{
+      width:22px;
+      height:22px;
+      object-fit:contain;
+    }
+
+    .coin-mini span{
+      color:#e5e7eb;
+      font-size:13px;
+      font-weight:bold;
+      white-space:nowrap;
+    }
+
+    @keyframes scrollCoins{
+      from{ transform:translateX(0); }
+      to{ transform:translateX(-50%); }
+    }
+
+    @keyframes floatCoin{
+      0%,100%{ transform:translateY(0px); }
+      50%{ transform:translateY(-4px); }
     }
 
     .card-grid{
@@ -405,6 +481,120 @@
       line-height:1.5;
     }
 
+    .crypto-grid{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:18px;
+      margin-top:18px;
+    }
+
+    .crypto-stats-grid{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:14px;
+    }
+
+    .crypto-stat{
+      background:#0f172a;
+      border:1px solid var(--line);
+      padding:16px;
+      border-radius:16px;
+    }
+
+    .crypto-stat .label{
+      display:block;
+      color:var(--muted);
+      font-size:13px;
+      margin-bottom:8px;
+      font-weight:bold;
+      text-transform:uppercase;
+      letter-spacing:.04em;
+    }
+
+    .crypto-stat .value{
+      font-size:26px;
+      font-weight:bold;
+      line-height:1.15;
+      word-break:break-word;
+    }
+
+    .signal-pill{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:8px 12px;
+      border-radius:999px;
+      font-weight:bold;
+      font-size:13px;
+      margin-top:6px;
+    }
+
+    .signal-long{
+      background:var(--greenSoft);
+      color:#86efac;
+      border:1px solid rgba(34,197,94,.22);
+    }
+
+    .signal-short{
+      background:var(--redSoft);
+      color:#fca5a5;
+      border:1px solid rgba(239,68,68,.22);
+    }
+
+    .signal-wait{
+      background:rgba(251,191,36,.12);
+      color:#fde68a;
+      border:1px solid rgba(251,191,36,.22);
+    }
+
+    .cards-grid{
+      display:grid;
+      grid-template-columns:repeat(7,minmax(0,1fr));
+      gap:10px;
+    }
+
+    .card-btn{
+      padding:12px 8px;
+      border-radius:12px;
+      border:1px solid rgba(255,255,255,.15);
+      background:#ffffff;
+      color:#111827;
+      font-size:18px;
+      font-weight:bold;
+      cursor:pointer;
+      transition:all .15s ease;
+    }
+
+    .card-btn:hover{
+      transform:translateY(-1px);
+    }
+
+    .picked-cards{
+      min-height:52px;
+      padding:14px;
+      border-radius:12px;
+      border:1px solid var(--line);
+      background:#020617;
+      color:#fff;
+      font-size:20px;
+      display:flex;
+      align-items:center;
+      flex-wrap:wrap;
+      gap:8px;
+    }
+
+    .picked-card{
+      padding:8px 12px;
+      border-radius:10px;
+      background:#fff;
+      color:#111827;
+      font-weight:bold;
+    }
+
+    .count-good{ color:#4ade80; }
+    .count-neutral{ color:#facc15; }
+    .count-bad{ color:#f87171; }
+
     .auth-grid{
       display:grid;
       grid-template-columns:1fr 1fr;
@@ -439,9 +629,17 @@
       color:var(--muted);
     }
 
-    .positive{ color:#4ade80 !important; }
-    .negative{ color:#f87171 !important; }
-    .neutral{ color:#fff !important; }
+    .positive{
+      color:#4ade80 !important;
+    }
+
+    .negative{
+      color:#f87171 !important;
+    }
+
+    .neutral{
+      color:#fff !important;
+    }
 
     .table-wrap{
       overflow:auto;
@@ -478,7 +676,9 @@
       font-size:14px;
     }
 
-    .hidden{ display:none !important; }
+    .hidden{
+      display:none !important;
+    }
 
     .inline-actions{
       display:flex;
@@ -496,9 +696,20 @@
       color:#fff;
     }
 
-    .small-btn.delete{ background:#7f1d1d; }
-    .small-btn.logout{ background:#334155; }
-    .small-btn.cancel{ background:#475569; }
+    .small-btn.delete{
+      background:#7f1d1d;
+      color:#fff;
+    }
+
+    .small-btn.logout{
+      background:#334155;
+      color:#fff;
+    }
+
+    .small-btn.cancel{
+      background:#475569;
+      color:#fff;
+    }
 
     .user-pill{
       display:inline-block;
@@ -518,7 +729,9 @@
       align-items:stretch;
     }
 
-    .password-row input{ flex:1; }
+    .password-row input{
+      flex:1;
+    }
 
     .toggle-pass{
       min-width:72px;
@@ -570,7 +783,9 @@
       font-size:20px;
     }
 
-    .muted{ color:var(--muted); }
+    .muted{
+      color:var(--muted);
+    }
 
     .pill-type{
       display:inline-flex;
@@ -616,60 +831,6 @@
       display:none;
     }
 
-    .service-list{
-      display:grid;
-      grid-template-columns:repeat(3,minmax(0,1fr));
-      gap:14px;
-      margin-top:14px;
-    }
-
-    .service-card{
-      background:#0f172a;
-      border:1px solid var(--line);
-      border-radius:18px;
-      padding:18px;
-    }
-
-    .service-icon{
-      width:48px;
-      height:48px;
-      border-radius:14px;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      font-size:24px;
-      background:rgba(37,99,235,.12);
-      border:1px solid rgba(37,99,235,.25);
-      margin-bottom:12px;
-    }
-
-    .service-card h4{
-      margin:0 0 8px;
-      font-size:18px;
-    }
-
-    .service-meta{
-      color:var(--muted);
-      font-size:13px;
-      margin-bottom:12px;
-    }
-
-    .service-panel{
-      margin-top:18px;
-      padding:20px;
-      border-radius:18px;
-      background:#0f172a;
-      border:1px solid var(--line);
-    }
-
-    .service-total{
-      margin-bottom:14px;
-      padding:16px;
-      border-radius:14px;
-      background:#111827;
-      border:1px solid var(--line);
-    }
-
     canvas{
       width:100% !important;
       height:280px !important;
@@ -678,14 +839,16 @@
     @media (max-width:980px){
       .profit-layout{grid-template-columns:1fr;}
       .stats-grid{grid-template-columns:repeat(2,minmax(0,1fr));}
-      .two-col, .three-col, .service-list{grid-template-columns:1fr;}
+      .two-col, .three-col, .crypto-grid{grid-template-columns:1fr;}
     }
 
     @media (max-width:850px){
       .menu{grid-template-columns:1fr;}
       .card-grid{grid-template-columns:1fr;}
+      .cards-grid{grid-template-columns:repeat(4,minmax(0,1fr));}
       .auth-grid{grid-template-columns:1fr;}
       .stats-grid{grid-template-columns:1fr;}
+      .crypto-stats-grid{grid-template-columns:1fr;}
       h1{font-size:34px;}
       .section-header h2{font-size:28px;}
       .hero-bonus h3,
@@ -705,5 +868,1879 @@
     </div>
 
     <div id="menu" class="menu">
+      <button onclick="openSection('bonus')">Calcolatore Fun Bonus</button>
+      <button onclick="openSection('surebet')">Surebet</button>
+      <button onclick="openSection('puntabanca')">Punta Banca</button>
+      <button onclick="openSection('freebet')">Freebet</button>
+      <button onclick="openSection('casino')">Casino Live</button>
+      <button onclick="openSection('blackjack')">Black Jack</button>
+      <button onclick="openSection('crypto')">Cripto</button>
       <button onclick="openSection('profitTracker')">Profit Tracker</button>
+      <button onclick="window.open('https://www.sofascore.com','_blank')">Statistiche Partite</button>
+      <button onclick="window.open('https://www.top-bonus.it','_blank')">Affiliazioni</button>
     </div>
+
+    <div id="bonus" class="section">
+      <div class="section-wrap">
+        <div class="hero-bonus">
+          <h3>Calcolatore Fun Bonus</h3>
+        </div>
+
+        <div class="card-grid">
+          <div class="box">
+            <div class="field">
+              <label>Saldo Bonus</label>
+              <input id="saldo" type="number" value="30">
+            </div>
+            <div class="field">
+              <label>Wagering</label>
+              <input id="wager" type="number" value="40">
+            </div>
+            <div class="field">
+              <label>Cap</label>
+              <input id="cap" type="number" value="30">
+            </div>
+            <div class="field">
+              <label>Bonus Type</label>
+              <select id="bonusType">
+                <option>Slot</option>
+                <option>Casino</option>
+                <option>Altro</option>
+              </select>
+            </div>
+            <button class="action" onclick="calcola()">Calcola</button>
+          </div>
+
+          <div class="result-box">
+            <div class="result">
+              <strong>Arrivi a target con</strong>
+              <div class="result-value" id="target">—</div>
+            </div>
+            <div class="result">
+              <strong>Spin</strong>
+              <div class="result-value" id="spin">—</div>
+            </div>
+          </div>
+        </div>
+
+        <button class="back" onclick="goBack()">← Torna al menu</button>
+      </div>
+    </div>
+
+    <div id="surebet" class="section">
+      <div class="section-wrap">
+        <div class="section-header">
+          <h2>Surebet</h2>
+          <p>Calcolo semplice della seconda puntata e del profitto</p>
+        </div>
+
+        <div class="card-grid">
+          <div class="box">
+            <div class="field">
+              <label>Quota 1</label>
+              <input id="quota1" type="number" step="0.01" value="2.00">
+            </div>
+            <div class="field">
+              <label>Puntata 1</label>
+              <input id="puntata1" type="number" step="0.01" value="100">
+            </div>
+            <div class="field">
+              <label>Quota 2</label>
+              <input id="quota2" type="number" step="0.01" value="2.10">
+            </div>
+            <button class="action" onclick="calcolaSurebet()">Calcola</button>
+          </div>
+
+          <div class="result-box">
+            <div class="result">
+              <strong>Puntata da fare</strong>
+              <div class="result-value" id="puntata2">—</div>
+            </div>
+            <div class="result">
+              <strong>Profitto</strong>
+              <div class="result-value" id="profitto">—</div>
+            </div>
+          </div>
+        </div>
+
+        <button class="back" onclick="goBack()">← Torna al menu</button>
+      </div>
+    </div>
+
+    <div id="puntabanca" class="section">
+      <div class="section-wrap">
+        <div class="section-header">
+          <h2>Punta Banca</h2>
+          <p>Calcolo rapido della puntata banca</p>
+        </div>
+
+        <div class="card-grid">
+          <div class="box">
+            <div class="field">
+              <label>Quota Punta</label>
+              <input id="quotaPunta" type="number" step="0.01" value="2.00">
+            </div>
+            <div class="field">
+              <label>Puntata Punta</label>
+              <input id="puntataPunta" type="number" step="0.01" value="100">
+            </div>
+            <div class="field">
+              <label>Quota Banca</label>
+              <input id="quotaBanca" type="number" step="0.01" value="2.10">
+            </div>
+            <button class="action" onclick="calcolaPuntaBanca()">Calcola</button>
+          </div>
+
+          <div class="result-box">
+            <div class="result">
+              <strong>Puntata banca</strong>
+              <div class="result-value" id="puntataBancaResult">—</div>
+            </div>
+          </div>
+        </div>
+
+        <button class="back" onclick="goBack()">← Torna al menu</button>
+      </div>
+    </div>
+
+    <div id="freebet" class="section">
+      <div class="section-wrap">
+        <div class="section-header">
+          <h2>Freebet</h2>
+          <p>Calcolo rapido della puntata banca da usare</p>
+        </div>
+
+        <div class="card-grid">
+          <div class="box">
+            <div class="field">
+              <label>Importo Freebet</label>
+              <input id="importoFreebet" type="number" value="10">
+            </div>
+            <div class="field">
+              <label>Quota Punta</label>
+              <input id="quotaFreebetPunta" type="number" step="0.01" value="5.00">
+            </div>
+            <div class="field">
+              <label>Quota Banca</label>
+              <input id="quotaFreebetBanca" type="number" step="0.01" value="5.20">
+            </div>
+            <button class="action" onclick="calcolaFreebet()">Calcola</button>
+          </div>
+
+          <div class="result-box">
+            <div class="result">
+              <strong>Puntata banca</strong>
+              <div class="result-value" id="profittoFreebetResult">—</div>
+            </div>
+          </div>
+        </div>
+
+        <button class="back" onclick="goBack()">← Torna al menu</button>
+      </div>
+    </div>
+
+    <div id="casino" class="section">
+      <div class="section-wrap">
+        <div class="section-header">
+          <h2>Casino Live – Baccarat</h2>
+          <p>Inserisci l'importo su Player e ottieni la puntata su Banker</p>
+        </div>
+
+        <div class="card-grid">
+          <div class="box">
+            <div class="field">
+              <label>Inserisci importo su Player</label>
+              <input id="playerStake" type="number" value="100">
+            </div>
+            <div class="choice-grid">
+              <div class="choice player">PLAYER</div>
+              <div class="choice banker">BANKER</div>
+            </div>
+            <button class="action" onclick="calcolaBaccarat()">Calcola</button>
+          </div>
+
+          <div class="result-box">
+            <div class="result">
+              <strong>Metti su Banker</strong>
+              <div class="result-value" id="bankerStake">—</div>
+            </div>
+            <div class="result">
+              <strong>Profitto</strong>
+              <div class="result-value" id="baccaratProfit">—</div>
+            </div>
+          </div>
+        </div>
+
+        <button class="back" onclick="goBack()">← Torna al menu</button>
+      </div>
+    </div>
+
+    <div id="blackjack" class="section">
+      <div class="section-wrap">
+        <div class="hero-blackjack">
+          <h3>Black Jack</h3>
+          <p>Il tool tiene traccia del tavolo, delle mani split, del banco completo e della memoria del mazzo.</p>
+          <div class="blackjack-chip">Tracking round attivo</div>
+        </div>
+
+        <div class="card-grid">
+          <div class="box blackjack-card">
+            <div class="field">
+              <label>Mano giocatore</label>
+              <div id="playerCardsView" class="picked-cards">—</div>
+            </div>
+
+            <div class="field">
+              <label>Carte banco</label>
+              <div id="dealerCardsView" class="picked-cards">—</div>
+            </div>
+
+            <div class="field">
+              <label>Aggiungi carte al Giocatore</label>
+              <div class="cards-grid" id="playerCardButtons"></div>
+            </div>
+
+            <div class="field">
+              <label>Aggiungi carte al Banco</label>
+              <div class="cards-grid" id="dealerCardButtons"></div>
+            </div>
+
+            <div id="splitArea" style="display:none; margin-top:16px;">
+              <div class="field">
+                <label>Split - Mano 1</label>
+                <div id="splitHand1View" class="picked-cards">—</div>
+              </div>
+
+              <div class="field">
+                <label>Aggiungi carta a Mano 1</label>
+                <div class="cards-grid" id="splitHand1Buttons"></div>
+              </div>
+
+              <div class="field">
+                <label>Split - Mano 2</label>
+                <div id="splitHand2View" class="picked-cards">—</div>
+              </div>
+
+              <div class="field">
+                <label>Aggiungi carta a Mano 2</label>
+                <div class="cards-grid" id="splitHand2Buttons"></div>
+              </div>
+            </div>
+
+            <button class="action-secondary" onclick="consigliaBlackjack()">Consiglia Mossa</button>
+            <button class="action" onclick="doSplit()">Fai Split</button>
+            <button class="action" onclick="removeLastPlayerCard()">Cancella ultima carta giocatore</button>
+            <button class="action" onclick="removeLastDealerCard()">Cancella ultima carta banco</button>
+            <button class="action" onclick="closeRound()">Chiudi Round</button>
+            <button class="action-danger" onclick="resetDeckMemory()">Reset Mazzo</button>
+
+            <div class="memory-box">
+              <strong>Carte uscite in memoria:</strong>
+              <div id="deckMemory">—</div>
+            </div>
+
+            <div class="memory-box">
+              <strong>Conteggio mazzo:</strong>
+              <div id="countValue">0</div>
+            </div>
+
+            <div class="memory-box">
+              <strong>Stato mazzo:</strong>
+              <div id="countStatus">Neutro</div>
+            </div>
+          </div>
+
+          <div class="result-box">
+            <div class="result">
+              <strong>Tipo mano</strong>
+              <div class="result-value" id="bjHandType">—</div>
+            </div>
+            <div class="result">
+              <strong>Valore mano</strong>
+              <div class="result-value" id="bjHandValue">—</div>
+            </div>
+            <div class="result">
+              <strong>Mossa consigliata</strong>
+              <div class="result-value" id="bjAdvice">—</div>
+            </div>
+            <div class="result">
+              <strong>Nota</strong>
+              <div class="result-value" id="bjNote">—</div>
+            </div>
+          </div>
+        </div>
+
+        <button class="back" onclick="goBack()">← Torna al menu</button>
+      </div>
+    </div>
+
+    <div id="crypto" class="section">
+      <div class="section-wrap">
+        <div class="hero-crypto">
+          <div class="crypto-hero-top">
+            <div class="crypto-hero-text">
+              <h3>Cripto</h3>
+              <p>Scrivi nome o ticker della crypto e ottieni prezzo in USDT, variazione 24h, sentiment e bias tecnico sperimentale.</p>
+            </div>
+          </div>
+
+          <div class="crypto-marquee">
+            <div class="crypto-marquee-track">
+              <div class="coin-mini"><img src="https://cdn.jsdelivr.net/npm/cryptocurrency-icons@0.18.1/svg/color/btc.svg"><span>Bitcoin</span></div>
+              <div class="coin-mini"><img src="https://cdn.jsdelivr.net/npm/cryptocurrency-icons@0.18.1/svg/color/eth.svg"><span>Ethereum</span></div>
+              <div class="coin-mini"><img src="https://cdn.jsdelivr.net/npm/cryptocurrency-icons@0.18.1/svg/color/sol.svg"><span>Solana</span></div>
+              <div class="coin-mini"><img src="https://cdn.jsdelivr.net/npm/cryptocurrency-icons@0.18.1/svg/color/ada.svg"><span>Cardano</span></div>
+              <div class="coin-mini"><img src="https://cdn.jsdelivr.net/npm/cryptocurrency-icons@0.18.1/svg/color/xrp.svg"><span>XRP</span></div>
+              <div class="coin-mini"><img src="https://cdn.jsdelivr.net/npm/cryptocurrency-icons@0.18.1/svg/color/doge.svg"><span>Dogecoin</span></div>
+              <div class="coin-mini"><img src="https://cdn.jsdelivr.net/npm/cryptocurrency-icons@0.18.1/svg/color/bnb.svg"><span>BNB</span></div>
+              <div class="coin-mini"><img src="https://cdn.jsdelivr.net/npm/cryptocurrency-icons@0.18.1/svg/color/btc.svg"><span>Bitcoin</span></div>
+              <div class="coin-mini"><img src="https://cdn.jsdelivr.net/npm/cryptocurrency-icons@0.18.1/svg/color/eth.svg"><span>Ethereum</span></div>
+              <div class="coin-mini"><img src="https://cdn.jsdelivr.net/npm/cryptocurrency-icons@0.18.1/svg/color/sol.svg"><span>Solana</span></div>
+              <div class="coin-mini"><img src="https://cdn.jsdelivr.net/npm/cryptocurrency-icons@0.18.1/svg/color/ada.svg"><span>Cardano</span></div>
+              <div class="coin-mini"><img src="https://cdn.jsdelivr.net/npm/cryptocurrency-icons@0.18.1/svg/color/xrp.svg"><span>XRP</span></div>
+              <div class="coin-mini"><img src="https://cdn.jsdelivr.net/npm/cryptocurrency-icons@0.18.1/svg/color/doge.svg"><span>Dogecoin</span></div>
+              <div class="coin-mini"><img src="https://cdn.jsdelivr.net/npm/cryptocurrency-icons@0.18.1/svg/color/bnb.svg"><span>BNB</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card-grid">
+          <div class="box">
+            <div class="field">
+              <label>Crypto</label>
+              <input id="cryptoQuery" type="text" placeholder="Esempio: btc, bitcoin, eth, solana">
+            </div>
+            <button class="action" onclick="getCryptoPrice()">Cerca Prezzo</button>
+            <div class="crypto-note">
+              Prova con nome o simbolo. Esempi: <strong>bitcoin</strong>, <strong>btc</strong>, <strong>eth</strong>, <strong>sol</strong>.<br>
+              Il segnale operativo è <strong>sperimentale</strong> e usa logica tecnica semplice, non è consulenza finanziaria.
+            </div>
+          </div>
+
+          <div class="result-box">
+            <div class="crypto-stats-grid">
+              <div class="crypto-stat">
+                <span class="label">Crypto trovata</span>
+                <div class="value" id="cryptoName">—</div>
+              </div>
+              <div class="crypto-stat">
+                <span class="label">Simbolo</span>
+                <div class="value" id="cryptoSymbol">—</div>
+              </div>
+              <div class="crypto-stat">
+                <span class="label">Prezzo USDT</span>
+                <div class="value" id="cryptoPrice">—</div>
+              </div>
+              <div class="crypto-stat">
+                <span class="label">24h %</span>
+                <div class="value neutral" id="cryptoChange24h">—</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="crypto-grid">
+          <div class="crypto-signal-card">
+            <div class="toolbar-title">
+              <h3>Sentiment del momento</h3>
+              <span class="muted">Lettura rapida</span>
+            </div>
+            <div class="crypto-stat" style="margin-bottom:14px;">
+              <span class="label">Sentiment</span>
+              <div class="value" id="cryptoSentiment">—</div>
+            </div>
+            <div class="crypto-stat">
+              <span class="label">Momentum breve</span>
+              <div class="value" id="cryptoMomentum">—</div>
+            </div>
+          </div>
+
+          <div class="crypto-signal-card">
+            <div class="toolbar-title">
+              <h3>Bias operativo</h3>
+              <span class="muted">Sperimentale</span>
+            </div>
+            <div id="cryptoSignalPill" class="signal-pill signal-wait">WAIT</div>
+            <div class="memory-box">
+              <strong>Motivo</strong>
+              <div id="cryptoAdvice">—</div>
+            </div>
+            <div class="memory-box">
+              <strong>Nota</strong>
+              <div id="cryptoExtra">Questa indicazione è basata su variazione 24h e struttura tecnica semplice.</div>
+            </div>
+          </div>
+        </div>
+
+        <button class="back" onclick="goBack()">← Torna al menu</button>
+      </div>
+    </div>
+
+    <div id="profitTracker" class="section">
+      <div class="section-wrap">
+        <div class="hero-profit">
+          <div class="hero-profit-inner">
+            <div class="profit-brand">
+              <div class="profit-logo">AG</div>
+              <div class="profit-brand-text">
+                <h3>Andrea Gatto Privacy</h3>
+                <p>Profit Tracker personale con accesso riservato, statistiche e grafici.</p>
+                <div class="profit-mini-pill">Solo dati del tuo account</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="section-header">
+          <h2>Area personale</h2>
+          <p>Registra, modifica e controlla il tuo profitto in modo ordinato</p>
+          <div id="currentUserPill" class="user-pill hidden"></div>
+        </div>
+
+        <div id="authArea">
+          <div class="auth-grid">
+            <div class="box">
+              <h3 style="margin-top:0;">Registrati</h3>
+
+              <div class="field">
+                <label>Email</label>
+                <input id="registerEmail" type="email" placeholder="email@esempio.com">
+              </div>
+
+              <div class="field">
+                <label>Password</label>
+                <div class="password-row">
+                  <input id="registerPassword" type="password" placeholder="Minimo 6 caratteri">
+                  <button class="toggle-pass" type="button" onclick="togglePassword('registerPassword', this)">Mostra</button>
+                </div>
+              </div>
+
+              <button class="action" onclick="signUpProfitTracker()">Crea account</button>
+              <div class="auth-note" id="registerMessage">—</div>
+            </div>
+
+            <div class="box">
+              <h3 style="margin-top:0;">Login</h3>
+
+              <div class="field">
+                <label>Email</label>
+                <input id="loginEmail" type="email" placeholder="email@esempio.com">
+              </div>
+
+              <div class="field">
+                <label>Password</label>
+                <div class="password-row">
+                  <input id="loginPassword" type="password" placeholder="Password">
+                  <button class="toggle-pass" type="button" onclick="togglePassword('loginPassword', this)">Mostra</button>
+                </div>
+              </div>
+
+              <button class="action" onclick="signInProfitTracker()">Entra</button>
+              <button class="link-btn" type="button" onclick="resetPassword()">Password dimenticata?</button>
+              <div class="auth-note" id="loginMessage">—</div>
+            </div>
+          </div>
+        </div>
+
+        <div id="trackerArea" class="hidden">
+          <div class="stats-grid">
+            <div class="stat-card">
+              <strong>Profitto totale</strong>
+              <div class="value neutral" id="totalProfitValue">€ 0,00</div>
+              <div class="sub">Somma di tutte le entry</div>
+            </div>
+
+            <div class="stat-card">
+              <strong>Questo mese</strong>
+              <div class="value neutral" id="monthProfitValue">€ 0,00</div>
+              <div class="sub">Profitto del mese corrente</div>
+            </div>
+
+            <div class="stat-card">
+              <strong>Ultimi 7 giorni</strong>
+              <div class="value neutral" id="weekProfitValue">€ 0,00</div>
+              <div class="sub">Andamento settimanale</div>
+            </div>
+
+            <div class="stat-card">
+              <strong>Numero entry</strong>
+              <div class="value neutral" id="entriesCountValue">0</div>
+              <div class="sub">Movimenti registrati</div>
+            </div>
+          </div>
+
+          <div class="profit-layout">
+            <div>
+              <div class="box">
+                <div class="toolbar-title">
+                  <h3 id="formTitle">Aggiungi entry</h3>
+                  <span class="muted" id="formSubtitle">Compila e salva</span>
+                </div>
+
+                <div id="editBanner" class="edit-banner">
+                  Stai modificando una entry esistente.
+                </div>
+
+                <div class="field">
+                  <label>Data</label>
+                  <input id="profitDate" type="date">
+                </div>
+
+                <div class="field">
+                  <label>Bookmaker / Fonte</label>
+                  <input id="profitBookmaker" type="text" placeholder="es. Bet365">
+                </div>
+
+                <div class="field">
+                  <label>Tipo operazione</label>
+                  <select id="profitType">
+                    <option value="Surebet">Surebet</option>
+                    <option value="Punta Banca">Punta Banca</option>
+                    <option value="Freebet">Freebet</option>
+                    <option value="Casino">Casino</option>
+                    <option value="Blackjack">Blackjack</option>
+                    <option value="Cripto">Cripto</option>
+                    <option value="Altro">Altro</option>
+                  </select>
+                </div>
+
+                <div class="two-col">
+                  <div class="field" style="margin-bottom:0;">
+                    <label>Stake</label>
+                    <input id="profitStake" type="number" step="0.01" placeholder="0.00">
+                  </div>
+
+                  <div class="field" style="margin-bottom:0;">
+                    <label>Profitto</label>
+                    <input id="profitAmount" type="number" step="0.01" placeholder="0.00">
+                  </div>
+                </div>
+
+                <div class="field" style="margin-top:16px;">
+                  <label>Note</label>
+                  <input id="profitNote" type="text" placeholder="Note facoltative">
+                </div>
+
+                <div class="inline-actions" style="margin-top:8px;">
+                  <button class="small-btn" id="saveEntryBtn" onclick="saveProfitEntry()" style="background:linear-gradient(180deg,var(--green) 0%, var(--green2) 100%); color:#052e16;">Salva entry</button>
+                  <button class="small-btn cancel hidden" id="cancelEditBtn" onclick="cancelEditProfitEntry()">Annulla modifica</button>
+                </div>
+
+                <div class="auth-note" id="entryMessage">—</div>
+              </div>
+
+              <div class="box" style="margin-top:18px;">
+                <div class="toolbar-title">
+                  <h3>Gestione account</h3>
+                  <span class="muted">Sessione attiva</span>
+                </div>
+                <div class="inline-actions">
+                  <button class="small-btn logout" onclick="signOutProfitTracker()">Logout</button>
+                </div>
+                <div class="memory-box" style="margin-top:16px;">
+                  Ogni utente vede solo i propri dati. Le entry possono essere aggiunte, modificate o eliminate.
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <div class="chart-card">
+                <div class="toolbar-title">
+                  <h3>Andamento profitto</h3>
+                  <span class="muted">Nel tempo</span>
+                </div>
+                <canvas id="profitChart"></canvas>
+              </div>
+            </div>
+          </div>
+
+          <div class="three-col">
+            <div class="chart-card">
+              <div class="toolbar-title">
+                <h3>Per bookmaker</h3>
+                <span class="muted">Bar chart</span>
+              </div>
+              <canvas id="bookmakerChart"></canvas>
+            </div>
+
+            <div class="chart-card">
+              <div class="toolbar-title">
+                <h3>Per tipo</h3>
+                <span class="muted">Doughnut</span>
+              </div>
+              <canvas id="typeChart"></canvas>
+            </div>
+
+            <div class="chart-card">
+              <div class="toolbar-title">
+                <h3>Cumulativo</h3>
+                <span class="muted">Progressione</span>
+              </div>
+              <canvas id="cumulativeChart"></canvas>
+            </div>
+          </div>
+
+          <div style="margin-top:18px;" class="box">
+            <div class="toolbar-title">
+              <h3>Storico profitti</h3>
+              <span class="muted">Tutte le entry salvate</span>
+            </div>
+
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Data</th>
+                    <th>Bookmaker</th>
+                    <th>Tipo</th>
+                    <th>Stake</th>
+                    <th>Profitto</th>
+                    <th>Note</th>
+                    <th>Azione</th>
+                  </tr>
+                </thead>
+                <tbody id="profitTableBody">
+                  <tr>
+                    <td colspan="7">Nessuna entry</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <button class="back" onclick="goBack()">← Torna al menu</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <script>
+    let usedCardsMemory = [];
+    let bjPlayerCards = [];
+    let bjDealerCards = [];
+    let splitMode = false;
+    let splitHand1 = [];
+    let splitHand2 = [];
+    let activeSplitHand = 1;
+
+    const CARD_SET = ["A","K","Q","J","10","9","8","7","6","5","4","3","2"];
+
+    const SUPABASE_URL = "https://aihwrkqfzhwedqdbxbxh.supabase.co";
+    const SUPABASE_ANON_KEY = "sb_publishable_G_glT9ld2cqENlVSup38NQ_q8HWyZPd";
+
+    const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    let currentProfitUser = null;
+    let profitEntries = [];
+    let editingEntryId = null;
+
+    let profitChart = null;
+    let bookmakerChart = null;
+    let typeChart = null;
+    let cumulativeChart = null;
+
+    function openSection(id){
+      document.getElementById("menu").style.display = "none";
+      document.querySelectorAll(".section").forEach(s => s.style.display = "none");
+      document.getElementById(id).style.display = "block";
+    }
+
+    function goBack(){
+      document.querySelectorAll(".section").forEach(s => s.style.display = "none");
+      document.getElementById("menu").style.display = "grid";
+    }
+
+    function calcola(){
+      let saldo = Number(document.getElementById("saldo").value || 0);
+      let wager = Number(document.getElementById("wager").value || 0);
+      let cap = Number(document.getElementById("cap").value || 0);
+
+      let target = (saldo * wager * 0.05) + cap;
+      let spin = saldo / 20;
+
+      document.getElementById("target").innerHTML = target.toFixed(2);
+      document.getElementById("spin").innerHTML = spin.toFixed(2);
+    }
+
+    function calcolaSurebet(){
+      let q1 = Number(document.getElementById("quota1").value || 0);
+      let s1 = Number(document.getElementById("puntata1").value || 0);
+      let q2 = Number(document.getElementById("quota2").value || 0);
+
+      let ritorno = q1 * s1;
+      let s2 = Math.round(ritorno / q2);
+      let profitto = ritorno - s1 - s2;
+
+      document.getElementById("puntata2").innerHTML = s2;
+      document.getElementById("profitto").innerHTML = profitto.toFixed(2);
+    }
+
+    function calcolaPuntaBanca(){
+      let q1 = Number(document.getElementById("quotaPunta").value || 0);
+      let s1 = Number(document.getElementById("puntataPunta").value || 0);
+      let q2 = Number(document.getElementById("quotaBanca").value || 0);
+
+      let banca = (q1 * s1) / q2;
+      document.getElementById("puntataBancaResult").innerHTML = banca.toFixed(2);
+    }
+
+    function calcolaFreebet(){
+      let free = Number(document.getElementById("importoFreebet").value || 0);
+      let qP = Number(document.getElementById("quotaFreebetPunta").value || 0);
+      let qB = Number(document.getElementById("quotaFreebetBanca").value || 0);
+
+      let lay = (free * (qP - 1)) / qB;
+      document.getElementById("profittoFreebetResult").innerHTML = lay.toFixed(2);
+    }
+
+    function calcolaBaccarat(){
+      const playerOdds = 2.00;
+      const bankerOdds = 1.95;
+
+      let playerStake = Number(document.getElementById("playerStake").value || 0);
+
+      let ritorno = playerStake * playerOdds;
+      let bankerStake = Math.round(ritorno / bankerOdds);
+      let profit = ritorno - playerStake - bankerStake;
+
+      document.getElementById("bankerStake").innerHTML = bankerStake;
+      document.getElementById("baccaratProfit").innerHTML = profit.toFixed(2);
+    }
+
+    function renderButtons(containerId, handler){
+      const wrap = document.getElementById(containerId);
+      if(!wrap) return;
+      wrap.innerHTML = "";
+
+      CARD_SET.forEach(card => {
+        const btn = document.createElement("button");
+        btn.className = "card-btn";
+        btn.textContent = card;
+        btn.onclick = () => handler(card);
+        wrap.appendChild(btn);
+      });
+    }
+
+    function renderBlackjackButtons(){
+      renderButtons("playerCardButtons", addPlayerCard);
+      renderButtons("dealerCardButtons", addDealerCard);
+      renderButtons("splitHand1Buttons", addSplitHand1Card);
+      renderButtons("splitHand2Buttons", addSplitHand2Card);
+      updateBlackjackViews();
+    }
+
+    function addPlayerCard(card){
+      if(splitMode) return;
+      bjPlayerCards.push(card);
+      updateBlackjackViews();
+    }
+
+    function addDealerCard(card){
+      bjDealerCards.push(card);
+      updateBlackjackViews();
+    }
+
+    function addSplitHand1Card(card){
+      if(!splitMode) return;
+      activeSplitHand = 1;
+      splitHand1.push(card);
+      updateBlackjackViews();
+    }
+
+    function addSplitHand2Card(card){
+      if(!splitMode) return;
+      activeSplitHand = 2;
+      splitHand2.push(card);
+      updateBlackjackViews();
+    }
+
+    function removeLastPlayerCard(){
+      if(splitMode){
+        if(activeSplitHand === 1){
+          splitHand1.pop();
+        }else{
+          splitHand2.pop();
+        }
+      }else{
+        bjPlayerCards.pop();
+      }
+      updateBlackjackViews();
+    }
+
+    function removeLastDealerCard(){
+      bjDealerCards.pop();
+      updateBlackjackViews();
+    }
+
+    function updateBlackjackViews(){
+      const playerView = document.getElementById("playerCardsView");
+      const dealerView = document.getElementById("dealerCardsView");
+      const split1View = document.getElementById("splitHand1View");
+      const split2View = document.getElementById("splitHand2View");
+      const splitArea = document.getElementById("splitArea");
+
+      if(playerView){
+        playerView.innerHTML = bjPlayerCards.length
+          ? bjPlayerCards.map(c => `<span class="picked-card">${c}</span>`).join("")
+          : "—";
+      }
+
+      if(dealerView){
+        dealerView.innerHTML = bjDealerCards.length
+          ? bjDealerCards.map(c => `<span class="picked-card">${c}</span>`).join("")
+          : "—";
+      }
+
+      if(split1View){
+        split1View.innerHTML = splitHand1.length
+          ? splitHand1.map(c => `<span class="picked-card">${c}</span>`).join("")
+          : "—";
+      }
+
+      if(split2View){
+        split2View.innerHTML = splitHand2.length
+          ? splitHand2.map(c => `<span class="picked-card">${c}</span>`).join("")
+          : "—";
+      }
+
+      if(splitArea){
+        splitArea.style.display = splitMode ? "block" : "none";
+      }
+    }
+
+    function normalizeCard(card){
+      const c = String(card).trim().toUpperCase();
+      if(c === "1") return "A";
+      if(["A","K","Q","J","10","9","8","7","6","5","4","3","2"].includes(c)) return c;
+      return null;
+    }
+
+    function cardValue(card){
+      if(card === "A") return 11;
+      if(["K","Q","J","10"].includes(card)) return 10;
+      return Number(card);
+    }
+
+    function dealerUpValue(card){
+      if(card === "A") return 11;
+      if(["K","Q","J","10"].includes(card)) return 10;
+      return Number(card);
+    }
+
+    function evaluateHand(cards){
+      let total = 0;
+      let aces = 0;
+
+      cards.forEach(card => {
+        total += cardValue(card);
+        if(card === "A") aces++;
+      });
+
+      while(total > 21 && aces > 0){
+        total -= 10;
+        aces--;
+      }
+
+      let rawTotal = cards.reduce((sum, c) => {
+        if(c === "A") return sum + 11;
+        if(["K","Q","J","10"].includes(c)) return sum + 10;
+        return sum + Number(c);
+      }, 0);
+
+      const isSoft = cards.includes("A") && total <= 21 && rawTotal === total;
+      return { total, isSoft };
+    }
+
+    function sameRank(a, b){
+      const tenCards = ["10","J","Q","K"];
+      if(tenCards.includes(a) && tenCards.includes(b)) return true;
+      return a === b;
+    }
+
+    function basicStrategy(cards, dealer){
+      const dealerVal = dealerUpValue(dealer);
+      const hand = evaluateHand(cards);
+
+      if(cards.length === 2 && sameRank(cards[0], cards[1])){
+        const first = cards[0];
+
+        if(first === "A" || first === "8") return { move: "SPLIT", note: "Coppia favorevole da dividere" };
+        if(["10","J","Q","K"].includes(first)) return { move: "STAND", note: "Hai già una mano forte" };
+        if(first === "9"){
+          if([2,3,4,5,6,8,9].includes(dealerVal)) return { move: "SPLIT", note: "Dividi i 9 contro questa carta del banco" };
+          return { move: "STAND", note: "Meglio stare" };
+        }
+        if(first === "7"){
+          if(dealerVal >= 2 && dealerVal <= 7) return { move: "SPLIT", note: "Dividi i 7" };
+          return { move: "HIT", note: "Meglio chiedere carta" };
+        }
+        if(first === "6"){
+          if(dealerVal >= 2 && dealerVal <= 6) return { move: "SPLIT", note: "Dividi i 6" };
+          return { move: "HIT", note: "Meglio chiedere carta" };
+        }
+        if(first === "5"){
+          if(dealerVal >= 2 && dealerVal <= 9) return { move: "DOUBLE", note: "Coppia di 5 trattata come 10" };
+          return { move: "HIT", note: "Meglio chiedere carta" };
+        }
+        if(first === "4"){
+          if(dealerVal === 5 || dealerVal === 6) return { move: "SPLIT", note: "Dividi i 4 solo qui" };
+          return { move: "HIT", note: "Meglio chiedere carta" };
+        }
+        if(first === "3" || first === "2"){
+          if(dealerVal >= 2 && dealerVal <= 7) return { move: "SPLIT", note: "Dividi la coppia" };
+          return { move: "HIT", note: "Meglio chiedere carta" };
+        }
+      }
+
+      if(hand.isSoft && cards.length === 2){
+        const other = cards[0] === "A" ? cards[1] : cards[1] === "A" ? cards[0] : null;
+        const otherVal = other ? cardValue(other) : 0;
+
+        if(otherVal === 9) return { move: "STAND", note: "Soft 20" };
+        if(otherVal === 8) return { move: "STAND", note: "Soft 19" };
+        if(otherVal === 7){
+          if([3,4,5,6].includes(dealerVal)) return { move: "DOUBLE", note: "Soft 18 buono per raddoppiare" };
+          if([2,7,8].includes(dealerVal)) return { move: "STAND", note: "Meglio stare" };
+          return { move: "HIT", note: "Contro carta forte del banco chiedi" };
+        }
+        if(otherVal === 6){
+          if([3,4,5,6].includes(dealerVal)) return { move: "DOUBLE", note: "Soft 17" };
+          return { move: "HIT", note: "Meglio chiedere carta" };
+        }
+        if(otherVal === 5 || otherVal === 4){
+          if([4,5,6].includes(dealerVal)) return { move: "DOUBLE", note: "Soft 15/16" };
+          return { move: "HIT", note: "Meglio chiedere carta" };
+        }
+        if(otherVal === 3 || otherVal === 2){
+          if([5,6].includes(dealerVal)) return { move: "DOUBLE", note: "Soft 13/14" };
+          return { move: "HIT", note: "Meglio chiedere carta" };
+        }
+      }
+
+      const total = hand.total;
+
+      if(total >= 17) return { move: "STAND", note: "Totale forte" };
+      if(total >= 13 && total <= 16){
+        if(dealerVal >= 2 && dealerVal <= 6) return { move: "STAND", note: "Banco debole" };
+        return { move: "HIT", note: "Banco forte, meglio chiedere" };
+      }
+      if(total === 12){
+        if(dealerVal >= 4 && dealerVal <= 6) return { move: "STAND", note: "12 contro banco debole" };
+        return { move: "HIT", note: "Meglio chiedere carta" };
+      }
+      if(total === 11) return { move: "DOUBLE", note: "11 è ottimo per raddoppiare" };
+      if(total === 10){
+        if(dealerVal >= 2 && dealerVal <= 9) return { move: "DOUBLE", note: "10 contro carta non troppo forte" };
+        return { move: "HIT", note: "Contro 10 o Asso meglio chiedere" };
+      }
+      if(total === 9){
+        if(dealerVal >= 3 && dealerVal <= 6) return { move: "DOUBLE", note: "9 contro banco debole" };
+        return { move: "HIT", note: "Meglio chiedere carta" };
+      }
+
+      return { move: "HIT", note: "Totale basso, chiedi carta" };
+    }
+
+    function getRunningCount(cards){
+      let count = 0;
+      cards.forEach(card => {
+        if(["2","3","4","5","6"].includes(card)) count += 1;
+        else if(["10","J","Q","K","A"].includes(card)) count -= 1;
+      });
+      return count;
+    }
+
+    function getCountStatus(count){
+      if(count >= 4) return { text: "Molto favorevole", cls: "count-good" };
+      if(count >= 2) return { text: "Favorevole", cls: "count-good" };
+      if(count <= -4) return { text: "Molto sfavorevole", cls: "count-bad" };
+      if(count <= -2) return { text: "Sfavorevole", cls: "count-bad" };
+      return { text: "Neutro", cls: "count-neutral" };
+    }
+
+    function updateDeckMemoryUI(){
+      document.getElementById("deckMemory").innerHTML = usedCardsMemory.length
+        ? usedCardsMemory.join(" - ")
+        : "—";
+
+      const count = getRunningCount(usedCardsMemory);
+      const status = getCountStatus(count);
+
+      const countEl = document.getElementById("countValue");
+      const statusEl = document.getElementById("countStatus");
+
+      countEl.innerHTML = count > 0 ? `+${count}` : `${count}`;
+      countEl.className = status.cls;
+
+      statusEl.innerHTML = status.text;
+      statusEl.className = status.cls;
+    }
+
+    function getCurrentAdviceHand(){
+      if(splitMode){
+        if(activeSplitHand === 2 && splitHand2.length) return splitHand2;
+        return splitHand1;
+      }
+      return bjPlayerCards;
+    }
+
+    function consigliaBlackjack(){
+      const cardsToCheck = getCurrentAdviceHand();
+      const playerCards = cardsToCheck.map(normalizeCard).filter(Boolean);
+      const dealerUpCard = normalizeCard(bjDealerCards[0] || "");
+
+      if(playerCards.length < 2 || !dealerUpCard){
+        document.getElementById("bjHandType").innerHTML = "Dati mancanti";
+        document.getElementById("bjHandValue").innerHTML = "—";
+        document.getElementById("bjAdvice").innerHTML = "—";
+        document.getElementById("bjNote").innerHTML = "Inserisci almeno 2 carte giocatore e la prima carta del banco";
+        return;
+      }
+
+      const hand = evaluateHand(playerCards);
+      const strategy = basicStrategy(playerCards, dealerUpCard);
+
+      let handType = "Hard";
+      if(playerCards.length === 2 && sameRank(playerCards[0], playerCards[1])) handType = "Pair";
+      else if(hand.isSoft) handType = "Soft";
+
+      document.getElementById("bjHandType").innerHTML = handType;
+      document.getElementById("bjHandValue").innerHTML = hand.total;
+      document.getElementById("bjAdvice").innerHTML = strategy.move;
+      document.getElementById("bjNote").innerHTML = splitMode
+        ? `Mano attiva: ${activeSplitHand} • ${strategy.note}`
+        : strategy.note;
+    }
+
+    function doSplit(){
+      if(bjPlayerCards.length < 2){
+        document.getElementById("bjNote").innerHTML = "Per fare split servono almeno 2 carte iniziali";
+        return;
+      }
+
+      if(splitMode){
+        document.getElementById("bjNote").innerHTML = "Split già attivo";
+        return;
+      }
+
+      if(!sameRank(bjPlayerCards[0], bjPlayerCards[1])){
+        document.getElementById("bjNote").innerHTML = "Le prime 2 carte non sono splittabili";
+        return;
+      }
+
+      splitMode = true;
+      splitHand1 = [bjPlayerCards[0]];
+      splitHand2 = [bjPlayerCards[1]];
+      activeSplitHand = 1;
+      bjPlayerCards = [];
+      updateBlackjackViews();
+      document.getElementById("bjNote").innerHTML = "Split attivo: completa le due mani";
+    }
+
+    function closeRound(){
+      const roundCards = [];
+
+      roundCards.push(...bjPlayerCards);
+      roundCards.push(...bjDealerCards);
+      roundCards.push(...splitHand1);
+      roundCards.push(...splitHand2);
+
+      usedCardsMemory.push(...roundCards.filter(Boolean));
+      updateDeckMemoryUI();
+
+      bjPlayerCards = [];
+      bjDealerCards = [];
+      splitHand1 = [];
+      splitHand2 = [];
+      splitMode = false;
+      activeSplitHand = 1;
+
+      updateBlackjackViews();
+
+      document.getElementById("bjHandType").innerHTML = "—";
+      document.getElementById("bjHandValue").innerHTML = "—";
+      document.getElementById("bjAdvice").innerHTML = "—";
+      document.getElementById("bjNote").innerHTML = "Round chiuso e salvato in memoria";
+    }
+
+    function resetDeckMemory(){
+      usedCardsMemory = [];
+      bjPlayerCards = [];
+      bjDealerCards = [];
+      splitHand1 = [];
+      splitHand2 = [];
+      splitMode = false;
+      activeSplitHand = 1;
+
+      updateDeckMemoryUI();
+      updateBlackjackViews();
+
+      document.getElementById("bjHandType").innerHTML = "—";
+      document.getElementById("bjHandValue").innerHTML = "—";
+      document.getElementById("bjAdvice").innerHTML = "—";
+      document.getElementById("bjNote").innerHTML = "Mazzo resettato";
+    }
+
+    function setCryptoDefaultState(){
+      document.getElementById("cryptoName").innerHTML = "—";
+      document.getElementById("cryptoSymbol").innerHTML = "—";
+      document.getElementById("cryptoPrice").innerHTML = "—";
+      document.getElementById("cryptoChange24h").innerHTML = "—";
+      document.getElementById("cryptoChange24h").className = "value neutral";
+      document.getElementById("cryptoSentiment").innerHTML = "—";
+      document.getElementById("cryptoMomentum").innerHTML = "—";
+      document.getElementById("cryptoAdvice").innerHTML = "—";
+      document.getElementById("cryptoExtra").innerHTML = "Questa indicazione è basata su variazione 24h e struttura tecnica semplice.";
+      const pill = document.getElementById("cryptoSignalPill");
+      pill.className = "signal-pill signal-wait";
+      pill.innerHTML = "WAIT";
+    }
+
+    function formatUSDT(value){
+      return Number(value).toLocaleString("it-IT", {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 8
+      }) + " USDT";
+    }
+
+    function setCryptoSignal(type, text){
+      const pill = document.getElementById("cryptoSignalPill");
+      pill.className = "signal-pill";
+      if(type === "LONG") pill.classList.add("signal-long");
+      else if(type === "SHORT") pill.classList.add("signal-short");
+      else pill.classList.add("signal-wait");
+      pill.innerHTML = text;
+    }
+
+    function analyzeCryptoSignal(lastPrice, pct24, sma20, sma50){
+      let score = 0;
+      let reasons = [];
+
+      if(pct24 > 2){
+        score += 2;
+        reasons.push("24h positiva");
+      }else if(pct24 > 0){
+        score += 1;
+        reasons.push("leggera spinta positiva");
+      }else if(pct24 < -2){
+        score -= 2;
+        reasons.push("24h negativa forte");
+      }else if(pct24 < 0){
+        score -= 1;
+        reasons.push("debolezza nelle ultime 24h");
+      }
+
+      if(lastPrice > sma20){
+        score += 1;
+        reasons.push("prezzo sopra SMA20");
+      }else{
+        score -= 1;
+        reasons.push("prezzo sotto SMA20");
+      }
+
+      if(sma20 > sma50){
+        score += 1;
+        reasons.push("SMA20 sopra SMA50");
+      }else{
+        score -= 1;
+        reasons.push("SMA20 sotto SMA50");
+      }
+
+      let sentiment = "Neutro";
+      let momentum = "Laterale";
+      let signal = "WAIT";
+      let note = "Scenario poco chiaro, meglio attendere conferme.";
+      let extra = `Prezzo vs SMA20: ${lastPrice > sma20 ? "sopra" : "sotto"} • Struttura medie: ${sma20 > sma50 ? "rialzista" : "ribassista"}`;
+
+      if(score >= 3){
+        sentiment = "Bullish";
+        momentum = "Momentum positivo";
+        signal = "LONG";
+        note = "Secondo questo setup tecnico semplice il mercato mostra forza rialzista.";
+      }else if(score <= -3){
+        sentiment = "Bearish";
+        momentum = "Momentum negativo";
+        signal = "SHORT";
+        note = "Secondo questo setup tecnico semplice il mercato mostra pressione ribassista.";
+      }else{
+        sentiment = "Neutro";
+        momentum = "Momentum incerto";
+        signal = "WAIT";
+        note = "La struttura non è abbastanza pulita per un bias forte.";
+      }
+
+      return { sentiment, momentum, signal, note, extra, reasons };
+    }
+
+    async function getCryptoPrice(){
+      const query = (document.getElementById("cryptoQuery").value || "").trim().toLowerCase();
+
+      document.getElementById("cryptoName").innerHTML = "Ricerca in corso...";
+      document.getElementById("cryptoSymbol").innerHTML = "—";
+      document.getElementById("cryptoPrice").innerHTML = "—";
+      document.getElementById("cryptoChange24h").innerHTML = "—";
+      document.getElementById("cryptoSentiment").innerHTML = "—";
+      document.getElementById("cryptoMomentum").innerHTML = "—";
+      document.getElementById("cryptoAdvice").innerHTML = "Ricerca in corso...";
+      document.getElementById("cryptoExtra").innerHTML = "Attendi...";
+      setCryptoSignal("WAIT", "WAIT");
+
+      if(!query){
+        document.getElementById("cryptoName").innerHTML = "Inserisci una crypto";
+        return;
+      }
+
+      try{
+        const coinsRes = await fetch("https://api.coinpaprika.com/v1/coins");
+        if(!coinsRes.ok) throw new Error("Errore lista coin");
+
+        const coins = await coinsRes.json();
+
+        const found =
+          coins.find(c => (c.symbol || "").toLowerCase() === query) ||
+          coins.find(c => (c.name || "").toLowerCase() === query) ||
+          coins.find(c => (c.id || "").toLowerCase() === query);
+
+        if(!found){
+          document.getElementById("cryptoName").innerHTML = "Crypto non trovata";
+          document.getElementById("cryptoAdvice").innerHTML = "Nessuna corrispondenza trovata.";
+          return;
+        }
+
+        const symbol = (found.symbol || "").toUpperCase();
+        const pair = symbol + "USDT";
+
+        let tickerData = null;
+        let klineData = null;
+
+        const tickerRes = await fetch(`https://api.binance.com/api/v3/ticker/24hr?symbol=${pair}`);
+        if(tickerRes.ok){
+          tickerData = await tickerRes.json();
+        }else{
+          const fallbackTickerRes = await fetch(`https://api.coinpaprika.com/v1/tickers/${found.id}`);
+          if(!fallbackTickerRes.ok) throw new Error("Errore ticker");
+          const fallbackTicker = await fallbackTickerRes.json();
+
+          const fallbackPrice = fallbackTicker?.quotes?.USD?.price ?? 0;
+          const fallbackPct = fallbackTicker?.quotes?.USD?.percent_change_24h ?? 0;
+
+          tickerData = {
+            lastPrice: fallbackPrice,
+            priceChangePercent: fallbackPct
+          };
+        }
+
+        const klinesRes = await fetch(`https://api.binance.com/api/v3/klines?symbol=${pair}&interval=1h&limit=50`);
+        if(klinesRes.ok){
+          klineData = await klinesRes.json();
+        }
+
+        const lastPrice = Number(tickerData?.lastPrice || 0);
+        const pct24 = Number(tickerData?.priceChangePercent || 0);
+
+        let sma20 = lastPrice;
+        let sma50 = lastPrice;
+
+        if(Array.isArray(klineData) && klineData.length){
+          const closes = klineData.map(k => Number(k[4]));
+          const avg = arr => arr.reduce((a,b)=>a+b,0) / (arr.length || 1);
+          sma20 = avg(closes.slice(-20));
+          sma50 = avg(closes.slice(-50));
+        }
+
+        const analysis = analyzeCryptoSignal(lastPrice, pct24, sma20, sma50);
+
+        document.getElementById("cryptoName").innerHTML = found.name || "—";
+        document.getElementById("cryptoSymbol").innerHTML = symbol || "—";
+        document.getElementById("cryptoPrice").innerHTML =
+          lastPrice ? formatUSDT(lastPrice) : "—";
+
+        const changeEl = document.getElementById("cryptoChange24h");
+        changeEl.innerHTML = `${pct24 > 0 ? "+" : ""}${pct24.toLocaleString("it-IT", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}%`;
+        changeEl.className = "value " + (pct24 > 0 ? "positive" : pct24 < 0 ? "negative" : "neutral");
+
+        document.getElementById("cryptoSentiment").innerHTML = analysis.sentiment;
+        document.getElementById("cryptoMomentum").innerHTML = analysis.momentum;
+        document.getElementById("cryptoAdvice").innerHTML = analysis.note;
+        document.getElementById("cryptoExtra").innerHTML =
+          `${analysis.extra}<br>Motivi principali: ${analysis.reasons.join(" • ")}`;
+
+        if(analysis.signal === "LONG"){
+          setCryptoSignal("LONG", "BIAS LONG");
+        }else if(analysis.signal === "SHORT"){
+          setCryptoSignal("SHORT", "BIAS SHORT");
+        }else{
+          setCryptoSignal("WAIT", "WAIT / NEUTRO");
+        }
+
+      }catch(error){
+        console.error(error);
+        document.getElementById("cryptoName").innerHTML = "Errore caricamento";
+        document.getElementById("cryptoSymbol").innerHTML = "—";
+        document.getElementById("cryptoPrice").innerHTML = "API non disponibile";
+        document.getElementById("cryptoChange24h").innerHTML = "—";
+        document.getElementById("cryptoSentiment").innerHTML = "—";
+        document.getElementById("cryptoMomentum").innerHTML = "—";
+        document.getElementById("cryptoAdvice").innerHTML = "Impossibile recuperare i dati al momento.";
+        document.getElementById("cryptoExtra").innerHTML = "Riprova tra poco.";
+        setCryptoSignal("WAIT", "WAIT");
+      }
+    }
+
+    function setDefaultProfitDate(){
+      const dateInput = document.getElementById("profitDate");
+      if(dateInput && !dateInput.value){
+        const today = new Date();
+        const yyyy = today.getFullYear();
+        const mm = String(today.getMonth() + 1).padStart(2, "0");
+        const dd = String(today.getDate()).padStart(2, "0");
+        dateInput.value = `${yyyy}-${mm}-${dd}`;
+      }
+    }
+
+    function euro(value){
+      return "€ " + Number(value || 0).toLocaleString("it-IT", {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      });
+    }
+
+    function setValueClass(el, val){
+      el.classList.remove("positive","negative","neutral");
+      if(Number(val) > 0) el.classList.add("positive");
+      else if(Number(val) < 0) el.classList.add("negative");
+      else el.classList.add("neutral");
+    }
+
+    function showProfitAuthState(isLogged){
+      const authArea = document.getElementById("authArea");
+      const trackerArea = document.getElementById("trackerArea");
+      const pill = document.getElementById("currentUserPill");
+
+      if(isLogged){
+        authArea.classList.add("hidden");
+        trackerArea.classList.remove("hidden");
+        pill.classList.remove("hidden");
+        pill.textContent = currentProfitUser?.email || "Utente loggato";
+      }else{
+        authArea.classList.remove("hidden");
+        trackerArea.classList.add("hidden");
+        pill.classList.add("hidden");
+        pill.textContent = "";
+      }
+    }
+
+    function togglePassword(id, btn){
+      const input = document.getElementById(id);
+      if(!input) return;
+      const isPassword = input.type === "password";
+      input.type = isPassword ? "text" : "password";
+      if(btn) btn.textContent = isPassword ? "Nascondi" : "Mostra";
+    }
+
+    async function resetPassword(){
+      const typedEmail = (document.getElementById("loginEmail")?.value || document.getElementById("registerEmail")?.value || "").trim();
+      const email = prompt("Inserisci la tua email per il reset password:", typedEmail);
+
+      if(!email) return;
+
+      const { error } = await supabaseClient.auth.resetPasswordForEmail(email, {
+        redirectTo: "https://strumenti-andry-matched.vercel.app"
+      });
+
+      if(error){
+        alert(error.message);
+        return;
+      }
+
+      alert("Email di reset inviata.");
+    }
+
+    function resetProfitForm(){
+      editingEntryId = null;
+      document.getElementById("formTitle").innerHTML = "Aggiungi entry";
+      document.getElementById("formSubtitle").innerHTML = "Compila e salva";
+      document.getElementById("editBanner").style.display = "none";
+      document.getElementById("saveEntryBtn").innerHTML = "Salva entry";
+      document.getElementById("cancelEditBtn").classList.add("hidden");
+
+      document.getElementById("profitBookmaker").value = "";
+      document.getElementById("profitStake").value = "";
+      document.getElementById("profitAmount").value = "";
+      document.getElementById("profitNote").value = "";
+      document.getElementById("profitType").value = "Surebet";
+      setDefaultProfitDate();
+    }
+
+    function fillProfitForm(entry){
+      editingEntryId = entry.id;
+      document.getElementById("formTitle").innerHTML = "Modifica entry";
+      document.getElementById("formSubtitle").innerHTML = "Aggiorna i dati e salva";
+      document.getElementById("editBanner").style.display = "block";
+      document.getElementById("saveEntryBtn").innerHTML = "Salva modifiche";
+      document.getElementById("cancelEditBtn").classList.remove("hidden");
+
+      document.getElementById("profitDate").value = entry.entry_date || "";
+      document.getElementById("profitBookmaker").value = entry.bookmaker || "";
+      document.getElementById("profitType").value = entry.operation_type || "Altro";
+      document.getElementById("profitStake").value = entry.stake ?? "";
+      document.getElementById("profitAmount").value = entry.profit ?? "";
+      document.getElementById("profitNote").value = entry.note || "";
+
+      document.getElementById("entryMessage").innerHTML = "Stai modificando una entry.";
+      window.scrollTo({ top: document.getElementById("profitTracker").offsetTop, behavior: "smooth" });
+    }
+
+    function cancelEditProfitEntry(){
+      resetProfitForm();
+      document.getElementById("entryMessage").innerHTML = "Modifica annullata.";
+    }
+
+    async function initProfitTracker(){
+      setDefaultProfitDate();
+      setCryptoDefaultState();
+
+      const { data, error } = await supabaseClient.auth.getUser();
+
+      if(error){
+        console.error(error);
+        showProfitAuthState(false);
+        return;
+      }
+
+      currentProfitUser = data?.user || null;
+      showProfitAuthState(!!currentProfitUser);
+
+      if(currentProfitUser){
+        await loadProfitEntries();
+      }else{
+        renderProfitEntries();
+        updateProfitStats();
+        renderCharts();
+      }
+
+      supabaseClient.auth.onAuthStateChange(async (_event, session) => {
+        currentProfitUser = session?.user || null;
+        showProfitAuthState(!!currentProfitUser);
+
+        if(currentProfitUser){
+          await loadProfitEntries();
+        }else{
+          profitEntries = [];
+          renderProfitEntries();
+          updateProfitStats();
+          renderCharts();
+          resetProfitForm();
+        }
+      });
+    }
+
+    async function signUpProfitTracker(){
+      const email = (document.getElementById("registerEmail").value || "").trim();
+      const password = document.getElementById("registerPassword").value || "";
+      const msg = document.getElementById("registerMessage");
+
+      if(!email || !password){
+        msg.innerHTML = "Inserisci email e password.";
+        return;
+      }
+
+      msg.innerHTML = "Registrazione in corso...";
+
+      const { data, error } = await supabaseClient.auth.signUp({
+        email,
+        password,
+        options: {
+          emailRedirectTo: "https://strumenti-andry-matched.vercel.app"
+        }
+      });
+
+      if(error){
+        msg.innerHTML = error.message;
+        return;
+      }
+
+      if (data?.user && !data?.session) {
+        msg.innerHTML = "Account creato. Controlla la mail e conferma l'indirizzo prima di fare login.";
+        return;
+      }
+
+      msg.innerHTML = "Account creato.";
+    }
+
+    async function signInProfitTracker(){
+      const email = (document.getElementById("loginEmail").value || "").trim();
+      const password = document.getElementById("loginPassword").value || "";
+      const msg = document.getElementById("loginMessage");
+
+      if(!email || !password){
+        msg.innerHTML = "Inserisci email e password.";
+        return;
+      }
+
+      msg.innerHTML = "Login in corso...";
+
+      const { error } = await supabaseClient.auth.signInWithPassword({
+        email,
+        password
+      });
+
+      if(error){
+        msg.innerHTML = error.message;
+        return;
+      }
+
+      const { data: userData, error: userError } = await supabaseClient.auth.getUser();
+
+      if(userError || !userData?.user){
+        msg.innerHTML = "Login non completato.";
+        showProfitAuthState(false);
+        return;
+      }
+
+      currentProfitUser = userData.user;
+      showProfitAuthState(true);
+      await loadProfitEntries();
+      resetProfitForm();
+
+      msg.innerHTML = "Login effettuato.";
+    }
+
+    async function signOutProfitTracker(){
+      await supabaseClient.auth.signOut();
+    }
+
+    async function saveProfitEntry(){
+      if(!currentProfitUser){
+        document.getElementById("entryMessage").innerHTML = "Devi prima fare login.";
+        return;
+      }
+
+      const payload = {
+        user_id: currentProfitUser.id,
+        entry_date: document.getElementById("profitDate").value || null,
+        bookmaker: (document.getElementById("profitBookmaker").value || "").trim(),
+        operation_type: document.getElementById("profitType").value || "Altro",
+        stake: Number(document.getElementById("profitStake").value || 0),
+        profit: Number(document.getElementById("profitAmount").value || 0),
+        note: (document.getElementById("profitNote").value || "").trim()
+      };
+
+      const msg = document.getElementById("entryMessage");
+      msg.innerHTML = editingEntryId ? "Salvataggio modifiche..." : "Salvataggio in corso...";
+
+      let response;
+      if(editingEntryId){
+        response = await supabaseClient
+          .from("profit_entries")
+          .update({
+            entry_date: payload.entry_date,
+            bookmaker: payload.bookmaker,
+            operation_type: payload.operation_type,
+            stake: payload.stake,
+            profit: payload.profit,
+            note: payload.note
+          })
+          .eq("id", editingEntryId);
+      }else{
+        response = await supabaseClient
+          .from("profit_entries")
+          .insert([payload]);
+      }
+
+      if(response.error){
+        msg.innerHTML = response.error.message;
+        return;
+      }
+
+      msg.innerHTML = editingEntryId ? "Entry modificata." : "Entry salvata.";
+      resetProfitForm();
+      await loadProfitEntries();
+    }
+
+    function editProfitEntry(id){
+      const entry = profitEntries.find(e => e.id === id);
+      if(!entry) return;
+      fillProfitForm(entry);
+    }
+
+    async function loadProfitEntries(){
+      const { data, error } = await supabaseClient
+        .from("profit_entries")
+        .select("*")
+        .order("entry_date", { ascending: true })
+        .order("created_at", { ascending: true });
+
+      if(error){
+        console.error(error);
+        document.getElementById("entryMessage").innerHTML = error.message;
+        return;
+      }
+
+      profitEntries = data || [];
+      renderProfitEntries();
+      updateProfitStats();
+      renderCharts();
+    }
+
+    function updateProfitStats(){
+      const total = profitEntries.reduce((sum, row) => sum + Number(row.profit || 0), 0);
+
+      const now = new Date();
+      const currentYear = now.getFullYear();
+      const currentMonth = now.getMonth();
+
+      const monthTotal = profitEntries
+        .filter(row => {
+          if(!row.entry_date) return false;
+          const d = new Date(row.entry_date);
+          return d.getFullYear() === currentYear && d.getMonth() === currentMonth;
+        })
+        .reduce((sum, row) => sum + Number(row.profit || 0), 0);
+
+      const sevenDaysAgo = new Date();
+      sevenDaysAgo.setDate(now.getDate() - 6);
+
+      const weekTotal = profitEntries
+        .filter(row => {
+          if(!row.entry_date) return false;
+          const d = new Date(row.entry_date);
+          return d >= new Date(sevenDaysAgo.getFullYear(), sevenDaysAgo.getMonth(), sevenDaysAgo.getDate());
+        })
+        .reduce((sum, row) => sum + Number(row.profit || 0), 0);
+
+      const totalEl = document.getElementById("totalProfitValue");
+      const monthEl = document.getElementById("monthProfitValue");
+      const weekEl = document.getElementById("weekProfitValue");
+      const countEl = document.getElementById("entriesCountValue");
+
+      totalEl.innerHTML = euro(total);
+      monthEl.innerHTML = euro(monthTotal);
+      weekEl.innerHTML = euro(weekTotal);
+      countEl.innerHTML = String(profitEntries.length);
+
+      setValueClass(totalEl, total);
+      setValueClass(monthEl, monthTotal);
+      setValueClass(weekEl, weekTotal);
+      countEl.classList.remove("positive","negative");
+      countEl.classList.add("neutral");
+    }
+
+    function renderProfitEntries(){
+      const tbody = document.getElementById("profitTableBody");
+      if(!tbody) return;
+
+      if(!profitEntries.length){
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="7">Nessuna entry</td>
+          </tr>
+        `;
+        return;
+      }
+
+      const ordered = [...profitEntries].sort((a,b) => {
+        const da = new Date(a.entry_date || a.created_at || 0).getTime();
+        const db = new Date(b.entry_date || b.created_at || 0).getTime();
+        return db - da;
+      });
+
+      tbody.innerHTML = ordered.map(row => {
+        const profitNumber = Number(row.profit || 0);
+        const profitBadgeClass = profitNumber >= 0 ? "pos" : "neg";
+
+        return `
+          <tr>
+            <td>${row.entry_date || "—"}</td>
+            <td>${row.bookmaker || "—"}</td>
+            <td><span class="pill-type">${row.operation_type || "—"}</span></td>
+            <td>${euro(row.stake || 0)}</td>
+            <td><span class="profit-badge ${profitBadgeClass}">${euro(profitNumber)}</span></td>
+            <td>${row.note || "—"}</td>
+            <td>
+              <div class="inline-actions">
+                <button class="small-btn" onclick="editProfitEntry('${row.id}')">Modifica</button>
+                <button class="small-btn delete" onclick="deleteProfitEntry('${row.id}')">Elimina</button>
+              </div>
+            </td>
+          </tr>
+        `;
+      }).join("");
+    }
+
+    async function deleteProfitEntry(id){
+      const yes = confirm("Vuoi eliminare questa entry?");
+      if(!yes) return;
+
+      const { error } = await supabaseClient
+        .from("profit_entries")
+        .delete()
+        .eq("id", id);
+
+      if(error){
+        document.getElementById("entryMessage").innerHTML = error.message;
+        return;
+      }
+
+      if(editingEntryId === id){
+        resetProfitForm();
+      }
+
+      await loadProfitEntries();
+      document.getElementById("entryMessage").innerHTML = "Entry eliminata.";
+    }
+
+    function destroyChart(chart){
+      if(chart) chart.destroy();
+      return null;
+    }
+
+    function renderCharts(){
+      const lineCtx = document.getElementById("profitChart");
+      const bookCtx = document.getElementById("bookmakerChart");
+      const typeCtx = document.getElementById("typeChart");
+      const cumulativeCtx = document.getElementById("cumulativeChart");
+
+      profitChart = destroyChart(profitChart);
+      bookmakerChart = destroyChart(bookmakerChart);
+      typeChart = destroyChart(typeChart);
+      cumulativeChart = destroyChart(cumulativeChart);
+
+      const sorted = [...profitEntries].sort((a,b) => {
+        const da = new Date(a.entry_date || a.created_at || 0).getTime();
+        const db = new Date(b.entry_date || b.created_at || 0).getTime();
+        return da - db;
+      });
+
+      const labels = sorted.map(e => e.entry_date || "—");
+      const profits = sorted.map(e => Number(e.profit || 0));
+
+      const cumulative = [];
+      let running = 0;
+      profits.forEach(v => {
+        running += v;
+        cumulative.push(running);
+      });
+
+      const byBook = {};
+      sorted.forEach(e => {
+        const key = e.bookmaker || "Sconosciuto";
+        byBook[key] = (byBook[key] || 0) + Number(e.profit || 0);
+      });
+
+      const byType = {};
+      sorted.forEach(e => {
+        const key = e.operation_type || "Altro";
+        byType[key] = (byType[key] || 0) + Number(e.profit || 0);
+      });
+
+      if(lineCtx){
+        profitChart = new Chart(lineCtx, {
+          type: "line",
+          data: {
+            labels,
+            datasets: [{
+              label: "Profitto",
+              data: profits,
+              borderWidth: 2,
+              tension: 0.3
+            }]
+          },
+          options: {
+            responsive:true,
+            maintainAspectRatio:false,
+            plugins:{
+              legend:{ labels:{ color:"#cbd5e1" } }
+            },
+            scales:{
+              x:{ ticks:{ color:"#cbd5e1" }, grid:{ color:"rgba(255,255,255,.06)" } },
+              y:{ ticks:{ color:"#cbd5e1" }, grid:{ color:"rgba(255,255,255,.06)" } }
+            }
+          }
+        });
+      }
+
+      if(bookCtx){
+        bookmakerChart = new Chart(bookCtx, {
+          type:"bar",
+          data:{
+            labels:Object.keys(byBook),
+            datasets:[{
+              label:"Profitto",
+              data:Object.values(byBook),
+              borderWidth:1
+            }]
+          },
+          options:{
+            responsive:true,
+            maintainAspectRatio:false,
+            plugins:{
+              legend:{ labels:{ color:"#cbd5e1" } }
+            },
+            scales:{
+              x:{ ticks:{ color:"#cbd5e1" }, grid:{ color:"rgba(255,255,255,.06)" } },
+              y:{ ticks:{ color:"#cbd5e1" }, grid:{ color:"rgba(255,255,255,.06)" } }
+            }
+          }
+        });
+      }
+
+      if(typeCtx){
+        typeChart = new Chart(typeCtx, {
+          type:"doughnut",
+          data:{
+            labels:Object.keys(byType),
+            datasets:[{
+              data:Object.values(byType),
+              borderWidth:1
+            }]
+          },
+          options:{
+            responsive:true,
+            maintainAspectRatio:false,
+            plugins:{
+              legend:{
+                position:"bottom",
+                labels:{ color:"#cbd5e1" }
+              }
+            }
+          }
+        });
+      }
+
+      if(cumulativeCtx){
+        cumulativeChart = new Chart(cumulativeCtx, {
+          type:"line",
+          data:{
+            labels,
+            datasets:[{
+              label:"Profitto cumulativo",
+              data:cumulative,
+              borderWidth:2,
+              tension:0.25
+            }]
+          },
+          options:{
+            responsive:true,
+            maintainAspectRatio:false,
+            plugins:{
+              legend:{ labels:{ color:"#cbd5e1" } }
+            },
+            scales:{
+              x:{ ticks:{ color:"#cbd5e1" }, grid:{ color:"rgba(255,255,255,.06)" } },
+              y:{ ticks:{ color:"#cbd5e1" }, grid:{ color:"rgba(255,255,255,.06)" } }
+            }
+          }
+        });
+      }
+    }
+
+    renderBlackjackButtons();
+    updateDeckMemoryUI();
+    initProfitTracker();
+  </script>
+</body>
+</html>
