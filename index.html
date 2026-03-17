@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+    <!DOCTYPE html>
 <html lang="it">
 <head>
   <meta charset="UTF-8" />
@@ -217,93 +217,17 @@
     }
 
     .hero-bonus h3,
-    .hero-blackjack h3{
-      margin:0 0 8px;
-      font-size:30px;
-      color:#fff;
-    }
-
-    .hero-blackjack p{
-      margin:0;
-      color:#f8fafc;
-    }
-
+    .hero-blackjack h3,
     .hero-crypto h3{
       margin:0 0 8px;
       font-size:30px;
       color:#fff;
     }
 
+    .hero-blackjack p,
     .hero-crypto p{
       margin:0;
       color:#f8fafc;
-    }
-
-    .crypto-hero-top{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:20px;
-      flex-wrap:wrap;
-    }
-
-    .crypto-hero-text{
-      max-width:620px;
-    }
-
-    .crypto-marquee{
-      width:100%;
-      overflow:hidden;
-      margin-top:18px;
-      padding:10px 0 2px;
-      position:relative;
-    }
-
-    .crypto-marquee-track{
-      display:flex;
-      gap:28px;
-      width:max-content;
-      animation: scrollCoins 22s linear infinite;
-      align-items:center;
-    }
-
-    .coin-mini{
-      display:flex;
-      align-items:center;
-      gap:10px;
-      background:rgba(2,6,23,.48);
-      border:1px solid rgba(255,255,255,.1);
-      padding:10px 14px;
-      border-radius:999px;
-      backdrop-filter: blur(6px);
-      transform:translateY(0);
-      animation: floatCoin 3.5s ease-in-out infinite;
-    }
-
-    .coin-mini:nth-child(2n){ animation-delay:.4s; }
-    .coin-mini:nth-child(3n){ animation-delay:.8s; }
-
-    .coin-mini img{
-      width:22px;
-      height:22px;
-      object-fit:contain;
-    }
-
-    .coin-mini span{
-      color:#e5e7eb;
-      font-size:13px;
-      font-weight:bold;
-      white-space:nowrap;
-    }
-
-    @keyframes scrollCoins{
-      from{ transform:translateX(0); }
-      to{ transform:translateX(-50%); }
-    }
-
-    @keyframes floatCoin{
-      0%,100%{ transform:translateY(0px); }
-      50%{ transform:translateY(-4px); }
     }
 
     .card-grid{
@@ -481,120 +405,6 @@
       line-height:1.5;
     }
 
-    .crypto-grid{
-      display:grid;
-      grid-template-columns:1fr 1fr;
-      gap:18px;
-      margin-top:18px;
-    }
-
-    .crypto-stats-grid{
-      display:grid;
-      grid-template-columns:1fr 1fr;
-      gap:14px;
-    }
-
-    .crypto-stat{
-      background:#0f172a;
-      border:1px solid var(--line);
-      padding:16px;
-      border-radius:16px;
-    }
-
-    .crypto-stat .label{
-      display:block;
-      color:var(--muted);
-      font-size:13px;
-      margin-bottom:8px;
-      font-weight:bold;
-      text-transform:uppercase;
-      letter-spacing:.04em;
-    }
-
-    .crypto-stat .value{
-      font-size:26px;
-      font-weight:bold;
-      line-height:1.15;
-      word-break:break-word;
-    }
-
-    .signal-pill{
-      display:inline-flex;
-      align-items:center;
-      gap:8px;
-      padding:8px 12px;
-      border-radius:999px;
-      font-weight:bold;
-      font-size:13px;
-      margin-top:6px;
-    }
-
-    .signal-long{
-      background:var(--greenSoft);
-      color:#86efac;
-      border:1px solid rgba(34,197,94,.22);
-    }
-
-    .signal-short{
-      background:var(--redSoft);
-      color:#fca5a5;
-      border:1px solid rgba(239,68,68,.22);
-    }
-
-    .signal-wait{
-      background:rgba(251,191,36,.12);
-      color:#fde68a;
-      border:1px solid rgba(251,191,36,.22);
-    }
-
-    .cards-grid{
-      display:grid;
-      grid-template-columns:repeat(7,minmax(0,1fr));
-      gap:10px;
-    }
-
-    .card-btn{
-      padding:12px 8px;
-      border-radius:12px;
-      border:1px solid rgba(255,255,255,.15);
-      background:#ffffff;
-      color:#111827;
-      font-size:18px;
-      font-weight:bold;
-      cursor:pointer;
-      transition:all .15s ease;
-    }
-
-    .card-btn:hover{
-      transform:translateY(-1px);
-    }
-
-    .picked-cards{
-      min-height:52px;
-      padding:14px;
-      border-radius:12px;
-      border:1px solid var(--line);
-      background:#020617;
-      color:#fff;
-      font-size:20px;
-      display:flex;
-      align-items:center;
-      flex-wrap:wrap;
-      gap:8px;
-    }
-
-    .picked-card{
-      padding:8px 12px;
-      border-radius:10px;
-      background:#fff;
-      color:#111827;
-      font-weight:bold;
-    }
-
-    .count-good{ color:#4ade80; }
-    .count-neutral{ color:#facc15; }
-    .count-bad{ color:#f87171; }
-
     .auth-grid{
       display:grid;
       grid-template-columns:1fr 1fr;
@@ -629,17 +439,9 @@
       color:var(--muted);
     }
 
-    .positive{
-      color:#4ade80 !important;
-    }
-
-    .negative{
-      color:#f87171 !important;
-    }
-
-    .neutral{
-      color:#fff !important;
-    }
+    .positive{ color:#4ade80 !important; }
+    .negative{ color:#f87171 !important; }
+    .neutral{ color:#fff !important; }
 
     .table-wrap{
       overflow:auto;
@@ -676,9 +478,7 @@
       font-size:14px;
     }
 
-    .hidden{
-      display:none !important;
-    }
+    .hidden{ display:none !important; }
 
     .inline-actions{
       display:flex;
@@ -696,20 +496,9 @@
       color:#fff;
     }
 
-    .small-btn.delete{
-      background:#7f1d1d;
-      color:#fff;
-    }
-
-    .small-btn.logout{
-      background:#334155;
-      color:#fff;
-    }
-
-    .small-btn.cancel{
-      background:#475569;
-      color:#fff;
-    }
+    .small-btn.delete{ background:#7f1d1d; }
+    .small-btn.logout{ background:#334155; }
+    .small-btn.cancel{ background:#475569; }
 
     .user-pill{
       display:inline-block;
@@ -729,9 +518,7 @@
       align-items:stretch;
     }
 
-    .password-row input{
-      flex:1;
-    }
+    .password-row input{ flex:1; }
 
     .toggle-pass{
       min-width:72px;
@@ -783,9 +570,7 @@
       font-size:20px;
     }
 
-    .muted{
-      color:var(--muted);
-    }
+    .muted{ color:var(--muted); }
 
     .pill-type{
       display:inline-flex;
@@ -877,6 +662,14 @@
       border:1px solid var(--line);
     }
 
+    .service-total{
+      margin-bottom:14px;
+      padding:16px;
+      border-radius:14px;
+      background:#111827;
+      border:1px solid var(--line);
+    }
+
     canvas{
       width:100% !important;
       height:280px !important;
@@ -885,16 +678,14 @@
     @media (max-width:980px){
       .profit-layout{grid-template-columns:1fr;}
       .stats-grid{grid-template-columns:repeat(2,minmax(0,1fr));}
-      .two-col, .three-col, .crypto-grid, .service-list{grid-template-columns:1fr;}
+      .two-col, .three-col, .service-list{grid-template-columns:1fr;}
     }
 
     @media (max-width:850px){
       .menu{grid-template-columns:1fr;}
       .card-grid{grid-template-columns:1fr;}
-      .cards-grid{grid-template-columns:repeat(4,minmax(0,1fr));}
       .auth-grid{grid-template-columns:1fr;}
       .stats-grid{grid-template-columns:1fr;}
-      .crypto-stats-grid{grid-template-columns:1fr;}
       h1{font-size:34px;}
       .section-header h2{font-size:28px;}
       .hero-bonus h3,
@@ -914,528 +705,5 @@
     </div>
 
     <div id="menu" class="menu">
-      <button onclick="openSection('bonus')">Calcolatore Fun Bonus</button>
-      <button onclick="openSection('surebet')">Surebet</button>
-      <button onclick="openSection('puntabanca')">Punta Banca</button>
-      <button onclick="openSection('freebet')">Freebet</button>
-      <button onclick="openSection('casino')">Casino Live</button>
-      <button onclick="openSection('blackjack')">Black Jack</button>
-      <button onclick="openSection('crypto')">Cripto</button>
       <button onclick="openSection('profitTracker')">Profit Tracker</button>
-      <button onclick="window.open('https://www.sofascore.com','_blank')">Statistiche Partite</button>
-      <button onclick="window.open('https://www.top-bonus.it','_blank')">Affiliazioni</button>
     </div>
-        <!-- PROFIT TRACKER -->
-    <div id="profitTracker" class="section">
-      <div class="section-wrap">
-        <div class="hero-profit">
-          <div class="hero-profit-inner">
-            <div class="profit-brand">
-              <div class="profit-logo">AG</div>
-              <div class="profit-brand-text">
-                <h3>Andrea Gatto Privacy</h3>
-                <p>Profit Tracker personale con accesso riservato</p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="section-header">
-          <h2>Area personale</h2>
-        </div>
-
-        <!-- AUTH -->
-        <div id="authArea">
-          <input id="loginEmail" placeholder="Email">
-          <input id="loginPassword" placeholder="Password" type="password">
-          <button onclick="signIn()">Login</button>
-
-          <input id="registerEmail" placeholder="Email">
-          <input id="registerPassword" placeholder="Password" type="password">
-          <button onclick="signUp()">Registrati</button>
-        </div>
-
-        <!-- TRACKER -->
-        <div id="trackerArea" class="hidden">
-
-          <!-- AGGIUNGI ENTRY -->
-          <div class="box">
-            <h3>Aggiungi profit</h3>
-
-            <input id="profitDate" type="date">
-            <input id="profitBook" placeholder="Bookmaker">
-
-            <select id="profitType" onchange="toggleStake()">
-              <option>Surebet</option>
-              <option>Altro</option>
-            </select>
-
-            <input id="profitStake" placeholder="Stake (solo surebet)" style="display:none">
-            <input id="profitAmount" placeholder="Profitto">
-
-            <button onclick="addProfit()">Salva</button>
-          </div>
-
-          <!-- TABELLA -->
-          <div class="box">
-            <h3>Storico</h3>
-            <div id="profitTable"></div>
-          </div>
-
-          <!-- SERVIZI -->
-          <div class="box">
-            <h3>SERVIZI</h3>
-
-            <input id="newServiceName" placeholder="Nome servizio">
-            <button onclick="createService()">Crea</button>
-
-            <div id="servicesList" class="service-list"></div>
-          </div>
-
-          <!-- PANEL SERVIZIO -->
-          <div id="servicePanel" class="service-panel hidden">
-            <h3 id="serviceTitle"></h3>
-
-            <input id="serviceStake" placeholder="Stake">
-            <input id="serviceQuota" placeholder="Quota">
-            <input id="serviceProfit" placeholder="Profit">
-
-            <button onclick="addServiceEntry()">Aggiungi</button>
-
-            <div id="serviceEntries"></div>
-
-            <button onclick="closeService()">Chiudi</button>
-          </div>
-
-        </div>
-
-        <button class="back" onclick="goBack()">← Torna</button>
-      </div>
-    </div>
-        <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-    <script>
-      const SUPABASE_URL = "https://aihwrkqfzhwedqdbxbxh.supabase.co";
-      const SUPABASE_ANON_KEY = "sb_publishable_G_glT9ld2cqENlVSup38NQ_q8HWyZPd";
-      const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-      let currentProfitUser = null;
-      let profitEntries = [];
-      let services = [];
-      let serviceEntries = [];
-      let currentServiceId = null;
-      let currentServiceName = "";
-
-      function openSection(id){
-        document.getElementById("menu").style.display = "none";
-        document.querySelectorAll(".section").forEach(s => s.style.display = "none");
-        document.getElementById(id).style.display = "block";
-      }
-
-      function goBack(){
-        document.querySelectorAll(".section").forEach(s => s.style.display = "none");
-        document.getElementById("menu").style.display = "grid";
-      }
-
-      function toggleStake(){
-        const type = document.getElementById("profitType").value;
-        document.getElementById("profitStake").style.display = type === "Surebet" ? "block" : "none";
-      }
-
-      function getServiceIcon(name){
-        const n = (name || "").toLowerCase();
-
-        if(n.includes("ping")) return "🏓";
-        if(n.includes("calcio")) return "⚽";
-        if(n.includes("tennis")) return "🎾";
-        if(n.includes("basket")) return "🏀";
-        if(n.includes("crypto")) return "₿";
-        if(n.includes("volley")) return "🏐";
-        if(n.includes("golf")) return "⛳";
-        if(n.includes("baseball")) return "⚾";
-
-        return "💼";
-      }
-
-      function euro(value){
-        return "€ " + Number(value || 0).toLocaleString("it-IT", {
-          minimumFractionDigits: 2,
-          maximumFractionDigits: 2
-        });
-      }
-
-      async function signUp(){
-        const email = (document.getElementById("registerEmail").value || "").trim();
-        const password = document.getElementById("registerPassword").value || "";
-
-        if(!email || !password){
-          alert("Inserisci email e password");
-          return;
-        }
-
-        const { error } = await supabaseClient.auth.signUp({
-          email,
-          password,
-          options: {
-            emailRedirectTo: "https://strumenti-andry-matched.vercel.app"
-          }
-        });
-
-        if(error){
-          alert(error.message);
-          return;
-        }
-
-        alert("Account creato");
-      }
-
-      async function signIn(){
-        const email = (document.getElementById("loginEmail").value || "").trim();
-        const password = document.getElementById("loginPassword").value || "";
-
-        if(!email || !password){
-          alert("Inserisci email e password");
-          return;
-        }
-
-        const { error } = await supabaseClient.auth.signInWithPassword({
-          email,
-          password
-        });
-
-        if(error){
-          alert(error.message);
-          return;
-        }
-
-        await initProfitTracker();
-      }
-
-      async function initProfitTracker(){
-        const { data, error } = await supabaseClient.auth.getUser();
-
-        if(error || !data?.user){
-          document.getElementById("authArea").classList.remove("hidden");
-          document.getElementById("trackerArea").classList.add("hidden");
-          return;
-        }
-
-        currentProfitUser = data.user;
-        document.getElementById("authArea").classList.add("hidden");
-        document.getElementById("trackerArea").classList.remove("hidden");
-
-        await loadProfitEntries();
-        await loadServices();
-      }
-
-      async function addProfit(){
-        if(!currentProfitUser){
-          alert("Fai login prima");
-          return;
-        }
-
-        const entry = {
-          user_id: currentProfitUser.id,
-          entry_date: document.getElementById("profitDate").value || null,
-          bookmaker: (document.getElementById("profitBook").value || "").trim(),
-          operation_type: document.getElementById("profitType").value || "Altro",
-          stake: document.getElementById("profitType").value === "Surebet"
-            ? Number(document.getElementById("profitStake").value || 0)
-            : 0,
-          profit: Number(document.getElementById("profitAmount").value || 0),
-          note: ""
-        };
-
-        const { error } = await supabaseClient.from("profit_entries").insert([entry]);
-
-        if(error){
-          alert(error.message);
-          return;
-        }
-
-        document.getElementById("profitDate").value = "";
-        document.getElementById("profitBook").value = "";
-        document.getElementById("profitType").value = "Surebet";
-        document.getElementById("profitStake").value = "";
-        document.getElementById("profitAmount").value = "";
-        toggleStake();
-
-        await loadProfitEntries();
-      }
-
-      async function loadProfitEntries(){
-        const { data, error } = await supabaseClient
-          .from("profit_entries")
-          .select("*")
-          .order("entry_date", { ascending: false })
-          .order("created_at", { ascending: false });
-
-        if(error){
-          alert(error.message);
-          return;
-        }
-
-        profitEntries = data || [];
-        renderProfitTable();
-      }
-
-      function renderProfitTable(){
-        const wrap = document.getElementById("profitTable");
-
-        if(!profitEntries.length){
-          wrap.innerHTML = "<div class='memory-box'>Nessuna entry</div>";
-          return;
-        }
-
-        wrap.innerHTML = `
-          <div class="table-wrap">
-            <table>
-              <thead>
-                <tr>
-                  <th>Data</th>
-                  <th>Book</th>
-                  <th>Tipo</th>
-                  <th>Stake</th>
-                  <th>Profitto</th>
-                </tr>
-              </thead>
-              <tbody>
-                ${profitEntries.map(row => `
-                  <tr>
-                    <td>${row.entry_date || "—"}</td>
-                    <td>${row.bookmaker || "—"}</td>
-                    <td>${row.operation_type || "—"}</td>
-                    <td>${row.operation_type === "Surebet" ? euro(row.stake || 0) : "—"}</td>
-                    <td class="${Number(row.profit || 0) >= 0 ? "positive" : "negative"}">${euro(row.profit || 0)}</td>
-                  </tr>
-                `).join("")}
-              </tbody>
-            </table>
-          </div>
-        `;
-     }
-         async function loadServices(){
-        const { data, error } = await supabaseClient
-          .from("services")
-          .select("*")
-          .order("created_at", { ascending: false });
-
-        if(error){
-          alert(error.message);
-          return;
-        }
-
-        services = data || [];
-        renderServices();
-      }
-
-      function renderServices(){
-        const wrap = document.getElementById("servicesList");
-
-        if(!services.length){
-          wrap.innerHTML = `<div class="memory-box" style="grid-column:1/-1;">Nessun servizio creato</div>`;
-          return;
-        }
-
-        wrap.innerHTML = services.map(service => {
-          const icon = getServiceIcon(service.name);
-          return `
-            <div class="service-card">
-              <div class="service-icon">${icon}</div>
-              <h4>${service.name}</h4>
-              <div class="service-meta">Servizio personalizzato</div>
-              <div class="inline-actions">
-                <button class="small-btn" onclick="openService('${service.id}', '${String(service.name).replace(/'/g, "\\'")}')">Apri</button>
-                <button class="small-btn delete" onclick="deleteService('${service.id}')">Elimina</button>
-              </div>
-            </div>
-          `;
-        }).join("");
-      }
-
-      async function createService(){
-        if(!currentProfitUser){
-          alert("Fai login prima");
-          return;
-        }
-
-        const name = (document.getElementById("newServiceName").value || "").trim();
-
-        if(!name){
-          alert("Inserisci il nome del servizio");
-          return;
-        }
-
-        const { error } = await supabaseClient.from("services").insert([{
-          user_id: currentProfitUser.id,
-          name
-        }]);
-
-        if(error){
-          alert(error.message);
-          return;
-        }
-
-        document.getElementById("newServiceName").value = "";
-        await loadServices();
-      }
-
-      async function deleteService(id){
-        const yes = confirm("Vuoi eliminare questo servizio?");
-        if(!yes) return;
-
-        const { error } = await supabaseClient
-          .from("services")
-          .delete()
-          .eq("id", id);
-
-        if(error){
-          alert(error.message);
-          return;
-        }
-
-        if(currentServiceId === id){
-          closeService();
-        }
-
-        await loadServices();
-      }
-
-      async function openService(id, name){
-        currentServiceId = id;
-        currentServiceName = name;
-
-        document.getElementById("servicePanel").classList.remove("hidden");
-        document.getElementById("serviceTitle").innerHTML = `${getServiceIcon(name)} ${name}`;
-
-        document.getElementById("serviceStake").value = "";
-        document.getElementById("serviceQuota").value = "";
-        document.getElementById("serviceProfit").value = "";
-
-        const { data, error } = await supabaseClient
-          .from("service_entries")
-          .select("*")
-          .eq("service_id", id)
-          .order("entry_date", { ascending: false })
-          .order("created_at", { ascending: false });
-
-        if(error){
-          alert(error.message);
-          return;
-        }
-
-        serviceEntries = data || [];
-        renderServiceEntries();
-      }
-
-      function closeService(){
-        currentServiceId = null;
-        currentServiceName = "";
-        serviceEntries = [];
-        document.getElementById("servicePanel").classList.add("hidden");
-        document.getElementById("serviceTitle").innerHTML = "";
-        document.getElementById("serviceEntries").innerHTML = "";
-      }
-
-      async function addServiceEntry(){
-        if(!currentProfitUser || !currentServiceId){
-          alert("Apri prima un servizio");
-          return;
-        }
-
-        const stake = Number(document.getElementById("serviceStake").value || 0);
-        const quota = Number(document.getElementById("serviceQuota").value || 0);
-        const profit = Number(document.getElementById("serviceProfit").value || 0);
-
-        const { error } = await supabaseClient.from("service_entries").insert([{
-          user_id: currentProfitUser.id,
-          service_id: currentServiceId,
-          entry_date: new Date().toISOString().slice(0,10),
-          stake,
-          quota,
-          profit,
-          note: ""
-        }]);
-
-        if(error){
-          alert(error.message);
-          return;
-        }
-
-        document.getElementById("serviceStake").value = "";
-        document.getElementById("serviceQuota").value = "";
-        document.getElementById("serviceProfit").value = "";
-
-        await openService(currentServiceId, currentServiceName);
-      }
-
-      function renderServiceEntries(){
-        const wrap = document.getElementById("serviceEntries");
-
-        if(!serviceEntries.length){
-          wrap.innerHTML = `<div class="memory-box">Nessuna puntata inserita</div>`;
-          return;
-        }
-
-        const total = serviceEntries.reduce((sum, row) => sum + Number(row.profit || 0), 0);
-
-        wrap.innerHTML = `
-          <div class="memory-box" style="margin-bottom:14px;">
-            <strong>Profitto servizio</strong>
-            <div class="${total >= 0 ? "positive" : "negative"}" style="font-size:24px; font-weight:bold; margin-top:8px;">
-              ${euro(total)}
-            </div>
-          </div>
-
-          <div class="table-wrap">
-            <table>
-              <thead>
-                <tr>
-                  <th>Data</th>
-                  <th>Stake</th>
-                  <th>Quota</th>
-                  <th>Profit</th>
-                  <th>Azione</th>
-                </tr>
-              </thead>
-              <tbody>
-                ${serviceEntries.map(row => `
-                  <tr>
-                    <td>${row.entry_date || "—"}</td>
-                    <td>${euro(row.stake || 0)}</td>
-                    <td>${Number(row.quota || 0).toLocaleString("it-IT", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
-                    <td class="${Number(row.profit || 0) >= 0 ? "positive" : "negative"}">${euro(row.profit || 0)}</td>
-                    <td>
-                      <button class="small-btn delete" onclick="deleteServiceEntry('${row.id}')">Elimina</button>
-                    </td>
-                  </tr>
-                `).join("")}
-              </tbody>
-            </table>
-          </div>
-        `;
-      }
-
-      async function deleteServiceEntry(id){
-        const yes = confirm("Vuoi eliminare questa puntata?");
-        if(!yes) return;
-
-        const { error } = await supabaseClient
-          .from("service_entries")
-          .delete()
-          .eq("id", id);
-
-        if(error){
-          alert(error.message);
-          return;
-        }
-
-        await openService(currentServiceId, currentServiceName);
-      }
-
-      toggleStake();
-      initProfitTracker();
-    </script>
-  </div>
-</body>
-</html>
