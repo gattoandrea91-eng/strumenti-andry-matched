@@ -1,1221 +1,1789 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Strumenti Andry Matched</title>
-<style>
-:root{
-  --bg:#0b1220;
-  --bg2:#111827;
-  --panel:#111827;
-  --panel2:#1e293b;
-  --line:#334155;
-  --text:#ffffff;
-  --muted:#cbd5e1;
-  --green:#22c55e;
-  --green2:#16a34a;
-  --blue:#2563eb;
-  --red:#b91c1c;
-  --gold:#fbbf24;
-}
-*{box-sizing:border-box}
-body{
-  margin:0;
-  font-family:Arial, Helvetica, sans-serif;
-  background:linear-gradient(180deg,var(--bg) 0%, var(--bg2) 100%);
-  color:var(--text);
-}
-.container{
-  max-width:1100px;
-  margin:auto;
-  padding:32px 18px 60px;
-}
-.topbar{
-  text-align:center;
-  margin-bottom:26px;
-}
-h1{
-  margin:0;
-  font-size:42px;
-}
-.subtitle{
-  color:var(--muted);
-  margin:10px 0 0;
-}
-.menu{
-  display:grid;
-  grid-template-columns:repeat(2,minmax(0,1fr));
-  gap:16px;
-  max-width:900px;
-  margin:0 auto;
-}
-.menu button{
-  padding:22px 18px;
-  border-radius:18px;
-  border:1px solid var(--line);
-  background:linear-gradient(180deg,#1f2937 0%, #111827 100%);
-  color:white;
-  font-size:20px;
-  font-weight:bold;
-  cursor:pointer;
-  box-shadow:0 12px 24px rgba(0,0,0,.18);
-  transition:all .18s ease;
-}
-.menu button:hover{
-  border-color:#475569;
-  transform:translateY(-1px);
-}
-.section{
-  display:none;
-  margin-top:18px;
-}
-.section-wrap{
-  max-width:980px;
-  margin:0 auto;
-}
-.section-header{
-  margin-bottom:18px;
-  text-align:center;
-}
-.section-header h2{
-  margin:0 0 8px;
-  font-size:34px;
-}
-.section-header p{
-  margin:0;
-  color:var(--muted);
-}
-.hero-bonus{
-  max-width:980px;
-  margin:0 auto 18px;
-  padding:28px;
-  border:1px solid var(--line);
-  border-radius:22px;
-  background:
-    linear-gradient(rgba(10,20,40,.72), rgba(10,20,40,.82)),
-    url('https://images.unsplash.com/photo-1511512578047-dfb367046420?auto=format&fit=crop&w=1400&q=80') center/cover;
-  box-shadow:0 18px 38px rgba(0,0,0,.24);
-}
-.hero-bonus h3{
-  margin:0;
-  font-size:30px;
-}
-.hero-blackjack{
-  max-width:980px;
-  margin:0 auto 18px;
-  padding:32px 28px;
-  border:1px solid rgba(255,255,255,.12);
-  border-radius:22px;
-  background:
-    radial-gradient(circle at center, rgba(22,101,52,.28), rgba(0,0,0,.45)),
-    linear-gradient(rgba(0,0,0,.22), rgba(0,0,0,.42)),
-    url('https://images.unsplash.com/photo-1511193311914-0346f16efe90?auto=format&fit=crop&w=1400&q=80') center/cover;
-  box-shadow:0 18px 38px rgba(0,0,0,.24);
-}
-.hero-blackjack h3{
-  margin:0 0 8px;
-  font-size:30px;
-  color:#fff;
-}
-.hero-blackjack p{
-  margin:0;
-  color:#f8fafc;
-}
-.hero-crypto{
-  max-width:980px;
-  margin:0 auto 18px;
-  padding:28px;
-  border:1px solid var(--line);
-  border-radius:22px;
-  background:
-    linear-gradient(rgba(8,15,30,.76), rgba(8,15,30,.88)),
-    url('https://images.unsplash.com/photo-1621761191319-c6fb62004040?auto=format&fit=crop&w=1400&q=80') center/cover;
-  box-shadow:0 18px 38px rgba(0,0,0,.24);
-}
-.hero-crypto h3{
-  margin:0;
-  font-size:30px;
-}
-.card-grid{
-  display:grid;
-  grid-template-columns:1.05fr .95fr;
-  gap:18px;
-}
-.box{
-  background:rgba(17,24,39,.96);
-  padding:28px;
-  border-radius:20px;
-  border:1px solid var(--line);
-  box-shadow:0 16px 36px rgba(0,0,0,.22);
-}
-.result-box{
-  background:rgba(17,24,39,.96);
-  padding:28px;
-  border-radius:20px;
-  border:1px solid var(--line);
-  box-shadow:0 16px 36px rgba(0,0,0,.22);
-}
-label{
-  display:block;
-  text-align:left;
-  margin:0 0 8px;
-  color:#e2e8f0;
-  font-size:15px;
-  font-weight:bold;
-}
-.field{
-  margin-bottom:16px;
-}
-input, select{
-  width:100%;
-  padding:14px 14px;
-  border-radius:12px;
-  border:1px solid var(--line);
-  background:#020617;
-  color:white;
-  font-size:16px;
-}
-.action{
-  width:100%;
-  padding:16px;
-  border-radius:14px;
-  border:none;
-  cursor:pointer;
-  background:linear-gradient(180deg,var(--green) 0%, var(--green2) 100%);
-  color:#052e16;
-  font-weight:bold;
-  font-size:18px;
-  margin-top:4px;
-}
-.action-secondary{
-  width:100%;
-  padding:16px;
-  border-radius:14px;
-  border:none;
-  cursor:pointer;
-  background:linear-gradient(180deg,#facc15 0%, #eab308 100%);
-  color:#422006;
-  font-weight:bold;
-  font-size:18px;
-  margin-top:4px;
-}
-.action-danger{
-  width:100%;
-  padding:16px;
-  border-radius:14px;
-  border:none;
-  cursor:pointer;
-  background:linear-gradient(180deg,#ef4444 0%, #b91c1c 100%);
-  color:white;
-  font-weight:bold;
-  font-size:18px;
-  margin-top:10px;
-}
-.result{
-  margin-top:14px;
-  font-size:20px;
-  background:var(--panel2);
-  padding:16px;
-  border-radius:14px;
-  border:1px solid var(--line);
-}
-.result strong{
-  display:block;
-  font-size:14px;
-  color:var(--muted);
-  margin-bottom:6px;
-}
-.result-value{
-  font-size:28px;
-  font-weight:bold;
-  color:white;
-  word-break:break-word;
-}
-.memory-box{
-  margin-top:14px;
-  font-size:15px;
-  line-height:1.6;
-  color:var(--muted);
-  background:#0f172a;
-  padding:16px;
-  border-radius:14px;
-  border:1px solid var(--line);
-}
-.back{
-  display:block;
-  margin:20px auto 0;
-  padding:14px 22px;
-  border-radius:14px;
-  border:none;
-  background:#334155;
-  color:white;
-  font-size:16px;
-  cursor:pointer;
-}
-.choice-grid{
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:14px;
-  margin-top:8px;
-}
-.choice{
-  padding:18px;
-  border-radius:14px;
-  border:1px solid var(--line);
-  font-size:20px;
-  font-weight:bold;
-  color:white;
-  text-align:center;
-}
-.player{ background:#1d4ed8; }
-.banker{ background:#b91c1c; }
-.blackjack-card{
-  background:linear-gradient(180deg,#14532d 0%, #052e16 100%);
-  border:1px solid rgba(255,255,255,.12);
-}
-.blackjack-chip{
-  display:inline-block;
-  margin-top:8px;
-  padding:8px 14px;
-  border-radius:999px;
-  background:rgba(251,191,36,.18);
-  border:1px solid rgba(251,191,36,.35);
-  color:#fde68a;
-  font-size:14px;
-  font-weight:bold;
-}
-.crypto-note{
-  color:#cbd5e1;
-  margin-top:10px;
-  font-size:14px;
-}
-.cards-grid{
-  display:grid;
-  grid-template-columns:repeat(7,minmax(0,1fr));
-  gap:10px;
-}
-.card-btn{
-  padding:12px 8px;
-  border-radius:12px;
-  border:1px solid rgba(255,255,255,.15);
-  background:#ffffff;
-  color:#111827;
-  font-size:18px;
-  font-weight:bold;
-  cursor:pointer;
-  transition:all .15s ease;
-}
-.card-btn:hover{
-  transform:translateY(-1px);
-}
-.picked-cards{
-  min-height:52px;
-  padding:14px;
-  border-radius:12px;
-  border:1px solid var(--line);
-  background:#020617;
-  color:#fff;
-  font-size:20px;
-  display:flex;
-  align-items:center;
-  flex-wrap:wrap;
-  gap:8px;
-}
-.picked-card{
-  padding:8px 12px;
-  border-radius:10px;
-  background:#fff;
-  color:#111827;
-  font-weight:bold;
-}
-.count-good{ color:#4ade80; }
-.count-neutral{ color:#facc15; }
-.count-bad{ color:#f87171; }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Strumenti Andry Matched</title>
 
-@media (max-width:850px){
-  .menu{grid-template-columns:1fr;}
-  .card-grid{grid-template-columns:1fr;}
-  .cards-grid{grid-template-columns:repeat(4,minmax(0,1fr));}
-  h1{font-size:34px;}
-  .section-header h2{font-size:28px;}
-  .hero-bonus h3,
-  .hero-blackjack h3,
-  .hero-crypto h3{font-size:26px;}
-}
-</style>
+  <style>
+    :root{
+      --bg:#0b1220;
+      --bg2:#111827;
+      --panel:#111827;
+      --panel2:#1e293b;
+      --line:#334155;
+      --text:#ffffff;
+      --muted:#cbd5e1;
+      --green:#22c55e;
+      --green2:#16a34a;
+      --blue:#2563eb;
+      --red:#b91c1c;
+      --gold:#fbbf24;
+    }
+
+    *{box-sizing:border-box}
+
+    body{
+      margin:0;
+      font-family:Arial, Helvetica, sans-serif;
+      background:linear-gradient(180deg,var(--bg) 0%, var(--bg2) 100%);
+      color:var(--text);
+    }
+
+    .container{
+      max-width:1100px;
+      margin:auto;
+      padding:32px 18px 60px;
+    }
+
+    .topbar{
+      text-align:center;
+      margin-bottom:26px;
+    }
+
+    h1{
+      margin:0;
+      font-size:42px;
+    }
+
+    .subtitle{
+      color:var(--muted);
+      margin:10px 0 0;
+    }
+
+    .menu{
+      display:grid;
+      grid-template-columns:repeat(2,minmax(0,1fr));
+      gap:16px;
+      max-width:900px;
+      margin:0 auto;
+    }
+
+    .menu button{
+      padding:22px 18px;
+      border-radius:18px;
+      border:1px solid var(--line);
+      background:linear-gradient(180deg,#1f2937 0%, #111827 100%);
+      color:white;
+      font-size:20px;
+      font-weight:bold;
+      cursor:pointer;
+      box-shadow:0 12px 24px rgba(0,0,0,.18);
+      transition:all .18s ease;
+    }
+
+    .menu button:hover{
+      border-color:#475569;
+      transform:translateY(-1px);
+    }
+
+    .section{
+      display:none;
+      margin-top:18px;
+    }
+
+    .section-wrap{
+      max-width:980px;
+      margin:0 auto;
+    }
+
+    .section-header{
+      margin-bottom:18px;
+      text-align:center;
+    }
+
+    .section-header h2{
+      margin:0 0 8px;
+      font-size:34px;
+    }
+
+    .section-header p{
+      margin:0;
+      color:var(--muted);
+    }
+
+    .hero-bonus{
+      max-width:980px;
+      margin:0 auto 18px;
+      padding:28px;
+      border:1px solid var(--line);
+      border-radius:22px;
+      background:
+        linear-gradient(rgba(10,20,40,.72), rgba(10,20,40,.82)),
+        url('https://images.unsplash.com/photo-1511512578047-dfb367046420?auto=format&fit=crop&w=1400&q=80') center/cover;
+      box-shadow:0 18px 38px rgba(0,0,0,.24);
+    }
+
+    .hero-bonus h3{
+      margin:0;
+      font-size:30px;
+    }
+
+    .hero-blackjack{
+      max-width:980px;
+      margin:0 auto 18px;
+      padding:32px 28px;
+      border:1px solid rgba(255,255,255,.12);
+      border-radius:22px;
+      background:
+        radial-gradient(circle at center, rgba(22,101,52,.28), rgba(0,0,0,.45)),
+        linear-gradient(rgba(0,0,0,.22), rgba(0,0,0,.42)),
+        url('https://images.unsplash.com/photo-1511193311914-0346f16efe90?auto=format&fit=crop&w=1400&q=80') center/cover;
+      box-shadow:0 18px 38px rgba(0,0,0,.24);
+    }
+
+    .hero-blackjack h3{
+      margin:0 0 8px;
+      font-size:30px;
+      color:#fff;
+    }
+
+    .hero-blackjack p{
+      margin:0;
+      color:#f8fafc;
+    }
+
+    .hero-crypto{
+      max-width:980px;
+      margin:0 auto 18px;
+      padding:28px;
+      border:1px solid var(--line);
+      border-radius:22px;
+      background:
+        linear-gradient(rgba(8,15,30,.76), rgba(8,15,30,.88)),
+        url('https://images.unsplash.com/photo-1621761191319-c6fb62004040?auto=format&fit=crop&w=1400&q=80') center/cover;
+      box-shadow:0 18px 38px rgba(0,0,0,.24);
+    }
+
+    .hero-crypto h3{
+      margin:0;
+      font-size:30px;
+    }
+
+    .hero-profit{
+      max-width:980px;
+      margin:0 auto 18px;
+      padding:28px;
+      border:1px solid var(--line);
+      border-radius:22px;
+      background:
+        linear-gradient(rgba(8,15,30,.78), rgba(8,15,30,.9)),
+        url('https://images.unsplash.com/photo-1554224155-6726b3ff858f?auto=format&fit=crop&w=1400&q=80') center/cover;
+      box-shadow:0 18px 38px rgba(0,0,0,.24);
+    }
+
+    .hero-profit h3{
+      margin:0 0 8px;
+      font-size:30px;
+    }
+
+    .hero-profit p{
+      margin:0;
+      color:#f8fafc;
+    }
+
+    .card-grid{
+      display:grid;
+      grid-template-columns:1.05fr .95fr;
+      gap:18px;
+    }
+
+    .box{
+      background:rgba(17,24,39,.96);
+      padding:28px;
+      border-radius:20px;
+      border:1px solid var(--line);
+      box-shadow:0 16px 36px rgba(0,0,0,.22);
+    }
+
+    .result-box{
+      background:rgba(17,24,39,.96);
+      padding:28px;
+      border-radius:20px;
+      border:1px solid var(--line);
+      box-shadow:0 16px 36px rgba(0,0,0,.22);
+    }
+
+    label{
+      display:block;
+      text-align:left;
+      margin:0 0 8px;
+      color:#e2e8f0;
+      font-size:15px;
+      font-weight:bold;
+    }
+
+    .field{
+      margin-bottom:16px;
+    }
+
+    input, select{
+      width:100%;
+      padding:14px 14px;
+      border-radius:12px;
+      border:1px solid var(--line);
+      background:#020617;
+      color:white;
+      font-size:16px;
+    }
+
+    .action{
+      width:100%;
+      padding:16px;
+      border-radius:14px;
+      border:none;
+      cursor:pointer;
+      background:linear-gradient(180deg,var(--green) 0%, var(--green2) 100%);
+      color:#052e16;
+      font-weight:bold;
+      font-size:18px;
+      margin-top:4px;
+    }
+
+    .action-secondary{
+      width:100%;
+      padding:16px;
+      border-radius:14px;
+      border:none;
+      cursor:pointer;
+      background:linear-gradient(180deg,#facc15 0%, #eab308 100%);
+      color:#422006;
+      font-weight:bold;
+      font-size:18px;
+      margin-top:4px;
+    }
+
+    .action-danger{
+      width:100%;
+      padding:16px;
+      border-radius:14px;
+      border:none;
+      cursor:pointer;
+      background:linear-gradient(180deg,#ef4444 0%, #b91c1c 100%);
+      color:white;
+      font-weight:bold;
+      font-size:18px;
+      margin-top:10px;
+    }
+
+    .result{
+      margin-top:14px;
+      font-size:20px;
+      background:var(--panel2);
+      padding:16px;
+      border-radius:14px;
+      border:1px solid var(--line);
+    }
+
+    .result strong{
+      display:block;
+      font-size:14px;
+      color:var(--muted);
+      margin-bottom:6px;
+    }
+
+    .result-value{
+      font-size:28px;
+      font-weight:bold;
+      color:white;
+      word-break:break-word;
+    }
+
+    .memory-box{
+      margin-top:14px;
+      font-size:15px;
+      line-height:1.6;
+      color:var(--muted);
+      background:#0f172a;
+      padding:16px;
+      border-radius:14px;
+      border:1px solid var(--line);
+    }
+
+    .back{
+      display:block;
+      margin:20px auto 0;
+      padding:14px 22px;
+      border-radius:14px;
+      border:none;
+      background:#334155;
+      color:white;
+      font-size:16px;
+      cursor:pointer;
+    }
+
+    .choice-grid{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:14px;
+      margin-top:8px;
+    }
+
+    .choice{
+      padding:18px;
+      border-radius:14px;
+      border:1px solid var(--line);
+      font-size:20px;
+      font-weight:bold;
+      color:white;
+      text-align:center;
+    }
+
+    .player{ background:#1d4ed8; }
+    .banker{ background:#b91c1c; }
+
+    .blackjack-card{
+      background:linear-gradient(180deg,#14532d 0%, #052e16 100%);
+      border:1px solid rgba(255,255,255,.12);
+    }
+
+    .blackjack-chip{
+      display:inline-block;
+      margin-top:8px;
+      padding:8px 14px;
+      border-radius:999px;
+      background:rgba(251,191,36,.18);
+      border:1px solid rgba(251,191,36,.35);
+      color:#fde68a;
+      font-size:14px;
+      font-weight:bold;
+    }
+
+    .crypto-note{
+      color:#cbd5e1;
+      margin-top:10px;
+      font-size:14px;
+    }
+
+    .cards-grid{
+      display:grid;
+      grid-template-columns:repeat(7,minmax(0,1fr));
+      gap:10px;
+    }
+
+    .card-btn{
+      padding:12px 8px;
+      border-radius:12px;
+      border:1px solid rgba(255,255,255,.15);
+      background:#ffffff;
+      color:#111827;
+      font-size:18px;
+      font-weight:bold;
+      cursor:pointer;
+      transition:all .15s ease;
+    }
+
+    .card-btn:hover{
+      transform:translateY(-1px);
+    }
+
+    .picked-cards{
+      min-height:52px;
+      padding:14px;
+      border-radius:12px;
+      border:1px solid var(--line);
+      background:#020617;
+      color:#fff;
+      font-size:20px;
+      display:flex;
+      align-items:center;
+      flex-wrap:wrap;
+      gap:8px;
+    }
+
+    .picked-card{
+      padding:8px 12px;
+      border-radius:10px;
+      background:#fff;
+      color:#111827;
+      font-weight:bold;
+    }
+
+    .count-good{ color:#4ade80; }
+    .count-neutral{ color:#facc15; }
+    .count-bad{ color:#f87171; }
+
+    .auth-grid{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:18px;
+    }
+
+    .stats-grid{
+      display:grid;
+      grid-template-columns:repeat(3,minmax(0,1fr));
+      gap:14px;
+      margin-bottom:18px;
+    }
+
+    .stat-card{
+      background:rgba(17,24,39,.96);
+      padding:20px;
+      border-radius:18px;
+      border:1px solid var(--line);
+      box-shadow:0 16px 36px rgba(0,0,0,.18);
+    }
+
+    .stat-card strong{
+      display:block;
+      font-size:14px;
+      color:var(--muted);
+      margin-bottom:8px;
+    }
+
+    .stat-card .value{
+      font-size:28px;
+      font-weight:bold;
+    }
+
+    .table-wrap{
+      overflow:auto;
+      border:1px solid var(--line);
+      border-radius:16px;
+      background:#0f172a;
+    }
+
+    table{
+      width:100%;
+      border-collapse:collapse;
+    }
+
+    th, td{
+      padding:14px 12px;
+      text-align:left;
+      border-bottom:1px solid rgba(255,255,255,.08);
+      font-size:14px;
+      white-space:nowrap;
+    }
+
+    th{
+      color:#cbd5e1;
+      background:#111827;
+    }
+
+    .auth-note{
+      margin-top:10px;
+      color:var(--muted);
+      font-size:14px;
+    }
+
+    .hidden{
+      display:none !important;
+    }
+
+    .inline-actions{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+
+    .small-btn{
+      padding:10px 14px;
+      border:none;
+      border-radius:10px;
+      cursor:pointer;
+      font-weight:bold;
+    }
+
+    .small-btn.delete{
+      background:#7f1d1d;
+      color:#fff;
+    }
+
+    .small-btn.logout{
+      background:#334155;
+      color:#fff;
+    }
+
+    .user-pill{
+      display:inline-block;
+      margin-top:8px;
+      padding:8px 14px;
+      border-radius:999px;
+      background:rgba(37,99,235,.15);
+      border:1px solid rgba(37,99,235,.35);
+      color:#bfdbfe;
+      font-size:14px;
+      font-weight:bold;
+    }
+
+    @media (max-width:850px){
+      .menu{grid-template-columns:1fr;}
+      .card-grid{grid-template-columns:1fr;}
+      .cards-grid{grid-template-columns:repeat(4,minmax(0,1fr));}
+      .auth-grid{grid-template-columns:1fr;}
+      .stats-grid{grid-template-columns:1fr;}
+      h1{font-size:34px;}
+      .section-header h2{font-size:28px;}
+      .hero-bonus h3,
+      .hero-blackjack h3,
+      .hero-crypto h3,
+      .hero-profit h3{font-size:26px;}
+    }
+  </style>
 </head>
 <body>
 
-<div class="container">
-  <div class="topbar">
-    <h1>Strumenti Andry Matched</h1>
-    <p class="subtitle">Tool ordinati, puliti e pronti da usare</p>
-  </div>
-
-  <div id="menu" class="menu">
-    <button onclick="openSection('bonus')">Calcolatore Fun Bonus</button>
-    <button onclick="openSection('surebet')">Surebet</button>
-    <button onclick="openSection('puntabanca')">Punta Banca</button>
-    <button onclick="openSection('freebet')">Freebet</button>
-    <button onclick="openSection('casino')">Casino Live</button>
-    <button onclick="openSection('blackjack')">Black Jack</button>
-    <button onclick="openSection('crypto')">Cripto</button>
-    <button onclick="window.open('https://www.sofascore.com','_blank')">Statistiche Partite</button>
-    <button onclick="window.open('https://www.top-bonus.it','_blank')">Affiliazioni</button>
-  </div>
-
-  <div id="bonus" class="section">
-    <div class="section-wrap">
-      <div class="hero-bonus">
-        <h3>Calcolatore Fun Bonus</h3>
-      </div>
-
-      <div class="card-grid">
-        <div class="box">
-          <div class="field">
-            <label>Saldo Bonus</label>
-            <input id="saldo" type="number" value="30">
-          </div>
-          <div class="field">
-            <label>Wagering</label>
-            <input id="wager" type="number" value="40">
-          </div>
-          <div class="field">
-            <label>Cap</label>
-            <input id="cap" type="number" value="30">
-          </div>
-          <div class="field">
-            <label>Bonus Type</label>
-            <select id="bonusType">
-              <option>Slot</option>
-              <option>Casino</option>
-              <option>Altro</option>
-            </select>
-          </div>
-          <button class="action" onclick="calcola()">Calcola</button>
-        </div>
-
-        <div class="result-box">
-          <div class="result">
-            <strong>Arrivi a target con</strong>
-            <div class="result-value" id="target">—</div>
-          </div>
-          <div class="result">
-            <strong>Spin</strong>
-            <div class="result-value" id="spin">—</div>
-          </div>
-        </div>
-      </div>
-
-      <button class="back" onclick="goBack()">← Torna al menu</button>
+  <div class="container">
+    <div class="topbar">
+      <h1>Strumenti Andry Matched</h1>
+      <p class="subtitle">Tool ordinati, puliti e pronti da usare</p>
     </div>
-  </div>
 
-  <div id="surebet" class="section">
-    <div class="section-wrap">
-      <div class="section-header">
-        <h2>Surebet</h2>
-        <p>Calcolo semplice della seconda puntata e del profitto</p>
-      </div>
-
-      <div class="card-grid">
-        <div class="box">
-          <div class="field">
-            <label>Quota 1</label>
-            <input id="quota1" type="number" step="0.01" value="2.00">
-          </div>
-          <div class="field">
-            <label>Puntata 1</label>
-            <input id="puntata1" type="number" step="0.01" value="100">
-          </div>
-          <div class="field">
-            <label>Quota 2</label>
-            <input id="quota2" type="number" step="0.01" value="2.10">
-          </div>
-          <button class="action" onclick="calcolaSurebet()">Calcola</button>
-        </div>
-
-        <div class="result-box">
-          <div class="result">
-            <strong>Puntata da fare</strong>
-            <div class="result-value" id="puntata2">—</div>
-          </div>
-          <div class="result">
-            <strong>Profitto</strong>
-            <div class="result-value" id="profitto">—</div>
-          </div>
-        </div>
-      </div>
-
-      <button class="back" onclick="goBack()">← Torna al menu</button>
+    <div id="menu" class="menu">
+      <button onclick="openSection('bonus')">Calcolatore Fun Bonus</button>
+      <button onclick="openSection('surebet')">Surebet</button>
+      <button onclick="openSection('puntabanca')">Punta Banca</button>
+      <button onclick="openSection('freebet')">Freebet</button>
+      <button onclick="openSection('casino')">Casino Live</button>
+      <button onclick="openSection('blackjack')">Black Jack</button>
+      <button onclick="openSection('crypto')">Cripto</button>
+      <button onclick="openSection('profitTracker')">Profit Tracker</button>
+      <button onclick="window.open('https://www.sofascore.com','_blank')">Statistiche Partite</button>
+      <button onclick="window.open('https://www.top-bonus.it','_blank')">Affiliazioni</button>
     </div>
-  </div>
 
-  <div id="puntabanca" class="section">
-    <div class="section-wrap">
-      <div class="section-header">
-        <h2>Punta Banca</h2>
-        <p>Calcolo rapido della puntata banca</p>
-      </div>
-
-      <div class="card-grid">
-        <div class="box">
-          <div class="field">
-            <label>Quota Punta</label>
-            <input id="quotaPunta" type="number" step="0.01" value="2.00">
-          </div>
-          <div class="field">
-            <label>Puntata Punta</label>
-            <input id="puntataPunta" type="number" step="0.01" value="100">
-          </div>
-          <div class="field">
-            <label>Quota Banca</label>
-            <input id="quotaBanca" type="number" step="0.01" value="2.10">
-          </div>
-          <button class="action" onclick="calcolaPuntaBanca()">Calcola</button>
+    <div id="bonus" class="section">
+      <div class="section-wrap">
+        <div class="hero-bonus">
+          <h3>Calcolatore Fun Bonus</h3>
         </div>
 
-        <div class="result-box">
-          <div class="result">
-            <strong>Puntata banca</strong>
-            <div class="result-value" id="puntataBancaResult">—</div>
-          </div>
-        </div>
-      </div>
-
-      <button class="back" onclick="goBack()">← Torna al menu</button>
-    </div>
-  </div>
-
-  <div id="freebet" class="section">
-    <div class="section-wrap">
-      <div class="section-header">
-        <h2>Freebet</h2>
-        <p>Calcolo rapido della puntata banca da usare</p>
-      </div>
-
-      <div class="card-grid">
-        <div class="box">
-          <div class="field">
-            <label>Importo Freebet</label>
-            <input id="importoFreebet" type="number" value="10">
-          </div>
-          <div class="field">
-            <label>Quota Punta</label>
-            <input id="quotaFreebetPunta" type="number" step="0.01" value="5.00">
-          </div>
-          <div class="field">
-            <label>Quota Banca</label>
-            <input id="quotaFreebetBanca" type="number" step="0.01" value="5.20">
-          </div>
-          <button class="action" onclick="calcolaFreebet()">Calcola</button>
-        </div>
-
-        <div class="result-box">
-          <div class="result">
-            <strong>Puntata banca</strong>
-            <div class="result-value" id="profittoFreebetResult">—</div>
-          </div>
-        </div>
-      </div>
-
-      <button class="back" onclick="goBack()">← Torna al menu</button>
-    </div>
-  </div>
-
-  <div id="casino" class="section">
-    <div class="section-wrap">
-      <div class="section-header">
-        <h2>Casino Live – Baccarat</h2>
-        <p>Inserisci l'importo su Player e ottieni la puntata su Banker</p>
-      </div>
-
-      <div class="card-grid">
-        <div class="box">
-          <div class="field">
-            <label>Inserisci importo su Player</label>
-            <input id="playerStake" type="number" value="100">
-          </div>
-          <div class="choice-grid">
-            <div class="choice player">PLAYER</div>
-            <div class="choice banker">BANKER</div>
-          </div>
-          <button class="action" onclick="calcolaBaccarat()">Calcola</button>
-        </div>
-
-        <div class="result-box">
-          <div class="result">
-            <strong>Metti su Banker</strong>
-            <div class="result-value" id="bankerStake">—</div>
-          </div>
-          <div class="result">
-            <strong>Profitto</strong>
-            <div class="result-value" id="baccaratProfit">—</div>
-          </div>
-        </div>
-      </div>
-
-      <button class="back" onclick="goBack()">← Torna al menu</button>
-    </div>
-  </div>
-
-  <div id="blackjack" class="section">
-    <div class="section-wrap">
-      <div class="hero-blackjack">
-        <h3>Black Jack</h3>
-        <p>Il tool tiene traccia del tavolo, delle mani split, del banco completo e della memoria del mazzo.</p>
-        <div class="blackjack-chip">Tracking round attivo</div>
-      </div>
-
-      <div class="card-grid">
-        <div class="box blackjack-card">
-          <div class="field">
-            <label>Mano giocatore</label>
-            <div id="playerCardsView" class="picked-cards">—</div>
-          </div>
-
-          <div class="field">
-            <label>Carte banco</label>
-            <div id="dealerCardsView" class="picked-cards">—</div>
-          </div>
-
-          <div class="field">
-            <label>Aggiungi carte al Giocatore</label>
-            <div class="cards-grid" id="playerCardButtons"></div>
-          </div>
-
-          <div class="field">
-            <label>Aggiungi carte al Banco</label>
-            <div class="cards-grid" id="dealerCardButtons"></div>
-          </div>
-
-          <div id="splitArea" style="display:none; margin-top:16px;">
+        <div class="card-grid">
+          <div class="box">
             <div class="field">
-              <label>Split - Mano 1</label>
-              <div id="splitHand1View" class="picked-cards">—</div>
+              <label>Saldo Bonus</label>
+              <input id="saldo" type="number" value="30">
+            </div>
+            <div class="field">
+              <label>Wagering</label>
+              <input id="wager" type="number" value="40">
+            </div>
+            <div class="field">
+              <label>Cap</label>
+              <input id="cap" type="number" value="30">
+            </div>
+            <div class="field">
+              <label>Bonus Type</label>
+              <select id="bonusType">
+                <option>Slot</option>
+                <option>Casino</option>
+                <option>Altro</option>
+              </select>
+            </div>
+            <button class="action" onclick="calcola()">Calcola</button>
+          </div>
+
+          <div class="result-box">
+            <div class="result">
+              <strong>Arrivi a target con</strong>
+              <div class="result-value" id="target">—</div>
+            </div>
+            <div class="result">
+              <strong>Spin</strong>
+              <div class="result-value" id="spin">—</div>
+            </div>
+          </div>
+        </div>
+
+        <button class="back" onclick="goBack()">← Torna al menu</button>
+      </div>
+    </div>
+
+    <div id="surebet" class="section">
+      <div class="section-wrap">
+        <div class="section-header">
+          <h2>Surebet</h2>
+          <p>Calcolo semplice della seconda puntata e del profitto</p>
+        </div>
+
+        <div class="card-grid">
+          <div class="box">
+            <div class="field">
+              <label>Quota 1</label>
+              <input id="quota1" type="number" step="0.01" value="2.00">
+            </div>
+            <div class="field">
+              <label>Puntata 1</label>
+              <input id="puntata1" type="number" step="0.01" value="100">
+            </div>
+            <div class="field">
+              <label>Quota 2</label>
+              <input id="quota2" type="number" step="0.01" value="2.10">
+            </div>
+            <button class="action" onclick="calcolaSurebet()">Calcola</button>
+          </div>
+
+          <div class="result-box">
+            <div class="result">
+              <strong>Puntata da fare</strong>
+              <div class="result-value" id="puntata2">—</div>
+            </div>
+            <div class="result">
+              <strong>Profitto</strong>
+              <div class="result-value" id="profitto">—</div>
+            </div>
+          </div>
+        </div>
+
+        <button class="back" onclick="goBack()">← Torna al menu</button>
+      </div>
+    </div>
+
+    <div id="puntabanca" class="section">
+      <div class="section-wrap">
+        <div class="section-header">
+          <h2>Punta Banca</h2>
+          <p>Calcolo rapido della puntata banca</p>
+        </div>
+
+        <div class="card-grid">
+          <div class="box">
+            <div class="field">
+              <label>Quota Punta</label>
+              <input id="quotaPunta" type="number" step="0.01" value="2.00">
+            </div>
+            <div class="field">
+              <label>Puntata Punta</label>
+              <input id="puntataPunta" type="number" step="0.01" value="100">
+            </div>
+            <div class="field">
+              <label>Quota Banca</label>
+              <input id="quotaBanca" type="number" step="0.01" value="2.10">
+            </div>
+            <button class="action" onclick="calcolaPuntaBanca()">Calcola</button>
+          </div>
+
+          <div class="result-box">
+            <div class="result">
+              <strong>Puntata banca</strong>
+              <div class="result-value" id="puntataBancaResult">—</div>
+            </div>
+          </div>
+        </div>
+
+        <button class="back" onclick="goBack()">← Torna al menu</button>
+      </div>
+    </div>
+
+    <div id="freebet" class="section">
+      <div class="section-wrap">
+        <div class="section-header">
+          <h2>Freebet</h2>
+          <p>Calcolo rapido della puntata banca da usare</p>
+        </div>
+
+        <div class="card-grid">
+          <div class="box">
+            <div class="field">
+              <label>Importo Freebet</label>
+              <input id="importoFreebet" type="number" value="10">
+            </div>
+            <div class="field">
+              <label>Quota Punta</label>
+              <input id="quotaFreebetPunta" type="number" step="0.01" value="5.00">
+            </div>
+            <div class="field">
+              <label>Quota Banca</label>
+              <input id="quotaFreebetBanca" type="number" step="0.01" value="5.20">
+            </div>
+            <button class="action" onclick="calcolaFreebet()">Calcola</button>
+          </div>
+
+          <div class="result-box">
+            <div class="result">
+              <strong>Puntata banca</strong>
+              <div class="result-value" id="profittoFreebetResult">—</div>
+            </div>
+          </div>
+        </div>
+
+        <button class="back" onclick="goBack()">← Torna al menu</button>
+      </div>
+    </div>
+
+    <div id="casino" class="section">
+      <div class="section-wrap">
+        <div class="section-header">
+          <h2>Casino Live – Baccarat</h2>
+          <p>Inserisci l'importo su Player e ottieni la puntata su Banker</p>
+        </div>
+
+        <div class="card-grid">
+          <div class="box">
+            <div class="field">
+              <label>Inserisci importo su Player</label>
+              <input id="playerStake" type="number" value="100">
+            </div>
+            <div class="choice-grid">
+              <div class="choice player">PLAYER</div>
+              <div class="choice banker">BANKER</div>
+            </div>
+            <button class="action" onclick="calcolaBaccarat()">Calcola</button>
+          </div>
+
+          <div class="result-box">
+            <div class="result">
+              <strong>Metti su Banker</strong>
+              <div class="result-value" id="bankerStake">—</div>
+            </div>
+            <div class="result">
+              <strong>Profitto</strong>
+              <div class="result-value" id="baccaratProfit">—</div>
+            </div>
+          </div>
+        </div>
+
+        <button class="back" onclick="goBack()">← Torna al menu</button>
+      </div>
+    </div>
+
+    <div id="blackjack" class="section">
+      <div class="section-wrap">
+        <div class="hero-blackjack">
+          <h3>Black Jack</h3>
+          <p>Il tool tiene traccia del tavolo, delle mani split, del banco completo e della memoria del mazzo.</p>
+          <div class="blackjack-chip">Tracking round attivo</div>
+        </div>
+
+        <div class="card-grid">
+          <div class="box blackjack-card">
+            <div class="field">
+              <label>Mano giocatore</label>
+              <div id="playerCardsView" class="picked-cards">—</div>
             </div>
 
             <div class="field">
-              <label>Aggiungi carta a Mano 1</label>
-              <div class="cards-grid" id="splitHand1Buttons"></div>
+              <label>Carte banco</label>
+              <div id="dealerCardsView" class="picked-cards">—</div>
             </div>
 
             <div class="field">
-              <label>Split - Mano 2</label>
-              <div id="splitHand2View" class="picked-cards">—</div>
+              <label>Aggiungi carte al Giocatore</label>
+              <div class="cards-grid" id="playerCardButtons"></div>
             </div>
 
             <div class="field">
-              <label>Aggiungi carta a Mano 2</label>
-              <div class="cards-grid" id="splitHand2Buttons"></div>
+              <label>Aggiungi carte al Banco</label>
+              <div class="cards-grid" id="dealerCardButtons"></div>
+            </div>
+
+            <div id="splitArea" style="display:none; margin-top:16px;">
+              <div class="field">
+                <label>Split - Mano 1</label>
+                <div id="splitHand1View" class="picked-cards">—</div>
+              </div>
+
+              <div class="field">
+                <label>Aggiungi carta a Mano 1</label>
+                <div class="cards-grid" id="splitHand1Buttons"></div>
+              </div>
+
+              <div class="field">
+                <label>Split - Mano 2</label>
+                <div id="splitHand2View" class="picked-cards">—</div>
+              </div>
+
+              <div class="field">
+                <label>Aggiungi carta a Mano 2</label>
+                <div class="cards-grid" id="splitHand2Buttons"></div>
+              </div>
+            </div>
+
+            <button class="action-secondary" onclick="consigliaBlackjack()">Consiglia Mossa</button>
+            <button class="action" onclick="doSplit()">Fai Split</button>
+            <button class="action" onclick="removeLastPlayerCard()">Cancella ultima carta giocatore</button>
+            <button class="action" onclick="removeLastDealerCard()">Cancella ultima carta banco</button>
+            <button class="action" onclick="closeRound()">Chiudi Round</button>
+            <button class="action-danger" onclick="resetDeckMemory()">Reset Mazzo</button>
+
+            <div class="memory-box">
+              <strong>Carte uscite in memoria:</strong>
+              <div id="deckMemory">—</div>
+            </div>
+
+            <div class="memory-box">
+              <strong>Conteggio mazzo:</strong>
+              <div id="countValue">0</div>
+            </div>
+
+            <div class="memory-box">
+              <strong>Stato mazzo:</strong>
+              <div id="countStatus">Neutro</div>
             </div>
           </div>
 
-          <button class="action-secondary" onclick="consigliaBlackjack()">Consiglia Mossa</button>
-          <button class="action" onclick="doSplit()">Fai Split</button>
-          <button class="action" onclick="removeLastPlayerCard()">Cancella ultima carta giocatore</button>
-          <button class="action" onclick="removeLastDealerCard()">Cancella ultima carta banco</button>
-          <button class="action" onclick="closeRound()">Chiudi Round</button>
-          <button class="action-danger" onclick="resetDeckMemory()">Reset Mazzo</button>
-
-          <div class="memory-box">
-            <strong>Carte uscite in memoria:</strong>
-            <div id="deckMemory">—</div>
-          </div>
-
-          <div class="memory-box">
-            <strong>Conteggio mazzo:</strong>
-            <div id="countValue">0</div>
-          </div>
-
-          <div class="memory-box">
-            <strong>Stato mazzo:</strong>
-            <div id="countStatus">Neutro</div>
+          <div class="result-box">
+            <div class="result">
+              <strong>Tipo mano</strong>
+              <div class="result-value" id="bjHandType">—</div>
+            </div>
+            <div class="result">
+              <strong>Valore mano</strong>
+              <div class="result-value" id="bjHandValue">—</div>
+            </div>
+            <div class="result">
+              <strong>Mossa consigliata</strong>
+              <div class="result-value" id="bjAdvice">—</div>
+            </div>
+            <div class="result">
+              <strong>Nota</strong>
+              <div class="result-value" id="bjNote">—</div>
+            </div>
           </div>
         </div>
 
-        <div class="result-box">
-          <div class="result">
-            <strong>Tipo mano</strong>
-            <div class="result-value" id="bjHandType">—</div>
-          </div>
-          <div class="result">
-            <strong>Valore mano</strong>
-            <div class="result-value" id="bjHandValue">—</div>
-          </div>
-          <div class="result">
-            <strong>Mossa consigliata</strong>
-            <div class="result-value" id="bjAdvice">—</div>
-          </div>
-          <div class="result">
-            <strong>Nota</strong>
-            <div class="result-value" id="bjNote">—</div>
-          </div>
-        </div>
+        <button class="back" onclick="goBack()">← Torna al menu</button>
       </div>
+    </div>
 
-      <button class="back" onclick="goBack()">← Torna al menu</button>
+    <div id="crypto" class="section">
+      <div class="section-wrap">
+        <div class="hero-crypto">
+          <h3>Cripto</h3>
+          <p>Scrivi nome o ticker della crypto e ottieni il prezzo live.</p>
+        </div>
+
+        <div class="card-grid">
+          <div class="box">
+            <div class="field">
+              <label>Crypto</label>
+              <input id="cryptoQuery" type="text" placeholder="Esempio: bitcoin, btc, ethereum, solana">
+            </div>
+            <button class="action" onclick="getCryptoPrice()">Cerca Prezzo</button>
+            <div class="crypto-note">
+              Prova con nome o simbolo. Esempi: <strong>bitcoin</strong>, <strong>btc</strong>, <strong>eth</strong>, <strong>sol</strong>.
+            </div>
+          </div>
+
+          <div class="result-box">
+            <div class="result">
+              <strong>Crypto trovata</strong>
+              <div class="result-value" id="cryptoName">—</div>
+            </div>
+            <div class="result">
+              <strong>Simbolo</strong>
+              <div class="result-value" id="cryptoSymbol">—</div>
+            </div>
+            <div class="result">
+              <strong>Prezzo in USD</strong>
+              <div class="result-value" id="cryptoPrice">—</div>
+            </div>
+            <div class="result">
+              <strong>Market Cap</strong>
+              <div class="result-value" id="cryptoMarketCap">—</div>
+            </div>
+          </div>
+        </div>
+
+        <button class="back" onclick="goBack()">← Torna al menu</button>
+      </div>
+    </div>
+
+    <div id="profitTracker" class="section">
+      <div class="section-wrap">
+        <div class="hero-profit">
+          <h3>Profit Tracker</h3>
+          <p>Registrazione, login e storico personale dei profitti per ogni utente.</p>
+        </div>
+
+        <div class="section-header">
+          <h2>Area Profit Tracker</h2>
+          <p>Ogni utente vede solo i propri dati</p>
+          <div id="currentUserPill" class="user-pill hidden"></div>
+        </div>
+
+        <div id="authArea">
+          <div class="auth-grid">
+            <div class="box">
+              <h3 style="margin-top:0;">Registrati</h3>
+              <div class="field">
+                <label>Email</label>
+                <input id="registerEmail" type="email" placeholder="email@esempio.com">
+              </div>
+              <div class="field">
+                <label>Password</label>
+                <input id="registerPassword" type="password" placeholder="Minimo 6 caratteri">
+              </div>
+              <button class="action" onclick="signUpProfitTracker()">Crea account</button>
+              <div class="auth-note" id="registerMessage">—</div>
+            </div>
+
+            <div class="box">
+              <h3 style="margin-top:0;">Login</h3>
+              <div class="field">
+                <label>Email</label>
+                <input id="loginEmail" type="email" placeholder="email@esempio.com">
+              </div>
+              <div class="field">
+                <label>Password</label>
+                <input id="loginPassword" type="password" placeholder="Password">
+              </div>
+              <button class="action" onclick="signInProfitTracker()">Entra</button>
+              <div class="auth-note" id="loginMessage">—</div>
+            </div>
+          </div>
+        </div>
+
+        <div id="trackerArea" class="hidden">
+          <div class="stats-grid">
+            <div class="stat-card">
+              <strong>Profitto totale</strong>
+              <div class="value" id="totalProfitValue">€ 0.00</div>
+            </div>
+            <div class="stat-card">
+              <strong>Questo mese</strong>
+              <div class="value" id="monthProfitValue">€ 0.00</div>
+            </div>
+            <div class="stat-card">
+              <strong>Numero entry</strong>
+              <div class="value" id="entriesCountValue">0</div>
+            </div>
+          </div>
+
+          <div class="card-grid">
+            <div class="box">
+              <h3 style="margin-top:0;">Aggiungi entry</h3>
+
+              <div class="field">
+                <label>Data</label>
+                <input id="profitDate" type="date">
+              </div>
+
+              <div class="field">
+                <label>Bookmaker / Fonte</label>
+                <input id="profitBookmaker" type="text" placeholder="es. Bet365">
+              </div>
+
+              <div class="field">
+                <label>Tipo operazione</label>
+                <select id="profitType">
+                  <option value="Surebet">Surebet</option>
+                  <option value="Punta Banca">Punta Banca</option>
+                  <option value="Freebet">Freebet</option>
+                  <option value="Casino">Casino</option>
+                  <option value="Blackjack">Blackjack</option>
+                  <option value="Cripto">Cripto</option>
+                  <option value="Altro">Altro</option>
+                </select>
+              </div>
+
+              <div class="field">
+                <label>Stake</label>
+                <input id="profitStake" type="number" step="0.01" placeholder="0.00">
+              </div>
+
+              <div class="field">
+                <label>Profitto</label>
+                <input id="profitAmount" type="number" step="0.01" placeholder="0.00">
+              </div>
+
+              <div class="field">
+                <label>Note</label>
+                <input id="profitNote" type="text" placeholder="Note facoltative">
+              </div>
+
+              <button class="action" onclick="addProfitEntry()">Salva entry</button>
+              <div class="auth-note" id="entryMessage">—</div>
+            </div>
+
+            <div class="result-box">
+              <h3 style="margin-top:0;">Gestione account</h3>
+              <div class="inline-actions">
+                <button class="small-btn logout" onclick="signOutProfitTracker()">Logout</button>
+              </div>
+              <div class="memory-box" style="margin-top:16px;">
+                Ogni utente vede solo i propri dati grazie alle policy che hai già creato su Supabase.
+              </div>
+            </div>
+          </div>
+
+          <div style="margin-top:18px;" class="box">
+            <h3 style="margin-top:0;">Storico profitti</h3>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Data</th>
+                    <th>Bookmaker</th>
+                    <th>Tipo</th>
+                    <th>Stake</th>
+                    <th>Profitto</th>
+                    <th>Note</th>
+                    <th>Azione</th>
+                  </tr>
+                </thead>
+                <tbody id="profitTableBody">
+                  <tr>
+                    <td colspan="7">Nessuna entry</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <button class="back" onclick="goBack()">← Torna al menu</button>
+      </div>
     </div>
   </div>
 
-  <div id="crypto" class="section">
-    <div class="section-wrap">
-      <div class="hero-crypto">
-        <h3>Cripto</h3>
-        <p>Scrivi nome o ticker della crypto e ottieni il prezzo live.</p>
-      </div>
-
-      <div class="card-grid">
-        <div class="box">
-          <div class="field">
-            <label>Crypto</label>
-            <input id="cryptoQuery" type="text" placeholder="Esempio: bitcoin, btc, ethereum, solana">
-          </div>
-          <button class="action" onclick="getCryptoPrice()">Cerca Prezzo</button>
-          <div class="crypto-note">
-            Prova con nome o simbolo. Esempi: <strong>bitcoin</strong>, <strong>btc</strong>, <strong>eth</strong>, <strong>sol</strong>.
-          </div>
-        </div>
-
-        <div class="result-box">
-          <div class="result">
-            <strong>Crypto trovata</strong>
-            <div class="result-value" id="cryptoName">—</div>
-          </div>
-          <div class="result">
-            <strong>Simbolo</strong>
-            <div class="result-value" id="cryptoSymbol">—</div>
-          </div>
-          <div class="result">
-            <strong>Prezzo in USD</strong>
-            <div class="result-value" id="cryptoPrice">—</div>
-          </div>
-          <div class="result">
-            <strong>Market Cap</strong>
-            <div class="result-value" id="cryptoMarketCap">—</div>
-          </div>
-        </div>
-      </div>
-
-      <button class="back" onclick="goBack()">← Torna al menu</button>
-    </div>
-  </div>
-</div>
-
-<script>
-let usedCardsMemory = [];
-let bjPlayerCards = [];
-let bjDealerCards = [];
-let splitMode = false;
-let splitHand1 = [];
-let splitHand2 = [];
-let activeSplitHand = 1;
-
-const CARD_SET = ["A","K","Q","J","10","9","8","7","6","5","4","3","2"];
-
-function openSection(id){
-  document.getElementById("menu").style.display = "none";
-  document.querySelectorAll(".section").forEach(s => s.style.display = "none");
-  document.getElementById(id).style.display = "block";
-}
-
-function goBack(){
-  document.querySelectorAll(".section").forEach(s => s.style.display = "none");
-  document.getElementById("menu").style.display = "grid";
-}
-
-function calcola(){
-  let saldo = Number(document.getElementById("saldo").value || 0);
-  let wager = Number(document.getElementById("wager").value || 0);
-  let cap = Number(document.getElementById("cap").value || 0);
-
-  let target = (saldo * wager * 0.05) + cap;
-  let spin = saldo / 20;
-
-  document.getElementById("target").innerHTML = target.toFixed(2);
-  document.getElementById("spin").innerHTML = spin.toFixed(2);
-}
-
-function calcolaSurebet(){
-  let q1 = Number(document.getElementById("quota1").value || 0);
-  let s1 = Number(document.getElementById("puntata1").value || 0);
-  let q2 = Number(document.getElementById("quota2").value || 0);
-
-  let ritorno = q1 * s1;
-  let s2 = Math.round(ritorno / q2);
-  let profitto = ritorno - s1 - s2;
-
-  document.getElementById("puntata2").innerHTML = s2;
-  document.getElementById("profitto").innerHTML = profitto.toFixed(2);
-}
-
-function calcolaPuntaBanca(){
-  let q1 = Number(document.getElementById("quotaPunta").value || 0);
-  let s1 = Number(document.getElementById("puntataPunta").value || 0);
-  let q2 = Number(document.getElementById("quotaBanca").value || 0);
-
-  let banca = (q1 * s1) / q2;
-  document.getElementById("puntataBancaResult").innerHTML = banca.toFixed(2);
-}
-
-function calcolaFreebet(){
-  let free = Number(document.getElementById("importoFreebet").value || 0);
-  let qP = Number(document.getElementById("quotaFreebetPunta").value || 0);
-  let qB = Number(document.getElementById("quotaFreebetBanca").value || 0);
-
-  let lay = (free * (qP - 1)) / qB;
-  document.getElementById("profittoFreebetResult").innerHTML = lay.toFixed(2);
-}
-
-function calcolaBaccarat(){
-  const playerOdds = 2.00;
-  const bankerOdds = 1.95;
-
-  let playerStake = Number(document.getElementById("playerStake").value || 0);
-
-  let ritorno = playerStake * playerOdds;
-  let bankerStake = Math.round(ritorno / bankerOdds);
-  let profit = ritorno - playerStake - bankerStake;
-
-  document.getElementById("bankerStake").innerHTML = bankerStake;
-  document.getElementById("baccaratProfit").innerHTML = profit.toFixed(2);
-}
-
-function renderButtons(containerId, handler){
-  const wrap = document.getElementById(containerId);
-  if(!wrap) return;
-  wrap.innerHTML = "";
-
-  CARD_SET.forEach(card => {
-    const btn = document.createElement("button");
-    btn.className = "card-btn";
-    btn.textContent = card;
-    btn.onclick = () => handler(card);
-    wrap.appendChild(btn);
-  });
-}
-
-function renderBlackjackButtons(){
-  renderButtons("playerCardButtons", addPlayerCard);
-  renderButtons("dealerCardButtons", addDealerCard);
-  renderButtons("splitHand1Buttons", addSplitHand1Card);
-  renderButtons("splitHand2Buttons", addSplitHand2Card);
-  updateBlackjackViews();
-}
-
-function addPlayerCard(card){
-  if(splitMode) return;
-  bjPlayerCards.push(card);
-  updateBlackjackViews();
-}
-
-function addDealerCard(card){
-  bjDealerCards.push(card);
-  updateBlackjackViews();
-}
-
-function addSplitHand1Card(card){
-  if(!splitMode) return;
-  activeSplitHand = 1;
-  splitHand1.push(card);
-  updateBlackjackViews();
-}
-
-function addSplitHand2Card(card){
-  if(!splitMode) return;
-  activeSplitHand = 2;
-  splitHand2.push(card);
-  updateBlackjackViews();
-}
-
-function removeLastPlayerCard(){
-  if(splitMode){
-    if(activeSplitHand === 1){
-      splitHand1.pop();
-    }else{
-      splitHand2.pop();
-    }
-  }else{
-    bjPlayerCards.pop();
-  }
-  updateBlackjackViews();
-}
-
-function removeLastDealerCard(){
-  bjDealerCards.pop();
-  updateBlackjackViews();
-}
-
-function updateBlackjackViews(){
-  const playerView = document.getElementById("playerCardsView");
-  const dealerView = document.getElementById("dealerCardsView");
-  const split1View = document.getElementById("splitHand1View");
-  const split2View = document.getElementById("splitHand2View");
-  const splitArea = document.getElementById("splitArea");
-
-  if(playerView){
-    playerView.innerHTML = bjPlayerCards.length
-      ? bjPlayerCards.map(c => `<span class="picked-card">${c}</span>`).join("")
-      : "—";
-  }
-
-  if(dealerView){
-    dealerView.innerHTML = bjDealerCards.length
-      ? bjDealerCards.map(c => `<span class="picked-card">${c}</span>`).join("")
-      : "—";
-  }
-
-  if(split1View){
-    split1View.innerHTML = splitHand1.length
-      ? splitHand1.map(c => `<span class="picked-card">${c}</span>`).join("")
-      : "—";
-  }
-
-  if(split2View){
-    split2View.innerHTML = splitHand2.length
-      ? splitHand2.map(c => `<span class="picked-card">${c}</span>`).join("")
-      : "—";
-  }
-
-  if(splitArea){
-    splitArea.style.display = splitMode ? "block" : "none";
-  }
-}
-
-function normalizeCard(card){
-  const c = String(card).trim().toUpperCase();
-  if(c === "1") return "A";
-  if(["A","K","Q","J","10","9","8","7","6","5","4","3","2"].includes(c)) return c;
-  return null;
-}
-
-function cardValue(card){
-  if(card === "A") return 11;
-  if(["K","Q","J","10"].includes(card)) return 10;
-  return Number(card);
-}
-
-function dealerUpValue(card){
-  if(card === "A") return 11;
-  if(["K","Q","J","10"].includes(card)) return 10;
-  return Number(card);
-}
-
-function evaluateHand(cards){
-  let total = 0;
-  let aces = 0;
-
-  cards.forEach(card => {
-    total += cardValue(card);
-    if(card === "A") aces++;
-  });
-
-  while(total > 21 && aces > 0){
-    total -= 10;
-    aces--;
-  }
-
-  let rawTotal = cards.reduce((sum, c) => {
-    if(c === "A") return sum + 11;
-    if(["K","Q","J","10"].includes(c)) return sum + 10;
-    return sum + Number(c);
-  }, 0);
-
-  const isSoft = cards.includes("A") && total <= 21 && rawTotal === total;
-  return { total, isSoft };
-}
-
-function sameRank(a, b){
-  const tenCards = ["10","J","Q","K"];
-  if(tenCards.includes(a) && tenCards.includes(b)) return true;
-  return a === b;
-}
-
-function basicStrategy(cards, dealer){
-  const dealerVal = dealerUpValue(dealer);
-  const hand = evaluateHand(cards);
-
-  if(cards.length === 2 && sameRank(cards[0], cards[1])){
-    const first = cards[0];
-
-    if(first === "A" || first === "8") return { move: "SPLIT", note: "Coppia favorevole da dividere" };
-    if(["10","J","Q","K"].includes(first)) return { move: "STAND", note: "Hai già una mano forte" };
-    if(first === "9"){
-      if([2,3,4,5,6,8,9].includes(dealerVal)) return { move: "SPLIT", note: "Dividi i 9 contro questa carta del banco" };
-      return { move: "STAND", note: "Meglio stare" };
-    }
-    if(first === "7"){
-      if(dealerVal >= 2 && dealerVal <= 7) return { move: "SPLIT", note: "Dividi i 7" };
-      return { move: "HIT", note: "Meglio chiedere carta" };
-    }
-    if(first === "6"){
-      if(dealerVal >= 2 && dealerVal <= 6) return { move: "SPLIT", note: "Dividi i 6" };
-      return { move: "HIT", note: "Meglio chiedere carta" };
-    }
-    if(first === "5"){
-      if(dealerVal >= 2 && dealerVal <= 9) return { move: "DOUBLE", note: "Coppia di 5 trattata come 10" };
-      return { move: "HIT", note: "Meglio chiedere carta" };
-    }
-    if(first === "4"){
-      if(dealerVal === 5 || dealerVal === 6) return { move: "SPLIT", note: "Dividi i 4 solo qui" };
-      return { move: "HIT", note: "Meglio chiedere carta" };
-    }
-    if(first === "3" || first === "2"){
-      if(dealerVal >= 2 && dealerVal <= 7) return { move: "SPLIT", note: "Dividi la coppia" };
-      return { move: "HIT", note: "Meglio chiedere carta" };
-    }
-  }
-
-  if(hand.isSoft && cards.length === 2){
-    const other = cards[0] === "A" ? cards[1] : cards[1] === "A" ? cards[0] : null;
-    const otherVal = other ? cardValue(other) : 0;
-
-    if(otherVal === 9) return { move: "STAND", note: "Soft 20" };
-    if(otherVal === 8) return { move: "STAND", note: "Soft 19" };
-    if(otherVal === 7){
-      if([3,4,5,6].includes(dealerVal)) return { move: "DOUBLE", note: "Soft 18 buono per raddoppiare" };
-      if([2,7,8].includes(dealerVal)) return { move: "STAND", note: "Meglio stare" };
-      return { move: "HIT", note: "Contro carta forte del banco chiedi" };
-    }
-    if(otherVal === 6){
-      if([3,4,5,6].includes(dealerVal)) return { move: "DOUBLE", note: "Soft 17" };
-      return { move: "HIT", note: "Meglio chiedere carta" };
-    }
-    if(otherVal === 5 || otherVal === 4){
-      if([4,5,6].includes(dealerVal)) return { move: "DOUBLE", note: "Soft 15/16" };
-      return { move: "HIT", note: "Meglio chiedere carta" };
-    }
-    if(otherVal === 3 || otherVal === 2){
-      if([5,6].includes(dealerVal)) return { move: "DOUBLE", note: "Soft 13/14" };
-      return { move: "HIT", note: "Meglio chiedere carta" };
-    }
-  }
-
-  const total = hand.total;
-
-  if(total >= 17) return { move: "STAND", note: "Totale forte" };
-  if(total >= 13 && total <= 16){
-    if(dealerVal >= 2 && dealerVal <= 6) return { move: "STAND", note: "Banco debole" };
-    return { move: "HIT", note: "Banco forte, meglio chiedere" };
-  }
-  if(total === 12){
-    if(dealerVal >= 4 && dealerVal <= 6) return { move: "STAND", note: "12 contro banco debole" };
-    return { move: "HIT", note: "Meglio chiedere carta" };
-  }
-  if(total === 11) return { move: "DOUBLE", note: "11 è ottimo per raddoppiare" };
-  if(total === 10){
-    if(dealerVal >= 2 && dealerVal <= 9) return { move: "DOUBLE", note: "10 contro carta non troppo forte" };
-    return { move: "HIT", note: "Contro 10 o Asso meglio chiedere" };
-  }
-  if(total === 9){
-    if(dealerVal >= 3 && dealerVal <= 6) return { move: "DOUBLE", note: "9 contro banco debole" };
-    return { move: "HIT", note: "Meglio chiedere carta" };
-  }
-
-  return { move: "HIT", note: "Totale basso, chiedi carta" };
-}
-
-function getRunningCount(cards){
-  let count = 0;
-  cards.forEach(card => {
-    if(["2","3","4","5","6"].includes(card)) count += 1;
-    else if(["10","J","Q","K","A"].includes(card)) count -= 1;
-  });
-  return count;
-}
-
-function getCountStatus(count){
-  if(count >= 4) return { text: "Molto favorevole", cls: "count-good" };
-  if(count >= 2) return { text: "Favorevole", cls: "count-good" };
-  if(count <= -4) return { text: "Molto sfavorevole", cls: "count-bad" };
-  if(count <= -2) return { text: "Sfavorevole", cls: "count-bad" };
-  return { text: "Neutro", cls: "count-neutral" };
-}
-
-function updateDeckMemoryUI(){
-  document.getElementById("deckMemory").innerHTML = usedCardsMemory.length
-    ? usedCardsMemory.join(" - ")
-    : "—";
-
-  const count = getRunningCount(usedCardsMemory);
-  const status = getCountStatus(count);
-
-  const countEl = document.getElementById("countValue");
-  const statusEl = document.getElementById("countStatus");
-
-  countEl.innerHTML = count > 0 ? `+${count}` : `${count}`;
-  countEl.className = status.cls;
-
-  statusEl.innerHTML = status.text;
-  statusEl.className = status.cls;
-}
-
-function getCurrentAdviceHand(){
-  if(splitMode){
-    if(activeSplitHand === 2 && splitHand2.length) return splitHand2;
-    return splitHand1;
-  }
-  return bjPlayerCards;
-}
-
-function consigliaBlackjack(){
-  const cardsToCheck = getCurrentAdviceHand();
-  const playerCards = cardsToCheck.map(normalizeCard).filter(Boolean);
-  const dealerUpCard = normalizeCard(bjDealerCards[0] || "");
-
-  if(playerCards.length < 2 || !dealerUpCard){
-    document.getElementById("bjHandType").innerHTML = "Dati mancanti";
-    document.getElementById("bjHandValue").innerHTML = "—";
-    document.getElementById("bjAdvice").innerHTML = "—";
-    document.getElementById("bjNote").innerHTML = "Inserisci almeno 2 carte giocatore e la prima carta del banco";
-    return;
-  }
-
-  const hand = evaluateHand(playerCards);
-  const strategy = basicStrategy(playerCards, dealerUpCard);
-
-  let handType = "Hard";
-  if(playerCards.length === 2 && sameRank(playerCards[0], playerCards[1])) handType = "Pair";
-  else if(hand.isSoft) handType = "Soft";
-
-  document.getElementById("bjHandType").innerHTML = handType;
-  document.getElementById("bjHandValue").innerHTML = hand.total;
-  document.getElementById("bjAdvice").innerHTML = strategy.move;
-  document.getElementById("bjNote").innerHTML = splitMode
-    ? `Mano attiva: ${activeSplitHand} • ${strategy.note}`
-    : strategy.note;
-}
-
-function doSplit(){
-  if(bjPlayerCards.length < 2){
-    document.getElementById("bjNote").innerHTML = "Per fare split servono almeno 2 carte iniziali";
-    return;
-  }
-
-  if(splitMode){
-    document.getElementById("bjNote").innerHTML = "Split già attivo";
-    return;
-  }
-
-  if(!sameRank(bjPlayerCards[0], bjPlayerCards[1])){
-    document.getElementById("bjNote").innerHTML = "Le prime 2 carte non sono splittabili";
-    return;
-  }
-
-  splitMode = true;
-  splitHand1 = [bjPlayerCards[0]];
-  splitHand2 = [bjPlayerCards[1]];
-  activeSplitHand = 1;
-  bjPlayerCards = [];
-  updateBlackjackViews();
-  document.getElementById("bjNote").innerHTML = "Split attivo: completa le due mani";
-}
-
-function closeRound(){
-  const roundCards = [];
-
-  roundCards.push(...bjPlayerCards);
-  roundCards.push(...bjDealerCards);
-  roundCards.push(...splitHand1);
-  roundCards.push(...splitHand2);
-
-  usedCardsMemory.push(...roundCards.filter(Boolean));
-  updateDeckMemoryUI();
-
-  bjPlayerCards = [];
-  bjDealerCards = [];
-  splitHand1 = [];
-  splitHand2 = [];
-  splitMode = false;
-  activeSplitHand = 1;
-
-  updateBlackjackViews();
-
-  document.getElementById("bjHandType").innerHTML = "—";
-  document.getElementById("bjHandValue").innerHTML = "—";
-  document.getElementById("bjAdvice").innerHTML = "—";
-  document.getElementById("bjNote").innerHTML = "Round chiuso e salvato in memoria";
-}
-
-function resetDeckMemory(){
-  usedCardsMemory = [];
-  bjPlayerCards = [];
-  bjDealerCards = [];
-  splitHand1 = [];
-  splitHand2 = [];
-  splitMode = false;
-  activeSplitHand = 1;
-
-  updateDeckMemoryUI();
-  updateBlackjackViews();
-
-  document.getElementById("bjHandType").innerHTML = "—";
-  document.getElementById("bjHandValue").innerHTML = "—";
-  document.getElementById("bjAdvice").innerHTML = "—";
-  document.getElementById("bjNote").innerHTML = "Mazzo resettato";
-}
-
-async function getCryptoPrice(){
-  const query = (document.getElementById("cryptoQuery").value || "").trim().toLowerCase();
-
-  document.getElementById("cryptoName").innerHTML = "Ricerca in corso...";
-  document.getElementById("cryptoSymbol").innerHTML = "—";
-  document.getElementById("cryptoPrice").innerHTML = "—";
-  document.getElementById("cryptoMarketCap").innerHTML = "—";
-
-  if(!query){
-    document.getElementById("cryptoName").innerHTML = "Inserisci una crypto";
-    return;
-  }
-
-  try{
-    const coinsRes = await fetch("https://api.coinpaprika.com/v1/coins");
-    if(!coinsRes.ok) throw new Error("Errore lista coin");
-
-    const coins = await coinsRes.json();
-
-    const found =
-      coins.find(c => (c.symbol || "").toLowerCase() === query) ||
-      coins.find(c => (c.name || "").toLowerCase() === query) ||
-      coins.find(c => (c.id || "").toLowerCase() === query);
-
-    if(!found){
-      document.getElementById("cryptoName").innerHTML = "Crypto non trovata";
-      return;
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <script>
+    let usedCardsMemory = [];
+    let bjPlayerCards = [];
+    let bjDealerCards = [];
+    let splitMode = false;
+    let splitHand1 = [];
+    let splitHand2 = [];
+    let activeSplitHand = 1;
+
+    const CARD_SET = ["A","K","Q","J","10","9","8","7","6","5","4","3","2"];
+
+    const SUPABASE_URL = "https://aihwrkqfzhwedqdbxbxh.supabase.co";
+    const SUPABASE_ANON_KEY = "sb_publishable_G_glT9ld2cqENlVSup38NQ_q8HWyZPd";
+
+    const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    let currentProfitUser = null;
+    let profitEntries = [];
+
+    function openSection(id){
+      document.getElementById("menu").style.display = "none";
+      document.querySelectorAll(".section").forEach(s => s.style.display = "none");
+      document.getElementById(id).style.display = "block";
     }
 
-    const tickerRes = await fetch(`https://api.coinpaprika.com/v1/tickers/${found.id}`);
-    if(!tickerRes.ok) throw new Error("Errore ticker");
+    function goBack(){
+      document.querySelectorAll(".section").forEach(s => s.style.display = "none");
+      document.getElementById("menu").style.display = "grid";
+    }
 
-    const ticker = await tickerRes.json();
+    function calcola(){
+      let saldo = Number(document.getElementById("saldo").value || 0);
+      let wager = Number(document.getElementById("wager").value || 0);
+      let cap = Number(document.getElementById("cap").value || 0);
 
-    const price = ticker?.quotes?.USD?.price;
-    const marketCap = ticker?.quotes?.USD?.market_cap;
+      let target = (saldo * wager * 0.05) + cap;
+      let spin = saldo / 20;
 
-    document.getElementById("cryptoName").innerHTML = found.name || "—";
-    document.getElementById("cryptoSymbol").innerHTML = found.symbol || "—";
-    document.getElementById("cryptoPrice").innerHTML =
-      price != null
-        ? "$ " + Number(price).toLocaleString("it-IT", { minimumFractionDigits: 2, maximumFractionDigits: 8 })
+      document.getElementById("target").innerHTML = target.toFixed(2);
+      document.getElementById("spin").innerHTML = spin.toFixed(2);
+    }
+
+    function calcolaSurebet(){
+      let q1 = Number(document.getElementById("quota1").value || 0);
+      let s1 = Number(document.getElementById("puntata1").value || 0);
+      let q2 = Number(document.getElementById("quota2").value || 0);
+
+      let ritorno = q1 * s1;
+      let s2 = Math.round(ritorno / q2);
+      let profitto = ritorno - s1 - s2;
+
+      document.getElementById("puntata2").innerHTML = s2;
+      document.getElementById("profitto").innerHTML = profitto.toFixed(2);
+    }
+
+    function calcolaPuntaBanca(){
+      let q1 = Number(document.getElementById("quotaPunta").value || 0);
+      let s1 = Number(document.getElementById("puntataPunta").value || 0);
+      let q2 = Number(document.getElementById("quotaBanca").value || 0);
+
+      let banca = (q1 * s1) / q2;
+      document.getElementById("puntataBancaResult").innerHTML = banca.toFixed(2);
+    }
+
+    function calcolaFreebet(){
+      let free = Number(document.getElementById("importoFreebet").value || 0);
+      let qP = Number(document.getElementById("quotaFreebetPunta").value || 0);
+      let qB = Number(document.getElementById("quotaFreebetBanca").value || 0);
+
+      let lay = (free * (qP - 1)) / qB;
+      document.getElementById("profittoFreebetResult").innerHTML = lay.toFixed(2);
+    }
+
+    function calcolaBaccarat(){
+      const playerOdds = 2.00;
+      const bankerOdds = 1.95;
+
+      let playerStake = Number(document.getElementById("playerStake").value || 0);
+
+      let ritorno = playerStake * playerOdds;
+      let bankerStake = Math.round(ritorno / bankerOdds);
+      let profit = ritorno - playerStake - bankerStake;
+
+      document.getElementById("bankerStake").innerHTML = bankerStake;
+      document.getElementById("baccaratProfit").innerHTML = profit.toFixed(2);
+    }
+
+    function renderButtons(containerId, handler){
+      const wrap = document.getElementById(containerId);
+      if(!wrap) return;
+      wrap.innerHTML = "";
+
+      CARD_SET.forEach(card => {
+        const btn = document.createElement("button");
+        btn.className = "card-btn";
+        btn.textContent = card;
+        btn.onclick = () => handler(card);
+        wrap.appendChild(btn);
+      });
+    }
+
+    function renderBlackjackButtons(){
+      renderButtons("playerCardButtons", addPlayerCard);
+      renderButtons("dealerCardButtons", addDealerCard);
+      renderButtons("splitHand1Buttons", addSplitHand1Card);
+      renderButtons("splitHand2Buttons", addSplitHand2Card);
+      updateBlackjackViews();
+    }
+
+    function addPlayerCard(card){
+      if(splitMode) return;
+      bjPlayerCards.push(card);
+      updateBlackjackViews();
+    }
+
+    function addDealerCard(card){
+      bjDealerCards.push(card);
+      updateBlackjackViews();
+    }
+
+    function addSplitHand1Card(card){
+      if(!splitMode) return;
+      activeSplitHand = 1;
+      splitHand1.push(card);
+      updateBlackjackViews();
+    }
+
+    function addSplitHand2Card(card){
+      if(!splitMode) return;
+      activeSplitHand = 2;
+      splitHand2.push(card);
+      updateBlackjackViews();
+    }
+
+    function removeLastPlayerCard(){
+      if(splitMode){
+        if(activeSplitHand === 1){
+          splitHand1.pop();
+        }else{
+          splitHand2.pop();
+        }
+      }else{
+        bjPlayerCards.pop();
+      }
+      updateBlackjackViews();
+    }
+
+    function removeLastDealerCard(){
+      bjDealerCards.pop();
+      updateBlackjackViews();
+    }
+
+    function updateBlackjackViews(){
+      const playerView = document.getElementById("playerCardsView");
+      const dealerView = document.getElementById("dealerCardsView");
+      const split1View = document.getElementById("splitHand1View");
+      const split2View = document.getElementById("splitHand2View");
+      const splitArea = document.getElementById("splitArea");
+
+      if(playerView){
+        playerView.innerHTML = bjPlayerCards.length
+          ? bjPlayerCards.map(c => `<span class="picked-card">${c}</span>`).join("")
+          : "—";
+      }
+
+      if(dealerView){
+        dealerView.innerHTML = bjDealerCards.length
+          ? bjDealerCards.map(c => `<span class="picked-card">${c}</span>`).join("")
+          : "—";
+      }
+
+      if(split1View){
+        split1View.innerHTML = splitHand1.length
+          ? splitHand1.map(c => `<span class="picked-card">${c}</span>`).join("")
+          : "—";
+      }
+
+      if(split2View){
+        split2View.innerHTML = splitHand2.length
+          ? splitHand2.map(c => `<span class="picked-card">${c}</span>`).join("")
+          : "—";
+      }
+
+      if(splitArea){
+        splitArea.style.display = splitMode ? "block" : "none";
+      }
+    }
+
+    function normalizeCard(card){
+      const c = String(card).trim().toUpperCase();
+      if(c === "1") return "A";
+      if(["A","K","Q","J","10","9","8","7","6","5","4","3","2"].includes(c)) return c;
+      return null;
+    }
+
+    function cardValue(card){
+      if(card === "A") return 11;
+      if(["K","Q","J","10"].includes(card)) return 10;
+      return Number(card);
+    }
+
+    function dealerUpValue(card){
+      if(card === "A") return 11;
+      if(["K","Q","J","10"].includes(card)) return 10;
+      return Number(card);
+    }
+
+    function evaluateHand(cards){
+      let total = 0;
+      let aces = 0;
+
+      cards.forEach(card => {
+        total += cardValue(card);
+        if(card === "A") aces++;
+      });
+
+      while(total > 21 && aces > 0){
+        total -= 10;
+        aces--;
+      }
+
+      let rawTotal = cards.reduce((sum, c) => {
+        if(c === "A") return sum + 11;
+        if(["K","Q","J","10"].includes(c)) return sum + 10;
+        return sum + Number(c);
+      }, 0);
+
+      const isSoft = cards.includes("A") && total <= 21 && rawTotal === total;
+      return { total, isSoft };
+    }
+
+    function sameRank(a, b){
+      const tenCards = ["10","J","Q","K"];
+      if(tenCards.includes(a) && tenCards.includes(b)) return true;
+      return a === b;
+    }
+
+    function basicStrategy(cards, dealer){
+      const dealerVal = dealerUpValue(dealer);
+      const hand = evaluateHand(cards);
+
+      if(cards.length === 2 && sameRank(cards[0], cards[1])){
+        const first = cards[0];
+
+        if(first === "A" || first === "8") return { move: "SPLIT", note: "Coppia favorevole da dividere" };
+        if(["10","J","Q","K"].includes(first)) return { move: "STAND", note: "Hai già una mano forte" };
+        if(first === "9"){
+          if([2,3,4,5,6,8,9].includes(dealerVal)) return { move: "SPLIT", note: "Dividi i 9 contro questa carta del banco" };
+          return { move: "STAND", note: "Meglio stare" };
+        }
+        if(first === "7"){
+          if(dealerVal >= 2 && dealerVal <= 7) return { move: "SPLIT", note: "Dividi i 7" };
+          return { move: "HIT", note: "Meglio chiedere carta" };
+        }
+        if(first === "6"){
+          if(dealerVal >= 2 && dealerVal <= 6) return { move: "SPLIT", note: "Dividi i 6" };
+          return { move: "HIT", note: "Meglio chiedere carta" };
+        }
+        if(first === "5"){
+          if(dealerVal >= 2 && dealerVal <= 9) return { move: "DOUBLE", note: "Coppia di 5 trattata come 10" };
+          return { move: "HIT", note: "Meglio chiedere carta" };
+        }
+        if(first === "4"){
+          if(dealerVal === 5 || dealerVal === 6) return { move: "SPLIT", note: "Dividi i 4 solo qui" };
+          return { move: "HIT", note: "Meglio chiedere carta" };
+        }
+        if(first === "3" || first === "2"){
+          if(dealerVal >= 2 && dealerVal <= 7) return { move: "SPLIT", note: "Dividi la coppia" };
+          return { move: "HIT", note: "Meglio chiedere carta" };
+        }
+      }
+
+      if(hand.isSoft && cards.length === 2){
+        const other = cards[0] === "A" ? cards[1] : cards[1] === "A" ? cards[0] : null;
+        const otherVal = other ? cardValue(other) : 0;
+
+        if(otherVal === 9) return { move: "STAND", note: "Soft 20" };
+        if(otherVal === 8) return { move: "STAND", note: "Soft 19" };
+        if(otherVal === 7){
+          if([3,4,5,6].includes(dealerVal)) return { move: "DOUBLE", note: "Soft 18 buono per raddoppiare" };
+          if([2,7,8].includes(dealerVal)) return { move: "STAND", note: "Meglio stare" };
+          return { move: "HIT", note: "Contro carta forte del banco chiedi" };
+        }
+        if(otherVal === 6){
+          if([3,4,5,6].includes(dealerVal)) return { move: "DOUBLE", note: "Soft 17" };
+          return { move: "HIT", note: "Meglio chiedere carta" };
+        }
+        if(otherVal === 5 || otherVal === 4){
+          if([4,5,6].includes(dealerVal)) return { move: "DOUBLE", note: "Soft 15/16" };
+          return { move: "HIT", note: "Meglio chiedere carta" };
+        }
+        if(otherVal === 3 || otherVal === 2){
+          if([5,6].includes(dealerVal)) return { move: "DOUBLE", note: "Soft 13/14" };
+          return { move: "HIT", note: "Meglio chiedere carta" };
+        }
+      }
+
+      const total = hand.total;
+
+      if(total >= 17) return { move: "STAND", note: "Totale forte" };
+      if(total >= 13 && total <= 16){
+        if(dealerVal >= 2 && dealerVal <= 6) return { move: "STAND", note: "Banco debole" };
+        return { move: "HIT", note: "Banco forte, meglio chiedere" };
+      }
+      if(total === 12){
+        if(dealerVal >= 4 && dealerVal <= 6) return { move: "STAND", note: "12 contro banco debole" };
+        return { move: "HIT", note: "Meglio chiedere carta" };
+      }
+      if(total === 11) return { move: "DOUBLE", note: "11 è ottimo per raddoppiare" };
+      if(total === 10){
+        if(dealerVal >= 2 && dealerVal <= 9) return { move: "DOUBLE", note: "10 contro carta non troppo forte" };
+        return { move: "HIT", note: "Contro 10 o Asso meglio chiedere" };
+      }
+      if(total === 9){
+        if(dealerVal >= 3 && dealerVal <= 6) return { move: "DOUBLE", note: "9 contro banco debole" };
+        return { move: "HIT", note: "Meglio chiedere carta" };
+      }
+
+      return { move: "HIT", note: "Totale basso, chiedi carta" };
+    }
+
+    function getRunningCount(cards){
+      let count = 0;
+      cards.forEach(card => {
+        if(["2","3","4","5","6"].includes(card)) count += 1;
+        else if(["10","J","Q","K","A"].includes(card)) count -= 1;
+      });
+      return count;
+    }
+
+    function getCountStatus(count){
+      if(count >= 4) return { text: "Molto favorevole", cls: "count-good" };
+      if(count >= 2) return { text: "Favorevole", cls: "count-good" };
+      if(count <= -4) return { text: "Molto sfavorevole", cls: "count-bad" };
+      if(count <= -2) return { text: "Sfavorevole", cls: "count-bad" };
+      return { text: "Neutro", cls: "count-neutral" };
+    }
+
+    function updateDeckMemoryUI(){
+      document.getElementById("deckMemory").innerHTML = usedCardsMemory.length
+        ? usedCardsMemory.join(" - ")
         : "—";
 
-    document.getElementById("cryptoMarketCap").innerHTML =
-      marketCap != null
-        ? "$ " + Number(marketCap).toLocaleString("it-IT", { maximumFractionDigits: 0 })
-        : "—";
-  }catch(error){
-    console.error(error);
-    document.getElementById("cryptoName").innerHTML = "Errore caricamento";
-    document.getElementById("cryptoSymbol").innerHTML = "—";
-    document.getElementById("cryptoPrice").innerHTML = "API non disponibile";
-    document.getElementById("cryptoMarketCap").innerHTML = "—";
-  }
-}
+      const count = getRunningCount(usedCardsMemory);
+      const status = getCountStatus(count);
 
-renderBlackjackButtons();
-updateDeckMemoryUI();
-</script>
+      const countEl = document.getElementById("countValue");
+      const statusEl = document.getElementById("countStatus");
 
+      countEl.innerHTML = count > 0 ? `+${count}` : `${count}`;
+      countEl.className = status.cls;
+
+      statusEl.innerHTML = status.text;
+      statusEl.className = status.cls;
+    }
+
+    function getCurrentAdviceHand(){
+      if(splitMode){
+        if(activeSplitHand === 2 && splitHand2.length) return splitHand2;
+        return splitHand1;
+      }
+      return bjPlayerCards;
+    }
+
+    function consigliaBlackjack(){
+      const cardsToCheck = getCurrentAdviceHand();
+      const playerCards = cardsToCheck.map(normalizeCard).filter(Boolean);
+      const dealerUpCard = normalizeCard(bjDealerCards[0] || "");
+
+      if(playerCards.length < 2 || !dealerUpCard){
+        document.getElementById("bjHandType").innerHTML = "Dati mancanti";
+        document.getElementById("bjHandValue").innerHTML = "—";
+        document.getElementById("bjAdvice").innerHTML = "—";
+        document.getElementById("bjNote").innerHTML = "Inserisci almeno 2 carte giocatore e la prima carta del banco";
+        return;
+      }
+
+      const hand = evaluateHand(playerCards);
+      const strategy = basicStrategy(playerCards, dealerUpCard);
+
+      let handType = "Hard";
+      if(playerCards.length === 2 && sameRank(playerCards[0], playerCards[1])) handType = "Pair";
+      else if(hand.isSoft) handType = "Soft";
+
+      document.getElementById("bjHandType").innerHTML = handType;
+      document.getElementById("bjHandValue").innerHTML = hand.total;
+      document.getElementById("bjAdvice").innerHTML = strategy.move;
+      document.getElementById("bjNote").innerHTML = splitMode
+        ? `Mano attiva: ${activeSplitHand} • ${strategy.note}`
+        : strategy.note;
+    }
+
+    function doSplit(){
+      if(bjPlayerCards.length < 2){
+        document.getElementById("bjNote").innerHTML = "Per fare split servono almeno 2 carte iniziali";
+        return;
+      }
+
+      if(splitMode){
+        document.getElementById("bjNote").innerHTML = "Split già attivo";
+        return;
+      }
+
+      if(!sameRank(bjPlayerCards[0], bjPlayerCards[1])){
+        document.getElementById("bjNote").innerHTML = "Le prime 2 carte non sono splittabili";
+        return;
+      }
+
+      splitMode = true;
+      splitHand1 = [bjPlayerCards[0]];
+      splitHand2 = [bjPlayerCards[1]];
+      activeSplitHand = 1;
+      bjPlayerCards = [];
+      updateBlackjackViews();
+      document.getElementById("bjNote").innerHTML = "Split attivo: completa le due mani";
+    }
+
+    function closeRound(){
+      const roundCards = [];
+
+      roundCards.push(...bjPlayerCards);
+      roundCards.push(...bjDealerCards);
+      roundCards.push(...splitHand1);
+      roundCards.push(...splitHand2);
+
+      usedCardsMemory.push(...roundCards.filter(Boolean));
+      updateDeckMemoryUI();
+
+      bjPlayerCards = [];
+      bjDealerCards = [];
+      splitHand1 = [];
+      splitHand2 = [];
+      splitMode = false;
+      activeSplitHand = 1;
+
+      updateBlackjackViews();
+
+      document.getElementById("bjHandType").innerHTML = "—";
+      document.getElementById("bjHandValue").innerHTML = "—";
+      document.getElementById("bjAdvice").innerHTML = "—";
+      document.getElementById("bjNote").innerHTML = "Round chiuso e salvato in memoria";
+    }
+
+    function resetDeckMemory(){
+      usedCardsMemory = [];
+      bjPlayerCards = [];
+      bjDealerCards = [];
+      splitHand1 = [];
+      splitHand2 = [];
+      splitMode = false;
+      activeSplitHand = 1;
+
+      updateDeckMemoryUI();
+      updateBlackjackViews();
+
+      document.getElementById("bjHandType").innerHTML = "—";
+      document.getElementById("bjHandValue").innerHTML = "—";
+      document.getElementById("bjAdvice").innerHTML = "—";
+      document.getElementById("bjNote").innerHTML = "Mazzo resettato";
+    }
+
+    async function getCryptoPrice(){
+      const query = (document.getElementById("cryptoQuery").value || "").trim().toLowerCase();
+
+      document.getElementById("cryptoName").innerHTML = "Ricerca in corso...";
+      document.getElementById("cryptoSymbol").innerHTML = "—";
+      document.getElementById("cryptoPrice").innerHTML = "—";
+      document.getElementById("cryptoMarketCap").innerHTML = "—";
+
+      if(!query){
+        document.getElementById("cryptoName").innerHTML = "Inserisci una crypto";
+        return;
+      }
+
+      try{
+        const coinsRes = await fetch("https://api.coinpaprika.com/v1/coins");
+        if(!coinsRes.ok) throw new Error("Errore lista coin");
+
+        const coins = await coinsRes.json();
+
+        const found =
+          coins.find(c => (c.symbol || "").toLowerCase() === query) ||
+          coins.find(c => (c.name || "").toLowerCase() === query) ||
+          coins.find(c => (c.id || "").toLowerCase() === query);
+
+        if(!found){
+          document.getElementById("cryptoName").innerHTML = "Crypto non trovata";
+          return;
+        }
+
+        const tickerRes = await fetch(`https://api.coinpaprika.com/v1/tickers/${found.id}`);
+        if(!tickerRes.ok) throw new Error("Errore ticker");
+
+        const ticker = await tickerRes.json();
+
+        const price = ticker?.quotes?.USD?.price;
+        const marketCap = ticker?.quotes?.USD?.market_cap;
+
+        document.getElementById("cryptoName").innerHTML = found.name || "—";
+        document.getElementById("cryptoSymbol").innerHTML = found.symbol || "—";
+        document.getElementById("cryptoPrice").innerHTML =
+          price != null
+            ? "$ " + Number(price).toLocaleString("it-IT", { minimumFractionDigits: 2, maximumFractionDigits: 8 })
+            : "—";
+
+        document.getElementById("cryptoMarketCap").innerHTML =
+          marketCap != null
+            ? "$ " + Number(marketCap).toLocaleString("it-IT", { maximumFractionDigits: 0 })
+            : "—";
+      }catch(error){
+        console.error(error);
+        document.getElementById("cryptoName").innerHTML = "Errore caricamento";
+        document.getElementById("cryptoSymbol").innerHTML = "—";
+        document.getElementById("cryptoPrice").innerHTML = "API non disponibile";
+        document.getElementById("cryptoMarketCap").innerHTML = "—";
+      }
+    }
+
+    function setDefaultProfitDate(){
+      const dateInput = document.getElementById("profitDate");
+      if(dateInput && !dateInput.value){
+        const today = new Date();
+        const yyyy = today.getFullYear();
+        const mm = String(today.getMonth() + 1).padStart(2, "0");
+        const dd = String(today.getDate()).padStart(2, "0");
+        dateInput.value = `${yyyy}-${mm}-${dd}`;
+      }
+    }
+
+    function euro(value){
+      return "€ " + Number(value || 0).toLocaleString("it-IT", {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      });
+    }
+
+    function showProfitAuthState(isLogged){
+      const authArea = document.getElementById("authArea");
+      const trackerArea = document.getElementById("trackerArea");
+      const pill = document.getElementById("currentUserPill");
+
+      if(isLogged){
+        authArea.classList.add("hidden");
+        trackerArea.classList.remove("hidden");
+        pill.classList.remove("hidden");
+        pill.textContent = currentProfitUser?.email || "Utente loggato";
+      }else{
+        authArea.classList.remove("hidden");
+        trackerArea.classList.add("hidden");
+        pill.classList.add("hidden");
+        pill.textContent = "";
+      }
+    }
+
+    async function initProfitTracker(){
+      setDefaultProfitDate();
+
+      const { data, error } = await supabaseClient.auth.getUser();
+
+      if(error){
+        console.error(error);
+        showProfitAuthState(false);
+        return;
+      }
+
+      currentProfitUser = data?.user || null;
+      showProfitAuthState(!!currentProfitUser);
+
+      if(currentProfitUser){
+        await loadProfitEntries();
+      }else{
+        renderProfitEntries();
+        updateProfitStats();
+      }
+
+      supabaseClient.auth.onAuthStateChange(async (_event, session) => {
+        currentProfitUser = session?.user || null;
+        showProfitAuthState(!!currentProfitUser);
+
+        if(currentProfitUser){
+          await loadProfitEntries();
+        }else{
+          profitEntries = [];
+          renderProfitEntries();
+          updateProfitStats();
+        }
+      });
+    }
+
+    async function signUpProfitTracker(){
+      const email = (document.getElementById("registerEmail").value || "").trim();
+      const password = document.getElementById("registerPassword").value || "";
+      const msg = document.getElementById("registerMessage");
+
+      if(!email || !password){
+        msg.innerHTML = "Inserisci email e password.";
+        return;
+      }
+
+      msg.innerHTML = "Registrazione in corso...";
+
+      const { error } = await supabaseClient.auth.signUp({ email, password });
+
+      if(error){
+        msg.innerHTML = error.message;
+        return;
+      }
+
+      msg.innerHTML = "Account creato. Ora fai login.";
+    }
+
+    async function signInProfitTracker(){
+      const email = (document.getElementById("loginEmail").value || "").trim();
+      const password = document.getElementById("loginPassword").value || "";
+      const msg = document.getElementById("loginMessage");
+
+      if(!email || !password){
+        msg.innerHTML = "Inserisci email e password.";
+        return;
+      }
+
+      msg.innerHTML = "Login in corso...";
+
+      const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
+
+      if(error){
+        msg.innerHTML = error.message;
+        return;
+      }
+
+      msg.innerHTML = "Login effettuato.";
+    }
+
+    async function signOutProfitTracker(){
+      await supabaseClient.auth.signOut();
+    }
+
+    async function addProfitEntry(){
+      if(!currentProfitUser){
+        document.getElementById("entryMessage").innerHTML = "Devi prima fare login.";
+        return;
+      }
+
+      const entry = {
+        user_id: currentProfitUser.id,
+        entry_date: document.getElementById("profitDate").value || null,
+        bookmaker: (document.getElementById("profitBookmaker").value || "").trim(),
+        operation_type: document.getElementById("profitType").value || "Altro",
+        stake: Number(document.getElementById("profitStake").value || 0),
+        profit: Number(document.getElementById("profitAmount").value || 0),
+        note: (document.getElementById("profitNote").value || "").trim()
+      };
+
+      const msg = document.getElementById("entryMessage");
+      msg.innerHTML = "Salvataggio in corso...";
+
+      const { error } = await supabaseClient.from("profit_entries").insert([entry]);
+
+      if(error){
+        msg.innerHTML = error.message;
+        return;
+      }
+
+      msg.innerHTML = "Entry salvata.";
+
+      document.getElementById("profitBookmaker").value = "";
+      document.getElementById("profitStake").value = "";
+      document.getElementById("profitAmount").value = "";
+      document.getElementById("profitNote").value = "";
+
+      await loadProfitEntries();
+    }
+
+    async function loadProfitEntries(){
+      const { data, error } = await supabaseClient
+        .from("profit_entries")
+        .select("*")
+        .order("entry_date", { ascending: false })
+        .order("created_at", { ascending: false });
+
+      if(error){
+        console.error(error);
+        document.getElementById("entryMessage").innerHTML = error.message;
+        return;
+      }
+
+      profitEntries = data || [];
+      renderProfitEntries();
+      updateProfitStats();
+    }
+
+    function updateProfitStats(){
+      const total = profitEntries.reduce((sum, row) => sum + Number(row.profit || 0), 0);
+
+      const now = new Date();
+      const currentYear = now.getFullYear();
+      const currentMonth = now.getMonth();
+
+      const monthTotal = profitEntries
+        .filter(row => {
+          if(!row.entry_date) return false;
+          const d = new Date(row.entry_date);
+          return d.getFullYear() === currentYear && d.getMonth() === currentMonth;
+        })
+        .reduce((sum, row) => sum + Number(row.profit || 0), 0);
+
+      document.getElementById("totalProfitValue").innerHTML = euro(total);
+      document.getElementById("monthProfitValue").innerHTML = euro(monthTotal);
+      document.getElementById("entriesCountValue").innerHTML = String(profitEntries.length);
+    }
+
+    function renderProfitEntries(){
+      const tbody = document.getElementById("profitTableBody");
+      if(!tbody) return;
+
+      if(!profitEntries.length){
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="7">Nessuna entry</td>
+          </tr>
+        `;
+        return;
+      }
+
+      tbody.innerHTML = profitEntries.map(row => `
+        <tr>
+          <td>${row.entry_date || "—"}</td>
+          <td>${row.bookmaker || "—"}</td>
+          <td>${row.operation_type || "—"}</td>
+          <td>${euro(row.stake || 0)}</td>
+          <td>${euro(row.profit || 0)}</td>
+          <td>${row.note || "—"}</td>
+          <td><button class="small-btn delete" onclick="deleteProfitEntry('${row.id}')">Elimina</button></td>
+        </tr>
+      `).join("");
+    }
+
+    async function deleteProfitEntry(id){
+      const { error } = await supabaseClient
+        .from("profit_entries")
+        .delete()
+        .eq("id", id);
+
+      if(error){
+        document.getElementById("entryMessage").innerHTML = error.message;
+        return;
+      }
+
+      await loadProfitEntries();
+    }
+
+    renderBlackjackButtons();
+    updateDeckMemoryUI();
+    initProfitTracker();
+  </script>
 </body>
 </html>
