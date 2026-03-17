@@ -139,9 +139,9 @@
     }
 
     .hero-crypto{
-      padding:28px;
+      padding:26px;
       background:
-        linear-gradient(rgba(8,15,30,.76), rgba(8,15,30,.88)),
+        linear-gradient(rgba(8,15,30,.76), rgba(8,15,30,.9)),
         url('https://images.unsplash.com/photo-1621761191319-c6fb62004040?auto=format&fit=crop&w=1400&q=80') center/cover;
     }
 
@@ -217,17 +217,93 @@
     }
 
     .hero-bonus h3,
-    .hero-blackjack h3,
+    .hero-blackjack h3{
+      margin:0 0 8px;
+      font-size:30px;
+      color:#fff;
+    }
+
+    .hero-blackjack p{
+      margin:0;
+      color:#f8fafc;
+    }
+
     .hero-crypto h3{
       margin:0 0 8px;
       font-size:30px;
       color:#fff;
     }
 
-    .hero-blackjack p,
     .hero-crypto p{
       margin:0;
       color:#f8fafc;
+    }
+
+    .crypto-hero-top{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:20px;
+      flex-wrap:wrap;
+    }
+
+    .crypto-hero-text{
+      max-width:620px;
+    }
+
+    .crypto-marquee{
+      width:100%;
+      overflow:hidden;
+      margin-top:18px;
+      padding:10px 0 2px;
+      position:relative;
+    }
+
+    .crypto-marquee-track{
+      display:flex;
+      gap:28px;
+      width:max-content;
+      animation: scrollCoins 22s linear infinite;
+      align-items:center;
+    }
+
+    .coin-mini{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      background:rgba(2,6,23,.48);
+      border:1px solid rgba(255,255,255,.1);
+      padding:10px 14px;
+      border-radius:999px;
+      backdrop-filter: blur(6px);
+      transform:translateY(0);
+      animation: floatCoin 3.5s ease-in-out infinite;
+    }
+
+    .coin-mini:nth-child(2n){ animation-delay:.4s; }
+    .coin-mini:nth-child(3n){ animation-delay:.8s; }
+
+    .coin-mini img{
+      width:22px;
+      height:22px;
+      object-fit:contain;
+    }
+
+    .coin-mini span{
+      color:#e5e7eb;
+      font-size:13px;
+      font-weight:bold;
+      white-space:nowrap;
+    }
+
+    @keyframes scrollCoins{
+      from{ transform:translateX(0); }
+      to{ transform:translateX(-50%); }
+    }
+
+    @keyframes floatCoin{
+      0%,100%{ transform:translateY(0px); }
+      50%{ transform:translateY(-4px); }
     }
 
     .card-grid{
@@ -246,7 +322,8 @@
     .box,
     .result-box,
     .stat-card,
-    .chart-card{
+    .chart-card,
+    .crypto-signal-card{
       background:rgba(17,24,39,.96);
       border:1px solid var(--line);
       border-radius:var(--radius);
@@ -262,7 +339,8 @@
       padding:20px;
     }
 
-    .chart-card{
+    .chart-card,
+    .crypto-signal-card{
       padding:22px;
       min-height:330px;
     }
@@ -400,6 +478,73 @@
       color:#cbd5e1;
       margin-top:10px;
       font-size:14px;
+      line-height:1.5;
+    }
+
+    .crypto-grid{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:18px;
+      margin-top:18px;
+    }
+
+    .crypto-stats-grid{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:14px;
+    }
+
+    .crypto-stat{
+      background:#0f172a;
+      border:1px solid var(--line);
+      padding:16px;
+      border-radius:16px;
+    }
+
+    .crypto-stat .label{
+      display:block;
+      color:var(--muted);
+      font-size:13px;
+      margin-bottom:8px;
+      font-weight:bold;
+      text-transform:uppercase;
+      letter-spacing:.04em;
+    }
+
+    .crypto-stat .value{
+      font-size:26px;
+      font-weight:bold;
+      line-height:1.15;
+      word-break:break-word;
+    }
+
+    .signal-pill{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:8px 12px;
+      border-radius:999px;
+      font-weight:bold;
+      font-size:13px;
+      margin-top:6px;
+    }
+
+    .signal-long{
+      background:var(--greenSoft);
+      color:#86efac;
+      border:1px solid rgba(34,197,94,.22);
+    }
+
+    .signal-short{
+      background:var(--redSoft);
+      color:#fca5a5;
+      border:1px solid rgba(239,68,68,.22);
+    }
+
+    .signal-wait{
+      background:rgba(251,191,36,.12);
+      color:#fde68a;
+      border:1px solid rgba(251,191,36,.22);
     }
 
     .cards-grid{
@@ -694,7 +839,7 @@
     @media (max-width:980px){
       .profit-layout{grid-template-columns:1fr;}
       .stats-grid{grid-template-columns:repeat(2,minmax(0,1fr));}
-      .two-col, .three-col{grid-template-columns:1fr;}
+      .two-col, .three-col, .crypto-grid{grid-template-columns:1fr;}
     }
 
     @media (max-width:850px){
@@ -703,6 +848,7 @@
       .cards-grid{grid-template-columns:repeat(4,minmax(0,1fr));}
       .auth-grid{grid-template-columns:1fr;}
       .stats-grid{grid-template-columns:1fr;}
+      .crypto-stats-grid{grid-template-columns:1fr;}
       h1{font-size:34px;}
       .section-header h2{font-size:28px;}
       .hero-bonus h3,
@@ -1031,38 +1177,97 @@
     <div id="crypto" class="section">
       <div class="section-wrap">
         <div class="hero-crypto">
-          <h3>Cripto</h3>
-          <p>Scrivi nome o ticker della crypto e ottieni il prezzo live.</p>
+          <div class="crypto-hero-top">
+            <div class="crypto-hero-text">
+              <h3>Cripto</h3>
+              <p>Scrivi nome o ticker della crypto e ottieni prezzo in USDT, variazione 24h, sentiment e bias tecnico sperimentale.</p>
+            </div>
+          </div>
+
+          <div class="crypto-marquee">
+            <div class="crypto-marquee-track">
+              <div class="coin-mini"><img src="https://cdn.jsdelivr.net/npm/cryptocurrency-icons@0.18.1/svg/color/btc.svg"><span>Bitcoin</span></div>
+              <div class="coin-mini"><img src="https://cdn.jsdelivr.net/npm/cryptocurrency-icons@0.18.1/svg/color/eth.svg"><span>Ethereum</span></div>
+              <div class="coin-mini"><img src="https://cdn.jsdelivr.net/npm/cryptocurrency-icons@0.18.1/svg/color/sol.svg"><span>Solana</span></div>
+              <div class="coin-mini"><img src="https://cdn.jsdelivr.net/npm/cryptocurrency-icons@0.18.1/svg/color/ada.svg"><span>Cardano</span></div>
+              <div class="coin-mini"><img src="https://cdn.jsdelivr.net/npm/cryptocurrency-icons@0.18.1/svg/color/xrp.svg"><span>XRP</span></div>
+              <div class="coin-mini"><img src="https://cdn.jsdelivr.net/npm/cryptocurrency-icons@0.18.1/svg/color/doge.svg"><span>Dogecoin</span></div>
+              <div class="coin-mini"><img src="https://cdn.jsdelivr.net/npm/cryptocurrency-icons@0.18.1/svg/color/bnb.svg"><span>BNB</span></div>
+              <div class="coin-mini"><img src="https://cdn.jsdelivr.net/npm/cryptocurrency-icons@0.18.1/svg/color/btc.svg"><span>Bitcoin</span></div>
+              <div class="coin-mini"><img src="https://cdn.jsdelivr.net/npm/cryptocurrency-icons@0.18.1/svg/color/eth.svg"><span>Ethereum</span></div>
+              <div class="coin-mini"><img src="https://cdn.jsdelivr.net/npm/cryptocurrency-icons@0.18.1/svg/color/sol.svg"><span>Solana</span></div>
+              <div class="coin-mini"><img src="https://cdn.jsdelivr.net/npm/cryptocurrency-icons@0.18.1/svg/color/ada.svg"><span>Cardano</span></div>
+              <div class="coin-mini"><img src="https://cdn.jsdelivr.net/npm/cryptocurrency-icons@0.18.1/svg/color/xrp.svg"><span>XRP</span></div>
+              <div class="coin-mini"><img src="https://cdn.jsdelivr.net/npm/cryptocurrency-icons@0.18.1/svg/color/doge.svg"><span>Dogecoin</span></div>
+              <div class="coin-mini"><img src="https://cdn.jsdelivr.net/npm/cryptocurrency-icons@0.18.1/svg/color/bnb.svg"><span>BNB</span></div>
+            </div>
+          </div>
         </div>
 
         <div class="card-grid">
           <div class="box">
             <div class="field">
               <label>Crypto</label>
-              <input id="cryptoQuery" type="text" placeholder="Esempio: bitcoin, btc, ethereum, solana">
+              <input id="cryptoQuery" type="text" placeholder="Esempio: btc, bitcoin, eth, solana">
             </div>
             <button class="action" onclick="getCryptoPrice()">Cerca Prezzo</button>
             <div class="crypto-note">
-              Prova con nome o simbolo. Esempi: <strong>bitcoin</strong>, <strong>btc</strong>, <strong>eth</strong>, <strong>sol</strong>.
+              Prova con nome o simbolo. Esempi: <strong>bitcoin</strong>, <strong>btc</strong>, <strong>eth</strong>, <strong>sol</strong>.<br>
+              Il segnale operativo è <strong>sperimentale</strong> e usa logica tecnica semplice, non è consulenza finanziaria.
             </div>
           </div>
 
           <div class="result-box">
-            <div class="result">
-              <strong>Crypto trovata</strong>
-              <div class="result-value" id="cryptoName">—</div>
+            <div class="crypto-stats-grid">
+              <div class="crypto-stat">
+                <span class="label">Crypto trovata</span>
+                <div class="value" id="cryptoName">—</div>
+              </div>
+              <div class="crypto-stat">
+                <span class="label">Simbolo</span>
+                <div class="value" id="cryptoSymbol">—</div>
+              </div>
+              <div class="crypto-stat">
+                <span class="label">Prezzo USDT</span>
+                <div class="value" id="cryptoPrice">—</div>
+              </div>
+              <div class="crypto-stat">
+                <span class="label">24h %</span>
+                <div class="value neutral" id="cryptoChange24h">—</div>
+              </div>
             </div>
-            <div class="result">
-              <strong>Simbolo</strong>
-              <div class="result-value" id="cryptoSymbol">—</div>
+          </div>
+        </div>
+
+        <div class="crypto-grid">
+          <div class="crypto-signal-card">
+            <div class="toolbar-title">
+              <h3>Sentiment del momento</h3>
+              <span class="muted">Lettura rapida</span>
             </div>
-            <div class="result">
-              <strong>Prezzo in USD</strong>
-              <div class="result-value" id="cryptoPrice">—</div>
+            <div class="crypto-stat" style="margin-bottom:14px;">
+              <span class="label">Sentiment</span>
+              <div class="value" id="cryptoSentiment">—</div>
             </div>
-            <div class="result">
-              <strong>Market Cap</strong>
-              <div class="result-value" id="cryptoMarketCap">—</div>
+            <div class="crypto-stat">
+              <span class="label">Momentum breve</span>
+              <div class="value" id="cryptoMomentum">—</div>
+            </div>
+          </div>
+
+          <div class="crypto-signal-card">
+            <div class="toolbar-title">
+              <h3>Bias operativo</h3>
+              <span class="muted">Sperimentale</span>
+            </div>
+            <div id="cryptoSignalPill" class="signal-pill signal-wait">WAIT</div>
+            <div class="memory-box">
+              <strong>Motivo</strong>
+              <div id="cryptoAdvice">—</div>
+            </div>
+            <div class="memory-box">
+              <strong>Nota</strong>
+              <div id="cryptoExtra">Questa indicazione è basata su variazione 24h e struttura tecnica semplice.</div>
             </div>
           </div>
         </div>
@@ -1779,13 +1984,109 @@
       document.getElementById("bjNote").innerHTML = "Mazzo resettato";
     }
 
+    function setCryptoDefaultState(){
+      document.getElementById("cryptoName").innerHTML = "—";
+      document.getElementById("cryptoSymbol").innerHTML = "—";
+      document.getElementById("cryptoPrice").innerHTML = "—";
+      document.getElementById("cryptoChange24h").innerHTML = "—";
+      document.getElementById("cryptoChange24h").className = "value neutral";
+      document.getElementById("cryptoSentiment").innerHTML = "—";
+      document.getElementById("cryptoMomentum").innerHTML = "—";
+      document.getElementById("cryptoAdvice").innerHTML = "—";
+      document.getElementById("cryptoExtra").innerHTML = "Questa indicazione è basata su variazione 24h e struttura tecnica semplice.";
+      const pill = document.getElementById("cryptoSignalPill");
+      pill.className = "signal-pill signal-wait";
+      pill.innerHTML = "WAIT";
+    }
+
+    function formatUSDT(value){
+      return Number(value).toLocaleString("it-IT", {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 8
+      }) + " USDT";
+    }
+
+    function setCryptoSignal(type, text){
+      const pill = document.getElementById("cryptoSignalPill");
+      pill.className = "signal-pill";
+      if(type === "LONG") pill.classList.add("signal-long");
+      else if(type === "SHORT") pill.classList.add("signal-short");
+      else pill.classList.add("signal-wait");
+      pill.innerHTML = text;
+    }
+
+    function analyzeCryptoSignal(lastPrice, pct24, sma20, sma50){
+      let score = 0;
+      let reasons = [];
+
+      if(pct24 > 2){
+        score += 2;
+        reasons.push("24h positiva");
+      }else if(pct24 > 0){
+        score += 1;
+        reasons.push("leggera spinta positiva");
+      }else if(pct24 < -2){
+        score -= 2;
+        reasons.push("24h negativa forte");
+      }else if(pct24 < 0){
+        score -= 1;
+        reasons.push("debolezza nelle ultime 24h");
+      }
+
+      if(lastPrice > sma20){
+        score += 1;
+        reasons.push("prezzo sopra SMA20");
+      }else{
+        score -= 1;
+        reasons.push("prezzo sotto SMA20");
+      }
+
+      if(sma20 > sma50){
+        score += 1;
+        reasons.push("SMA20 sopra SMA50");
+      }else{
+        score -= 1;
+        reasons.push("SMA20 sotto SMA50");
+      }
+
+      let sentiment = "Neutro";
+      let momentum = "Laterale";
+      let signal = "WAIT";
+      let note = "Scenario poco chiaro, meglio attendere conferme.";
+      let extra = `Prezzo vs SMA20: ${lastPrice > sma20 ? "sopra" : "sotto"} • Struttura medie: ${sma20 > sma50 ? "rialzista" : "ribassista"}`;
+
+      if(score >= 3){
+        sentiment = "Bullish";
+        momentum = "Momentum positivo";
+        signal = "LONG";
+        note = "Secondo questo setup tecnico semplice il mercato mostra forza rialzista.";
+      }else if(score <= -3){
+        sentiment = "Bearish";
+        momentum = "Momentum negativo";
+        signal = "SHORT";
+        note = "Secondo questo setup tecnico semplice il mercato mostra pressione ribassista.";
+      }else{
+        sentiment = "Neutro";
+        momentum = "Momentum incerto";
+        signal = "WAIT";
+        note = "La struttura non è abbastanza pulita per un bias forte.";
+      }
+
+      return { sentiment, momentum, signal, note, extra, reasons };
+    }
+
     async function getCryptoPrice(){
       const query = (document.getElementById("cryptoQuery").value || "").trim().toLowerCase();
 
       document.getElementById("cryptoName").innerHTML = "Ricerca in corso...";
       document.getElementById("cryptoSymbol").innerHTML = "—";
       document.getElementById("cryptoPrice").innerHTML = "—";
-      document.getElementById("cryptoMarketCap").innerHTML = "—";
+      document.getElementById("cryptoChange24h").innerHTML = "—";
+      document.getElementById("cryptoSentiment").innerHTML = "—";
+      document.getElementById("cryptoMomentum").innerHTML = "—";
+      document.getElementById("cryptoAdvice").innerHTML = "Ricerca in corso...";
+      document.getElementById("cryptoExtra").innerHTML = "Attendi...";
+      setCryptoSignal("WAIT", "WAIT");
 
       if(!query){
         document.getElementById("cryptoName").innerHTML = "Inserisci una crypto";
@@ -1805,34 +2106,87 @@
 
         if(!found){
           document.getElementById("cryptoName").innerHTML = "Crypto non trovata";
+          document.getElementById("cryptoAdvice").innerHTML = "Nessuna corrispondenza trovata.";
           return;
         }
 
-        const tickerRes = await fetch(`https://api.coinpaprika.com/v1/tickers/${found.id}`);
-        if(!tickerRes.ok) throw new Error("Errore ticker");
+        const symbol = (found.symbol || "").toUpperCase();
+        const pair = symbol + "USDT";
 
-        const ticker = await tickerRes.json();
+        let tickerData = null;
+        let klineData = null;
 
-        const price = ticker?.quotes?.USD?.price;
-        const marketCap = ticker?.quotes?.USD?.market_cap;
+        const tickerRes = await fetch(`https://api.binance.com/api/v3/ticker/24hr?symbol=${pair}`);
+        if(tickerRes.ok){
+          tickerData = await tickerRes.json();
+        }else{
+          const fallbackTickerRes = await fetch(`https://api.coinpaprika.com/v1/tickers/${found.id}`);
+          if(!fallbackTickerRes.ok) throw new Error("Errore ticker");
+          const fallbackTicker = await fallbackTickerRes.json();
+
+          const fallbackPrice = fallbackTicker?.quotes?.USD?.price ?? 0;
+          const fallbackPct = fallbackTicker?.quotes?.USD?.percent_change_24h ?? 0;
+
+          tickerData = {
+            lastPrice: fallbackPrice,
+            priceChangePercent: fallbackPct
+          };
+        }
+
+        const klinesRes = await fetch(`https://api.binance.com/api/v3/klines?symbol=${pair}&interval=1h&limit=50`);
+        if(klinesRes.ok){
+          klineData = await klinesRes.json();
+        }
+
+        const lastPrice = Number(tickerData?.lastPrice || 0);
+        const pct24 = Number(tickerData?.priceChangePercent || 0);
+
+        let sma20 = lastPrice;
+        let sma50 = lastPrice;
+
+        if(Array.isArray(klineData) && klineData.length){
+          const closes = klineData.map(k => Number(k[4]));
+          const avg = arr => arr.reduce((a,b)=>a+b,0) / (arr.length || 1);
+          sma20 = avg(closes.slice(-20));
+          sma50 = avg(closes.slice(-50));
+        }
+
+        const analysis = analyzeCryptoSignal(lastPrice, pct24, sma20, sma50);
 
         document.getElementById("cryptoName").innerHTML = found.name || "—";
-        document.getElementById("cryptoSymbol").innerHTML = found.symbol || "—";
+        document.getElementById("cryptoSymbol").innerHTML = symbol || "—";
         document.getElementById("cryptoPrice").innerHTML =
-          price != null
-            ? "$ " + Number(price).toLocaleString("it-IT", { minimumFractionDigits: 2, maximumFractionDigits: 8 })
-            : "—";
+          lastPrice ? formatUSDT(lastPrice) : "—";
 
-        document.getElementById("cryptoMarketCap").innerHTML =
-          marketCap != null
-            ? "$ " + Number(marketCap).toLocaleString("it-IT", { maximumFractionDigits: 0 })
-            : "—";
+        const changeEl = document.getElementById("cryptoChange24h");
+        changeEl.innerHTML = `${pct24 > 0 ? "+" : ""}${pct24.toLocaleString("it-IT", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}%`;
+        changeEl.className = "value " + (pct24 > 0 ? "positive" : pct24 < 0 ? "negative" : "neutral");
+
+        document.getElementById("cryptoSentiment").innerHTML = analysis.sentiment;
+        document.getElementById("cryptoMomentum").innerHTML = analysis.momentum;
+        document.getElementById("cryptoAdvice").innerHTML = analysis.note;
+        document.getElementById("cryptoExtra").innerHTML =
+          `${analysis.extra}<br>Motivi principali: ${analysis.reasons.join(" • ")}`;
+
+        if(analysis.signal === "LONG"){
+          setCryptoSignal("LONG", "BIAS LONG");
+        }else if(analysis.signal === "SHORT"){
+          setCryptoSignal("SHORT", "BIAS SHORT");
+        }else{
+          setCryptoSignal("WAIT", "WAIT / NEUTRO");
+        }
+
       }catch(error){
         console.error(error);
         document.getElementById("cryptoName").innerHTML = "Errore caricamento";
         document.getElementById("cryptoSymbol").innerHTML = "—";
         document.getElementById("cryptoPrice").innerHTML = "API non disponibile";
-        document.getElementById("cryptoMarketCap").innerHTML = "—";
+        document.getElementById("cryptoChange24h").innerHTML = "—";
+        document.getElementById("cryptoSentiment").innerHTML = "—";
+        document.getElementById("cryptoMomentum").innerHTML = "—";
+        document.getElementById("cryptoAdvice").innerHTML = "Impossibile recuperare i dati al momento.";
+        document.getElementById("cryptoExtra").innerHTML = "Riprova tra poco.";
+        setCryptoSignal("WAIT", "WAIT");
       }
     }
 
@@ -1947,6 +2301,7 @@
 
     async function initProfitTracker(){
       setDefaultProfitDate();
+      setCryptoDefaultState();
 
       const { data, error } = await supabaseClient.auth.getUser();
 
