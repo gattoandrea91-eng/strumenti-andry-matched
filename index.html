@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Strumenti Andry Matched</title>
 
   <style>
@@ -12,33 +12,42 @@
       --panel:#111827;
       --panel2:#1e293b;
       --line:#334155;
+      --lineSoft:rgba(255,255,255,.08);
       --text:#ffffff;
       --muted:#cbd5e1;
       --green:#22c55e;
       --green2:#16a34a;
+      --greenSoft:rgba(34,197,94,.14);
       --blue:#2563eb;
-      --red:#b91c1c;
+      --blue2:#1d4ed8;
+      --red:#ef4444;
+      --red2:#b91c1c;
+      --redSoft:rgba(239,68,68,.12);
       --gold:#fbbf24;
+      --darkInput:#020617;
+      --cardShadow:0 16px 36px rgba(0,0,0,.22);
+      --radius:20px;
     }
 
     *{box-sizing:border-box}
 
-    body{
+    html,body{
       margin:0;
+      padding:0;
       font-family:Arial, Helvetica, sans-serif;
       background:linear-gradient(180deg,var(--bg) 0%, var(--bg2) 100%);
       color:var(--text);
     }
 
     .container{
-      max-width:1100px;
+      max-width:1150px;
       margin:auto;
-      padding:32px 18px 60px;
+      padding:32px 18px 70px;
     }
 
     .topbar{
       text-align:center;
-      margin-bottom:26px;
+      margin-bottom:28px;
     }
 
     h1{
@@ -55,7 +64,7 @@
       display:grid;
       grid-template-columns:repeat(2,minmax(0,1fr));
       gap:16px;
-      max-width:900px;
+      max-width:920px;
       margin:0 auto;
     }
 
@@ -83,7 +92,7 @@
     }
 
     .section-wrap{
-      max-width:980px;
+      max-width:1020px;
       margin:0 auto;
     }
 
@@ -102,84 +111,86 @@
       color:var(--muted);
     }
 
-    .hero-bonus{
-      max-width:980px;
+    .hero-bonus,
+    .hero-blackjack,
+    .hero-crypto,
+    .hero-profit{
+      max-width:1020px;
       margin:0 auto 18px;
+      border-radius:22px;
+      box-shadow:0 18px 38px rgba(0,0,0,.24);
+      overflow:hidden;
+    }
+
+    .hero-bonus{
       padding:28px;
       border:1px solid var(--line);
-      border-radius:22px;
       background:
         linear-gradient(rgba(10,20,40,.72), rgba(10,20,40,.82)),
         url('https://images.unsplash.com/photo-1511512578047-dfb367046420?auto=format&fit=crop&w=1400&q=80') center/cover;
-      box-shadow:0 18px 38px rgba(0,0,0,.24);
-    }
-
-    .hero-bonus h3{
-      margin:0;
-      font-size:30px;
     }
 
     .hero-blackjack{
-      max-width:980px;
-      margin:0 auto 18px;
       padding:32px 28px;
       border:1px solid rgba(255,255,255,.12);
-      border-radius:22px;
       background:
         radial-gradient(circle at center, rgba(22,101,52,.28), rgba(0,0,0,.45)),
         linear-gradient(rgba(0,0,0,.22), rgba(0,0,0,.42)),
         url('https://images.unsplash.com/photo-1511193311914-0346f16efe90?auto=format&fit=crop&w=1400&q=80') center/cover;
-      box-shadow:0 18px 38px rgba(0,0,0,.24);
     }
 
-    .hero-blackjack h3{
+    .hero-crypto{
+      padding:28px;
+      border:1px solid var(--line);
+      background:
+        linear-gradient(rgba(8,15,30,.76), rgba(8,15,30,.88)),
+        url('https://images.unsplash.com/photo-1621761191319-c6fb62004040?auto=format&fit=crop&w=1400&q=80') center/cover;
+    }
+
+    .hero-profit{
+      padding:28px;
+      border:1px solid var(--line);
+      background:
+        linear-gradient(rgba(8,15,30,.75), rgba(8,15,30,.92)),
+        url('https://images.unsplash.com/photo-1554224155-6726b3ff858f?auto=format&fit=crop&w=1400&q=80') center/cover;
+    }
+
+    .hero-bonus h3,
+    .hero-blackjack h3,
+    .hero-crypto h3,
+    .hero-profit h3{
       margin:0 0 8px;
       font-size:30px;
       color:#fff;
     }
 
-    .hero-blackjack p{
-      margin:0;
-      color:#f8fafc;
-    }
-
-    .hero-crypto{
-      max-width:980px;
-      margin:0 auto 18px;
-      padding:28px;
-      border:1px solid var(--line);
-      border-radius:22px;
-      background:
-        linear-gradient(rgba(8,15,30,.76), rgba(8,15,30,.88)),
-        url('https://images.unsplash.com/photo-1621761191319-c6fb62004040?auto=format&fit=crop&w=1400&q=80') center/cover;
-      box-shadow:0 18px 38px rgba(0,0,0,.24);
-    }
-
-    .hero-crypto h3{
-      margin:0;
-      font-size:30px;
-    }
-
-    .hero-profit{
-      max-width:980px;
-      margin:0 auto 18px;
-      padding:28px;
-      border:1px solid var(--line);
-      border-radius:22px;
-      background:
-        linear-gradient(rgba(8,15,30,.78), rgba(8,15,30,.9)),
-        url('https://images.unsplash.com/photo-1554224155-6726b3ff858f?auto=format&fit=crop&w=1400&q=80') center/cover;
-      box-shadow:0 18px 38px rgba(0,0,0,.24);
-    }
-
-    .hero-profit h3{
-      margin:0 0 8px;
-      font-size:30px;
-    }
-
+    .hero-blackjack p,
+    .hero-crypto p,
     .hero-profit p{
       margin:0;
       color:#f8fafc;
+    }
+
+    .blackjack-chip,
+    .profit-chip{
+      display:inline-block;
+      margin-top:10px;
+      padding:8px 14px;
+      border-radius:999px;
+      font-size:14px;
+      font-weight:bold;
+    }
+
+    .blackjack-chip{
+      background:rgba(251,191,36,.18);
+      border:1px solid rgba(251,191,36,.35);
+      color:#fde68a;
+    }
+
+    .profit-chip{
+      background:rgba(37,99,235,.15);
+      border:1px solid rgba(37,99,235,.35);
+      color:#bfdbfe;
     }
 
     .card-grid{
@@ -188,20 +199,32 @@
       gap:18px;
     }
 
-    .box{
-      background:rgba(17,24,39,.96);
-      padding:28px;
-      border-radius:20px;
-      border:1px solid var(--line);
-      box-shadow:0 16px 36px rgba(0,0,0,.22);
+    .profit-layout{
+      display:grid;
+      grid-template-columns:1.15fr .85fr;
+      gap:18px;
+      align-items:start;
     }
 
-    .result-box{
+    .box, .result-box, .stat-card, .chart-card{
       background:rgba(17,24,39,.96);
-      padding:28px;
-      border-radius:20px;
+      border-radius:var(--radius);
       border:1px solid var(--line);
-      box-shadow:0 16px 36px rgba(0,0,0,.22);
+      box-shadow:var(--cardShadow);
+    }
+
+    .box,
+    .result-box{
+      padding:28px;
+    }
+
+    .stat-card{
+      padding:20px;
+    }
+
+    .chart-card{
+      padding:22px;
+      min-height:340px;
     }
 
     label{
@@ -222,47 +245,43 @@
       padding:14px 14px;
       border-radius:12px;
       border:1px solid var(--line);
-      background:#020617;
+      background:var(--darkInput);
       color:white;
       font-size:16px;
+      outline:none;
     }
 
-    .action{
-      width:100%;
-      padding:16px;
-      border-radius:14px;
-      border:none;
-      cursor:pointer;
-      background:linear-gradient(180deg,var(--green) 0%, var(--green2) 100%);
-      color:#052e16;
-      font-weight:bold;
-      font-size:18px;
-      margin-top:4px;
+    input:focus, select:focus{
+      border-color:#4f46e5;
+      box-shadow:0 0 0 3px rgba(79,70,229,.15);
     }
 
-    .action-secondary{
-      width:100%;
-      padding:16px;
-      border-radius:14px;
-      border:none;
-      cursor:pointer;
-      background:linear-gradient(180deg,#facc15 0%, #eab308 100%);
-      color:#422006;
-      font-weight:bold;
-      font-size:18px;
-      margin-top:4px;
-    }
-
+    .action,
+    .action-secondary,
     .action-danger{
       width:100%;
       padding:16px;
       border-radius:14px;
       border:none;
       cursor:pointer;
-      background:linear-gradient(180deg,#ef4444 0%, #b91c1c 100%);
-      color:white;
       font-weight:bold;
       font-size:18px;
+      margin-top:4px;
+    }
+
+    .action{
+      background:linear-gradient(180deg,var(--green) 0%, var(--green2) 100%);
+      color:#052e16;
+    }
+
+    .action-secondary{
+      background:linear-gradient(180deg,#facc15 0%, #eab308 100%);
+      color:#422006;
+    }
+
+    .action-danger{
+      background:linear-gradient(180deg,#ef4444 0%, #b91c1c 100%);
+      color:white;
       margin-top:10px;
     }
 
@@ -337,18 +356,6 @@
       border:1px solid rgba(255,255,255,.12);
     }
 
-    .blackjack-chip{
-      display:inline-block;
-      margin-top:8px;
-      padding:8px 14px;
-      border-radius:999px;
-      background:rgba(251,191,36,.18);
-      border:1px solid rgba(251,191,36,.35);
-      color:#fde68a;
-      font-size:14px;
-      font-weight:bold;
-    }
-
     .crypto-note{
       color:#cbd5e1;
       margin-top:10px;
@@ -411,29 +418,42 @@
 
     .stats-grid{
       display:grid;
-      grid-template-columns:repeat(3,minmax(0,1fr));
+      grid-template-columns:repeat(4,minmax(0,1fr));
       gap:14px;
       margin-bottom:18px;
     }
 
-    .stat-card{
-      background:rgba(17,24,39,.96);
-      padding:20px;
-      border-radius:18px;
-      border:1px solid var(--line);
-      box-shadow:0 16px 36px rgba(0,0,0,.18);
-    }
-
     .stat-card strong{
       display:block;
-      font-size:14px;
+      font-size:13px;
       color:var(--muted);
-      margin-bottom:8px;
+      margin-bottom:10px;
+      text-transform:uppercase;
+      letter-spacing:.04em;
     }
 
     .stat-card .value{
-      font-size:28px;
+      font-size:30px;
       font-weight:bold;
+      line-height:1.1;
+    }
+
+    .stat-card .sub{
+      margin-top:8px;
+      font-size:13px;
+      color:var(--muted);
+    }
+
+    .positive{
+      color:#4ade80 !important;
+    }
+
+    .negative{
+      color:#f87171 !important;
+    }
+
+    .neutral{
+      color:#fff !important;
     }
 
     .table-wrap{
@@ -451,14 +471,17 @@
     th, td{
       padding:14px 12px;
       text-align:left;
-      border-bottom:1px solid rgba(255,255,255,.08);
+      border-bottom:1px solid var(--lineSoft);
       font-size:14px;
-      white-space:nowrap;
+      vertical-align:middle;
     }
 
     th{
       color:#cbd5e1;
       background:#111827;
+      position:sticky;
+      top:0;
+      z-index:1;
     }
 
     .auth-note{
@@ -505,6 +528,111 @@
       color:#bfdbfe;
       font-size:14px;
       font-weight:bold;
+    }
+
+    .password-row{
+      display:flex;
+      gap:8px;
+      align-items:stretch;
+    }
+
+    .password-row input{
+      flex:1;
+    }
+
+    .toggle-pass{
+      min-width:64px;
+      border:none;
+      border-radius:12px;
+      background:#334155;
+      color:#fff;
+      cursor:pointer;
+      font-weight:bold;
+      padding:0 12px;
+    }
+
+    .link-btn{
+      margin-top:10px;
+      background:none;
+      border:none;
+      color:#93c5fd;
+      cursor:pointer;
+      padding:0;
+      font-size:14px;
+      text-decoration:underline;
+    }
+
+    .two-col{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:18px;
+      margin-top:18px;
+    }
+
+    .three-col{
+      display:grid;
+      grid-template-columns:1fr 1fr 1fr;
+      gap:18px;
+      margin-top:18px;
+    }
+
+    .toolbar-title{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      margin-bottom:14px;
+    }
+
+    .toolbar-title h3{
+      margin:0;
+      font-size:20px;
+    }
+
+    .muted{
+      color:var(--muted);
+    }
+
+    .pill-type{
+      display:inline-flex;
+      align-items:center;
+      padding:6px 10px;
+      border-radius:999px;
+      font-size:12px;
+      font-weight:bold;
+      border:1px solid rgba(255,255,255,.12);
+      background:rgba(255,255,255,.04);
+    }
+
+    .profit-badge{
+      display:inline-block;
+      padding:7px 10px;
+      border-radius:999px;
+      font-size:12px;
+      font-weight:bold;
+    }
+
+    .profit-badge.pos{
+      background:var(--greenSoft);
+      color:#86efac;
+      border:1px solid rgba(34,197,94,.22);
+    }
+
+    .profit-badge.neg{
+      background:var(--redSoft);
+      color:#fca5a5;
+      border:1px solid rgba(239,68,68,.22);
+    }
+
+    canvas{
+      width:100% !important;
+      height:280px !important;
+    }
+
+    @media (max-width:980px){
+      .profit-layout{grid-template-columns:1fr;}
+      .stats-grid{grid-template-columns:repeat(2,minmax(0,1fr));}
+      .two-col, .three-col{grid-template-columns:1fr;}
     }
 
     @media (max-width:850px){
@@ -883,13 +1011,14 @@
     <div id="profitTracker" class="section">
       <div class="section-wrap">
         <div class="hero-profit">
-          <h3>Profit Tracker</h3>
-          <p>Registrazione, login e storico personale dei profitti per ogni utente.</p>
+          <h3>Profit Tracker Pro</h3>
+          <p>Dashboard personale con login, reset password, statistiche e grafici.</p>
+          <div class="profit-chip">Ogni utente vede solo i propri dati</div>
         </div>
 
         <div class="section-header">
-          <h2>Area Profit Tracker</h2>
-          <p>Ogni utente vede solo i propri dati</p>
+          <h2>Area personale</h2>
+          <p>Traccia il tuo profitto in modo ordinato e professionale</p>
           <div id="currentUserPill" class="user-pill hidden"></div>
         </div>
 
@@ -897,29 +1026,42 @@
           <div class="auth-grid">
             <div class="box">
               <h3 style="margin-top:0;">Registrati</h3>
+
               <div class="field">
                 <label>Email</label>
                 <input id="registerEmail" type="email" placeholder="email@esempio.com">
               </div>
+
               <div class="field">
                 <label>Password</label>
-                <input id="registerPassword" type="password" placeholder="Minimo 6 caratteri">
+                <div class="password-row">
+                  <input id="registerPassword" type="password" placeholder="Minimo 6 caratteri">
+                  <button class="toggle-pass" type="button" onclick="togglePassword('registerPassword', this)">Mostra</button>
+                </div>
               </div>
+
               <button class="action" onclick="signUpProfitTracker()">Crea account</button>
               <div class="auth-note" id="registerMessage">—</div>
             </div>
 
             <div class="box">
               <h3 style="margin-top:0;">Login</h3>
+
               <div class="field">
                 <label>Email</label>
                 <input id="loginEmail" type="email" placeholder="email@esempio.com">
               </div>
+
               <div class="field">
                 <label>Password</label>
-                <input id="loginPassword" type="password" placeholder="Password">
+                <div class="password-row">
+                  <input id="loginPassword" type="password" placeholder="Password">
+                  <button class="toggle-pass" type="button" onclick="togglePassword('loginPassword', this)">Mostra</button>
+                </div>
               </div>
+
               <button class="action" onclick="signInProfitTracker()">Entra</button>
+              <button class="link-btn" type="button" onclick="resetPassword()">Password dimenticata?</button>
               <div class="auth-note" id="loginMessage">—</div>
             </div>
           </div>
@@ -929,77 +1071,138 @@
           <div class="stats-grid">
             <div class="stat-card">
               <strong>Profitto totale</strong>
-              <div class="value" id="totalProfitValue">€ 0.00</div>
+              <div class="value neutral" id="totalProfitValue">€ 0,00</div>
+              <div class="sub">Somma di tutte le entry</div>
             </div>
+
             <div class="stat-card">
               <strong>Questo mese</strong>
-              <div class="value" id="monthProfitValue">€ 0.00</div>
+              <div class="value neutral" id="monthProfitValue">€ 0,00</div>
+              <div class="sub">Profitto del mese corrente</div>
             </div>
+
+            <div class="stat-card">
+              <strong>Ultimi 7 giorni</strong>
+              <div class="value neutral" id="weekProfitValue">€ 0,00</div>
+              <div class="sub">Andamento settimanale</div>
+            </div>
+
             <div class="stat-card">
               <strong>Numero entry</strong>
-              <div class="value" id="entriesCountValue">0</div>
+              <div class="value neutral" id="entriesCountValue">0</div>
+              <div class="sub">Movimenti registrati</div>
             </div>
           </div>
 
-          <div class="card-grid">
-            <div class="box">
-              <h3 style="margin-top:0;">Aggiungi entry</h3>
+          <div class="profit-layout">
+            <div>
+              <div class="box">
+                <div class="toolbar-title">
+                  <h3>Aggiungi entry</h3>
+                  <span class="muted">Compila e salva</span>
+                </div>
 
-              <div class="field">
-                <label>Data</label>
-                <input id="profitDate" type="date">
+                <div class="field">
+                  <label>Data</label>
+                  <input id="profitDate" type="date">
+                </div>
+
+                <div class="field">
+                  <label>Bookmaker / Fonte</label>
+                  <input id="profitBookmaker" type="text" placeholder="es. Bet365">
+                </div>
+
+                <div class="field">
+                  <label>Tipo operazione</label>
+                  <select id="profitType">
+                    <option value="Surebet">Surebet</option>
+                    <option value="Punta Banca">Punta Banca</option>
+                    <option value="Freebet">Freebet</option>
+                    <option value="Casino">Casino</option>
+                    <option value="Blackjack">Blackjack</option>
+                    <option value="Cripto">Cripto</option>
+                    <option value="Altro">Altro</option>
+                  </select>
+                </div>
+
+                <div class="two-col">
+                  <div class="field" style="margin-bottom:0;">
+                    <label>Stake</label>
+                    <input id="profitStake" type="number" step="0.01" placeholder="0.00">
+                  </div>
+
+                  <div class="field" style="margin-bottom:0;">
+                    <label>Profitto</label>
+                    <input id="profitAmount" type="number" step="0.01" placeholder="0.00">
+                  </div>
+                </div>
+
+                <div class="field" style="margin-top:16px;">
+                  <label>Note</label>
+                  <input id="profitNote" type="text" placeholder="Note facoltative">
+                </div>
+
+                <button class="action" onclick="addProfitEntry()">Salva entry</button>
+                <div class="auth-note" id="entryMessage">—</div>
               </div>
 
-              <div class="field">
-                <label>Bookmaker / Fonte</label>
-                <input id="profitBookmaker" type="text" placeholder="es. Bet365">
+              <div class="box" style="margin-top:18px;">
+                <div class="toolbar-title">
+                  <h3>Gestione account</h3>
+                  <span class="muted">Sessione attiva</span>
+                </div>
+                <div class="inline-actions">
+                  <button class="small-btn logout" onclick="signOutProfitTracker()">Logout</button>
+                </div>
+                <div class="memory-box" style="margin-top:16px;">
+                  Questa sezione usa Supabase Auth + database. Ogni utente vede solo le proprie righe.
+                </div>
               </div>
-
-              <div class="field">
-                <label>Tipo operazione</label>
-                <select id="profitType">
-                  <option value="Surebet">Surebet</option>
-                  <option value="Punta Banca">Punta Banca</option>
-                  <option value="Freebet">Freebet</option>
-                  <option value="Casino">Casino</option>
-                  <option value="Blackjack">Blackjack</option>
-                  <option value="Cripto">Cripto</option>
-                  <option value="Altro">Altro</option>
-                </select>
-              </div>
-
-              <div class="field">
-                <label>Stake</label>
-                <input id="profitStake" type="number" step="0.01" placeholder="0.00">
-              </div>
-
-              <div class="field">
-                <label>Profitto</label>
-                <input id="profitAmount" type="number" step="0.01" placeholder="0.00">
-              </div>
-
-              <div class="field">
-                <label>Note</label>
-                <input id="profitNote" type="text" placeholder="Note facoltative">
-              </div>
-
-              <button class="action" onclick="addProfitEntry()">Salva entry</button>
-              <div class="auth-note" id="entryMessage">—</div>
             </div>
 
-            <div class="result-box">
-              <h3 style="margin-top:0;">Gestione account</h3>
-              <div class="inline-actions">
-                <button class="small-btn logout" onclick="signOutProfitTracker()">Logout</button>
+            <div>
+              <div class="chart-card">
+                <div class="toolbar-title">
+                  <h3>Andamento profitto</h3>
+                  <span class="muted">Nel tempo</span>
+                </div>
+                <canvas id="profitChart"></canvas>
               </div>
-              <div class="memory-box" style="margin-top:16px;">
-                Ogni utente vede solo i propri dati grazie alle policy che hai già creato su Supabase.
+            </div>
+          </div>
+
+          <div class="three-col">
+            <div class="chart-card">
+              <div class="toolbar-title">
+                <h3>Per bookmaker</h3>
+                <span class="muted">Bar chart</span>
               </div>
+              <canvas id="bookmakerChart"></canvas>
+            </div>
+
+            <div class="chart-card">
+              <div class="toolbar-title">
+                <h3>Per tipo</h3>
+                <span class="muted">Doughnut</span>
+              </div>
+              <canvas id="typeChart"></canvas>
+            </div>
+
+            <div class="chart-card">
+              <div class="toolbar-title">
+                <h3>Cumulativo</h3>
+                <span class="muted">Progressione</span>
+              </div>
+              <canvas id="cumulativeChart"></canvas>
             </div>
           </div>
 
           <div style="margin-top:18px;" class="box">
-            <h3 style="margin-top:0;">Storico profitti</h3>
+            <div class="toolbar-title">
+              <h3>Storico profitti</h3>
+              <span class="muted">Tutte le entry salvate</span>
+            </div>
+
             <div class="table-wrap">
               <table>
                 <thead>
@@ -1029,6 +1232,7 @@
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
   <script>
     let usedCardsMemory = [];
@@ -1048,6 +1252,11 @@
 
     let currentProfitUser = null;
     let profitEntries = [];
+
+    let profitChart = null;
+    let bookmakerChart = null;
+    let typeChart = null;
+    let cumulativeChart = null;
 
     function openSection(id){
       document.getElementById("menu").style.display = "none";
@@ -1566,6 +1775,13 @@
       });
     }
 
+    function setValueClass(el, val){
+      el.classList.remove("positive","negative","neutral");
+      if(Number(val) > 0) el.classList.add("positive");
+      else if(Number(val) < 0) el.classList.add("negative");
+      else el.classList.add("neutral");
+    }
+
     function showProfitAuthState(isLogged){
       const authArea = document.getElementById("authArea");
       const trackerArea = document.getElementById("trackerArea");
@@ -1582,6 +1798,32 @@
         pill.classList.add("hidden");
         pill.textContent = "";
       }
+    }
+
+    function togglePassword(id, btn){
+      const input = document.getElementById(id);
+      if(!input) return;
+      const isPassword = input.type === "password";
+      input.type = isPassword ? "text" : "password";
+      if(btn) btn.textContent = isPassword ? "Nascondi" : "Mostra";
+    }
+
+    async function resetPassword(){
+      const typedEmail = (document.getElementById("loginEmail")?.value || document.getElementById("registerEmail")?.value || "").trim();
+      const email = prompt("Inserisci la tua email per il reset password:", typedEmail);
+
+      if(!email) return;
+
+      const { error } = await supabaseClient.auth.resetPasswordForEmail(email, {
+        redirectTo: "https://strumenti-andry-matched.vercel.app"
+      });
+
+      if(error){
+        alert(error.message);
+        return;
+      }
+
+      alert("Email di reset inviata.");
     }
 
     async function initProfitTracker(){
@@ -1603,6 +1845,7 @@
       }else{
         renderProfitEntries();
         updateProfitStats();
+        renderCharts();
       }
 
       supabaseClient.auth.onAuthStateChange(async (_event, session) => {
@@ -1615,6 +1858,7 @@
           profitEntries = [];
           renderProfitEntries();
           updateProfitStats();
+          renderCharts();
         }
       });
     }
@@ -1631,14 +1875,25 @@
 
       msg.innerHTML = "Registrazione in corso...";
 
-      const { error } = await supabaseClient.auth.signUp({ email, password });
+      const { data, error } = await supabaseClient.auth.signUp({
+        email,
+        password,
+        options: {
+          emailRedirectTo: "https://strumenti-andry-matched.vercel.app"
+        }
+      });
 
       if(error){
         msg.innerHTML = error.message;
         return;
       }
 
-      msg.innerHTML = "Account creato. Ora fai login.";
+      if (data?.user && !data?.session) {
+        msg.innerHTML = "Account creato. Controlla la mail e conferma l'indirizzo prima di fare login.";
+        return;
+      }
+
+      msg.innerHTML = "Account creato.";
     }
 
     async function signInProfitTracker(){
@@ -1653,12 +1908,27 @@
 
       msg.innerHTML = "Login in corso...";
 
-      const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
+      const { error } = await supabaseClient.auth.signInWithPassword({
+        email,
+        password
+      });
 
       if(error){
         msg.innerHTML = error.message;
         return;
       }
+
+      const { data: userData, error: userError } = await supabaseClient.auth.getUser();
+
+      if(userError || !userData?.user){
+        msg.innerHTML = "Login non completato. Controlla di aver confermato la mail.";
+        showProfitAuthState(false);
+        return;
+      }
+
+      currentProfitUser = userData.user;
+      showProfitAuthState(true);
+      await loadProfitEntries();
 
       msg.innerHTML = "Login effettuato.";
     }
@@ -1707,8 +1977,8 @@
       const { data, error } = await supabaseClient
         .from("profit_entries")
         .select("*")
-        .order("entry_date", { ascending: false })
-        .order("created_at", { ascending: false });
+        .order("entry_date", { ascending: true })
+        .order("created_at", { ascending: true });
 
       if(error){
         console.error(error);
@@ -1719,6 +1989,7 @@
       profitEntries = data || [];
       renderProfitEntries();
       updateProfitStats();
+      renderCharts();
     }
 
     function updateProfitStats(){
@@ -1736,9 +2007,32 @@
         })
         .reduce((sum, row) => sum + Number(row.profit || 0), 0);
 
-      document.getElementById("totalProfitValue").innerHTML = euro(total);
-      document.getElementById("monthProfitValue").innerHTML = euro(monthTotal);
-      document.getElementById("entriesCountValue").innerHTML = String(profitEntries.length);
+      const sevenDaysAgo = new Date();
+      sevenDaysAgo.setDate(now.getDate() - 6);
+
+      const weekTotal = profitEntries
+        .filter(row => {
+          if(!row.entry_date) return false;
+          const d = new Date(row.entry_date);
+          return d >= new Date(sevenDaysAgo.getFullYear(), sevenDaysAgo.getMonth(), sevenDaysAgo.getDate());
+        })
+        .reduce((sum, row) => sum + Number(row.profit || 0), 0);
+
+      const totalEl = document.getElementById("totalProfitValue");
+      const monthEl = document.getElementById("monthProfitValue");
+      const weekEl = document.getElementById("weekProfitValue");
+      const countEl = document.getElementById("entriesCountValue");
+
+      totalEl.innerHTML = euro(total);
+      monthEl.innerHTML = euro(monthTotal);
+      weekEl.innerHTML = euro(weekTotal);
+      countEl.innerHTML = String(profitEntries.length);
+
+      setValueClass(totalEl, total);
+      setValueClass(monthEl, monthTotal);
+      setValueClass(weekEl, weekTotal);
+      countEl.classList.remove("positive","negative");
+      countEl.classList.add("neutral");
     }
 
     function renderProfitEntries(){
@@ -1754,17 +2048,28 @@
         return;
       }
 
-      tbody.innerHTML = profitEntries.map(row => `
-        <tr>
-          <td>${row.entry_date || "—"}</td>
-          <td>${row.bookmaker || "—"}</td>
-          <td>${row.operation_type || "—"}</td>
-          <td>${euro(row.stake || 0)}</td>
-          <td>${euro(row.profit || 0)}</td>
-          <td>${row.note || "—"}</td>
-          <td><button class="small-btn delete" onclick="deleteProfitEntry('${row.id}')">Elimina</button></td>
-        </tr>
-      `).join("");
+      const ordered = [...profitEntries].sort((a,b) => {
+        const da = new Date(a.entry_date || a.created_at || 0).getTime();
+        const db = new Date(b.entry_date || b.created_at || 0).getTime();
+        return db - da;
+      });
+
+      tbody.innerHTML = ordered.map(row => {
+        const profitNumber = Number(row.profit || 0);
+        const profitBadgeClass = profitNumber >= 0 ? "pos" : "neg";
+
+        return `
+          <tr>
+            <td>${row.entry_date || "—"}</td>
+            <td>${row.bookmaker || "—"}</td>
+            <td><span class="pill-type">${row.operation_type || "—"}</span></td>
+            <td>${euro(row.stake || 0)}</td>
+            <td><span class="profit-badge ${profitBadgeClass}">${euro(profitNumber)}</span></td>
+            <td>${row.note || "—"}</td>
+            <td><button class="small-btn delete" onclick="deleteProfitEntry('${row.id}')">Elimina</button></td>
+          </tr>
+        `;
+      }).join("");
     }
 
     async function deleteProfitEntry(id){
@@ -1779,6 +2084,151 @@
       }
 
       await loadProfitEntries();
+    }
+
+    function destroyChart(chart){
+      if(chart) chart.destroy();
+      return null;
+    }
+
+    function renderCharts(){
+      const lineCtx = document.getElementById("profitChart");
+      const bookCtx = document.getElementById("bookmakerChart");
+      const typeCtx = document.getElementById("typeChart");
+      const cumulativeCtx = document.getElementById("cumulativeChart");
+
+      profitChart = destroyChart(profitChart);
+      bookmakerChart = destroyChart(bookmakerChart);
+      typeChart = destroyChart(typeChart);
+      cumulativeChart = destroyChart(cumulativeChart);
+
+      const sorted = [...profitEntries].sort((a,b) => {
+        const da = new Date(a.entry_date || a.created_at || 0).getTime();
+        const db = new Date(b.entry_date || b.created_at || 0).getTime();
+        return da - db;
+      });
+
+      const labels = sorted.map(e => e.entry_date || "—");
+      const profits = sorted.map(e => Number(e.profit || 0));
+
+      const cumulative = [];
+      let running = 0;
+      profits.forEach(v => {
+        running += v;
+        cumulative.push(running);
+      });
+
+      const byBook = {};
+      sorted.forEach(e => {
+        const key = e.bookmaker || "Sconosciuto";
+        byBook[key] = (byBook[key] || 0) + Number(e.profit || 0);
+      });
+
+      const byType = {};
+      sorted.forEach(e => {
+        const key = e.operation_type || "Altro";
+        byType[key] = (byType[key] || 0) + Number(e.profit || 0);
+      });
+
+      if(lineCtx){
+        profitChart = new Chart(lineCtx, {
+          type: "line",
+          data: {
+            labels,
+            datasets: [{
+              label: "Profitto",
+              data: profits,
+              borderWidth: 2,
+              tension: 0.3
+            }]
+          },
+          options: {
+            responsive:true,
+            maintainAspectRatio:false,
+            plugins:{
+              legend:{ labels:{ color:"#cbd5e1" } }
+            },
+            scales:{
+              x:{ ticks:{ color:"#cbd5e1" }, grid:{ color:"rgba(255,255,255,.06)" } },
+              y:{ ticks:{ color:"#cbd5e1" }, grid:{ color:"rgba(255,255,255,.06)" } }
+            }
+          }
+        });
+      }
+
+      if(bookCtx){
+        bookmakerChart = new Chart(bookCtx, {
+          type:"bar",
+          data:{
+            labels:Object.keys(byBook),
+            datasets:[{
+              label:"Profitto",
+              data:Object.values(byBook),
+              borderWidth:1
+            }]
+          },
+          options:{
+            responsive:true,
+            maintainAspectRatio:false,
+            plugins:{
+              legend:{ labels:{ color:"#cbd5e1" } }
+            },
+            scales:{
+              x:{ ticks:{ color:"#cbd5e1" }, grid:{ color:"rgba(255,255,255,.06)" } },
+              y:{ ticks:{ color:"#cbd5e1" }, grid:{ color:"rgba(255,255,255,.06)" } }
+            }
+          }
+        });
+      }
+
+      if(typeCtx){
+        typeChart = new Chart(typeCtx, {
+          type:"doughnut",
+          data:{
+            labels:Object.keys(byType),
+            datasets:[{
+              data:Object.values(byType),
+              borderWidth:1
+            }]
+          },
+          options:{
+            responsive:true,
+            maintainAspectRatio:false,
+            plugins:{
+              legend:{
+                position:"bottom",
+                labels:{ color:"#cbd5e1" }
+              }
+            }
+          }
+        });
+      }
+
+      if(cumulativeCtx){
+        cumulativeChart = new Chart(cumulativeCtx, {
+          type:"line",
+          data:{
+            labels,
+            datasets:[{
+              label:"Profitto cumulativo",
+              data:cumulative,
+              borderWidth:2,
+              tension:0.25
+            }]
+          },
+          options:{
+            responsive:true,
+            maintainAspectRatio:false,
+            plugins:{
+              legend:{ labels:{ color:"#cbd5e1" } }
+            },
+            scales:{
+              x:{ ticks:{ color:"#cbd5e1" }, grid:{ color:"rgba(255,255,255,.06)" } },
+              y:{ ticks:{ color:"#cbd5e1" }, grid:{ color:"rgba(255,255,255,.06)" } }
+            }
+          }
+        });
+      }
     }
 
     renderBlackjackButtons();
