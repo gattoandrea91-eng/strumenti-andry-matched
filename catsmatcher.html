@@ -1,20 +1,29 @@
-
 <!DOCTYPE html>
 <html lang="it">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Catsmatcher - Strumenti Andry Matched</title>
+
   <style>
     :root{
       --bg:#0b1220;
       --bg2:#111827;
       --panel:#111827;
+      --panel2:#1e293b;
       --line:#334155;
+      --lineSoft:rgba(255,255,255,.08);
       --text:#ffffff;
       --muted:#cbd5e1;
       --cyan:#06b6d4;
       --cyan2:#0891b2;
+      --green:#22c55e;
+      --greenSoft:rgba(34,197,94,.12);
+      --gold:#fbbf24;
+      --goldSoft:rgba(251,191,36,.12);
+      --red:#ef4444;
+      --redSoft:rgba(239,68,68,.12);
+      --blueSoft:rgba(37,99,235,.16);
       --darkInput:#020617;
       --shadow:0 16px 36px rgba(0,0,0,.22);
       --radius:20px;
@@ -30,7 +39,7 @@
     }
 
     .container{
-      max-width:1100px;
+      max-width:1250px;
       margin:auto;
       padding:32px 18px 70px;
     }
@@ -50,6 +59,28 @@
       margin:10px 0 0;
     }
 
+    .hero{
+      background:
+        linear-gradient(rgba(8,15,30,.72), rgba(8,15,30,.9)),
+        linear-gradient(135deg, rgba(6,182,212,.15), rgba(34,197,94,.08));
+      border:1px solid var(--line);
+      border-radius:24px;
+      padding:26px;
+      margin-bottom:20px;
+      box-shadow:var(--shadow);
+    }
+
+    .hero h2{
+      margin:0 0 8px;
+      font-size:30px;
+    }
+
+    .hero p{
+      margin:0;
+      color:#e2e8f0;
+      line-height:1.6;
+    }
+
     .box{
       background:rgba(17,24,39,.96);
       border:1px solid var(--line);
@@ -59,8 +90,15 @@
       margin-bottom:18px;
     }
 
+    .filters-grid{
+      display:grid;
+      grid-template-columns:1fr 1fr 1fr;
+      gap:16px;
+      align-items:end;
+    }
+
     .field{
-      margin-bottom:16px;
+      margin-bottom:0;
     }
 
     label{
@@ -71,7 +109,7 @@
       font-weight:bold;
     }
 
-    input{
+    input, select{
       width:100%;
       padding:14px 14px;
       border-radius:12px;
@@ -82,10 +120,16 @@
       outline:none;
     }
 
+    input:focus, select:focus{
+      border-color:#0891b2;
+      box-shadow:0 0 0 3px rgba(8,145,178,.15);
+    }
+
     .actions{
       display:flex;
       gap:12px;
       flex-wrap:wrap;
+      margin-top:18px;
     }
 
     .action{
@@ -110,6 +154,62 @@
       color:white;
     }
 
+    .statusbar{
+      display:flex;
+      gap:12px;
+      flex-wrap:wrap;
+      margin-top:16px;
+    }
+
+    .pill{
+      display:inline-flex;
+      align-items:center;
+      padding:8px 12px;
+      border-radius:999px;
+      font-size:13px;
+      font-weight:bold;
+      border:1px solid rgba(255,255,255,.1);
+      background:rgba(255,255,255,.04);
+      color:#e2e8f0;
+    }
+
+    .pill.green{
+      background:var(--greenSoft);
+      color:#86efac;
+      border-color:rgba(34,197,94,.22);
+    }
+
+    .pill.gold{
+      background:var(--goldSoft);
+      color:#fde68a;
+      border-color:rgba(251,191,36,.22);
+    }
+
+    .pill.blue{
+      background:var(--blueSoft);
+      color:#bfdbfe;
+      border-color:rgba(37,99,235,.22);
+    }
+
+    .toolbar{
+      display:flex;
+      justify-content:space-between;
+      gap:12px;
+      align-items:center;
+      flex-wrap:wrap;
+      margin-bottom:14px;
+    }
+
+    .toolbar h3{
+      margin:0;
+      font-size:22px;
+    }
+
+    .toolbar span{
+      color:var(--muted);
+      font-size:14px;
+    }
+
     .table-wrap{
       overflow:auto;
       border:1px solid var(--line);
@@ -120,18 +220,86 @@
     table{
       width:100%;
       border-collapse:collapse;
+      min-width:980px;
     }
 
     th, td{
       padding:14px 12px;
       text-align:left;
-      border-bottom:1px solid rgba(255,255,255,.08);
+      border-bottom:1px solid var(--lineSoft);
       font-size:14px;
+      vertical-align:middle;
     }
 
     th{
       color:#cbd5e1;
       background:#111827;
+      white-space:nowrap;
+      position:sticky;
+      top:0;
+      z-index:1;
+    }
+
+    tr:hover td{
+      background:rgba(255,255,255,.02);
+    }
+
+    .event-name{
+      font-weight:bold;
+      color:#fff;
+      margin-bottom:4px;
+    }
+
+    .event-meta{
+      color:var(--muted);
+      font-size:12px;
+    }
+
+    .rating-badge,
+    .profit-badge,
+    .odd-badge{
+      display:inline-block;
+      padding:8px 10px;
+      border-radius:999px;
+      font-size:12px;
+      font-weight:bold;
+      white-space:nowrap;
+    }
+
+    .rating-high{
+      background:var(--greenSoft);
+      color:#86efac;
+      border:1px solid rgba(34,197,94,.22);
+    }
+
+    .rating-mid{
+      background:var(--goldSoft);
+      color:#fde68a;
+      border:1px solid rgba(251,191,36,.22);
+    }
+
+    .rating-low{
+      background:var(--redSoft);
+      color:#fca5a5;
+      border:1px solid rgba(239,68,68,.22);
+    }
+
+    .profit-pos{
+      background:var(--greenSoft);
+      color:#86efac;
+      border:1px solid rgba(34,197,94,.22);
+    }
+
+    .odd-badge{
+      background:rgba(255,255,255,.06);
+      color:#fff;
+      border:1px solid rgba(255,255,255,.08);
+    }
+
+    .empty-state{
+      padding:30px;
+      text-align:center;
+      color:var(--muted);
     }
 
     .back{
@@ -146,41 +314,91 @@
       cursor:pointer;
       text-decoration:none;
     }
+
+    @media (max-width:950px){
+      .filters-grid{
+        grid-template-columns:1fr;
+      }
+
+      h1{font-size:34px;}
+      .hero h2{font-size:26px;}
+    }
   </style>
 </head>
 <body>
   <div class="container">
     <div class="topbar">
       <h1>Catsmatcher</h1>
-      <p class="subtitle">Ricerca e confronto dati</p>
+      <p class="subtitle">Ricerca eventi con tabella stile matcher</p>
+    </div>
+
+    <div class="hero">
+      <h2>Ricerca match con rating</h2>
+      <p>
+        Inserisci lo stake, scegli fino a che data vuoi cercare e premi Cerca.
+        Sotto vedrai una tabella in stile ninja con evento, quote, rating e profitto stimato.
+      </p>
     </div>
 
     <div class="box">
-      <div class="field">
-        <label>Cerca evento</label>
-        <input id="searchInput" type="text" placeholder="Scrivi una partita o parola chiave">
+      <div class="filters-grid">
+        <div class="field">
+          <label>Stake</label>
+          <input id="stakeInput" type="number" step="0.01" value="100" placeholder="Es. 100">
+        </div>
+
+        <div class="field">
+          <label>Fino a data</label>
+          <input id="dateInput" type="date">
+        </div>
+
+        <div class="field">
+          <label>Sport</label>
+          <select id="sportInput">
+            <option value="Tutti">Tutti</option>
+            <option value="Calcio">Calcio</option>
+            <option value="Tennis">Tennis</option>
+            <option value="Basket">Basket</option>
+          </select>
+        </div>
       </div>
 
       <div class="actions">
-        <button class="action" onclick="searchData()">Cerca</button>
-        <button class="action-secondary" onclick="resetData()">Reset</button>
+        <button class="action" onclick="searchMatches()">Cerca</button>
+        <button class="action-secondary" onclick="resetFilters()">Reset</button>
+      </div>
+
+      <div class="statusbar">
+        <div id="statusText" class="pill blue">Pronto</div>
+        <div id="stakePill" class="pill">Stake: € 100,00</div>
+        <div id="datePill" class="pill">Data: non selezionata</div>
       </div>
     </div>
 
     <div class="box">
+      <div class="toolbar">
+        <h3>Risultati</h3>
+        <span id="resultsCount">0 match trovati</span>
+      </div>
+
       <div class="table-wrap">
         <table>
           <thead>
             <tr>
               <th>Evento</th>
+              <th>Data</th>
+              <th>Sport</th>
               <th>Bookmaker</th>
-              <th>Quota</th>
               <th>Esito</th>
+              <th>Quota Book</th>
+              <th>Quota Ref</th>
+              <th>Rating</th>
+              <th>Profitto Stimato</th>
             </tr>
           </thead>
           <tbody id="resultsBody">
             <tr>
-              <td colspan="4">Nessun dato caricato</td>
+              <td colspan="9" class="empty-state">Nessun dato caricato</td>
             </tr>
           </tbody>
         </table>
@@ -191,48 +409,208 @@
   </div>
 
   <script>
-    let allData = [
-      { evento: "Milan vs Inter", bookmaker: "Book A", quota: "2.10", esito: "1" },
-      { evento: "Roma vs Napoli", bookmaker: "Book B", quota: "1.95", esito: "X" },
-      { evento: "Juventus vs Lazio", bookmaker: "Book C", quota: "2.30", esito: "2" }
+    const demoMatches = [
+      {
+        evento: "Milan vs Inter",
+        data: "2026-03-20 20:45",
+        soloData: "2026-03-20",
+        sport: "Calcio",
+        bookmaker: "Bet365",
+        esito: "1",
+        quotaBook: 2.18,
+        quotaRef: 2.05
+      },
+      {
+        evento: "Roma vs Napoli",
+        data: "2026-03-21 18:00",
+        soloData: "2026-03-21",
+        sport: "Calcio",
+        bookmaker: "Snai",
+        esito: "X",
+        quotaBook: 3.55,
+        quotaRef: 3.30
+      },
+      {
+        evento: "Juventus vs Lazio",
+        data: "2026-03-22 20:45",
+        soloData: "2026-03-22",
+        sport: "Calcio",
+        bookmaker: "Eurobet",
+        esito: "2",
+        quotaBook: 4.10,
+        quotaRef: 3.82
+      },
+      {
+        evento: "Sinner vs Alcaraz",
+        data: "2026-03-23 15:30",
+        soloData: "2026-03-23",
+        sport: "Tennis",
+        bookmaker: "Betflag",
+        esito: "1",
+        quotaBook: 2.24,
+        quotaRef: 2.08
+      },
+      {
+        evento: "Virtus Bologna vs Milano",
+        data: "2026-03-24 19:00",
+        soloData: "2026-03-24",
+        sport: "Basket",
+        bookmaker: "Planetwin",
+        esito: "Over",
+        quotaBook: 1.98,
+        quotaRef: 1.89
+      },
+      {
+        evento: "Fiorentina vs Atalanta",
+        data: "2026-03-25 20:45",
+        soloData: "2026-03-25",
+        sport: "Calcio",
+        bookmaker: "Betsson",
+        esito: "GG",
+        quotaBook: 1.91,
+        quotaRef: 1.82
+      }
     ];
 
-    function renderTable(data){
+    function formatEuro(value){
+      return "€ " + Number(value).toLocaleString("it-IT", {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      });
+    }
+
+    function setDefaultDate(){
+      const input = document.getElementById("dateInput");
+      if(!input.value){
+        const today = new Date();
+        const future = new Date(today);
+        future.setDate(today.getDate() + 7);
+        const yyyy = future.getFullYear();
+        const mm = String(future.getMonth() + 1).padStart(2, "0");
+        const dd = String(future.getDate()).padStart(2, "0");
+        input.value = `${yyyy}-${mm}-${dd}`;
+      }
+      updateFilterPills();
+    }
+
+    function updateFilterPills(){
+      const stake = Number(document.getElementById("stakeInput").value || 0);
+      const date = document.getElementById("dateInput").value || "";
+      document.getElementById("stakePill").innerHTML = `Stake: ${formatEuro(stake)}`;
+      document.getElementById("datePill").innerHTML = date ? `Fino al: ${date}` : "Data: non selezionata";
+    }
+
+    function getRating(quotaBook, quotaRef){
+      return (quotaBook / quotaRef) * 100;
+    }
+
+    function getEstimatedProfit(stake, quotaBook, quotaRef){
+      const rating = getRating(quotaBook, quotaRef);
+      return (stake * (rating - 100)) / 100;
+    }
+
+    function getRatingClass(rating){
+      if(rating >= 103) return "rating-high";
+      if(rating >= 100) return "rating-mid";
+      return "rating-low";
+    }
+
+    function renderTable(data, stake){
       const body = document.getElementById("resultsBody");
+      const resultsCount = document.getElementById("resultsCount");
 
       if(!data.length){
-        body.innerHTML = '<tr><td colspan="4">Nessun risultato trovato</td></tr>';
+        body.innerHTML = `<tr><td colspan="9" class="empty-state">Nessun match trovato con questi filtri</td></tr>`;
+        resultsCount.innerHTML = "0 match trovati";
         return;
       }
 
-      body.innerHTML = data.map(row => `
-        <tr>
-          <td>${row.evento}</td>
-          <td>${row.bookmaker}</td>
-          <td>${row.quota}</td>
-          <td>${row.esito}</td>
-        </tr>
-      `).join("");
+      body.innerHTML = data.map(row => {
+        const rating = getRating(row.quotaBook, row.quotaRef);
+        const profitto = getEstimatedProfit(stake, row.quotaBook, row.quotaRef);
+
+        return `
+          <tr>
+            <td>
+              <div class="event-name">${row.evento}</div>
+              <div class="event-meta">Ricerca matcher</div>
+            </td>
+            <td>${row.data}</td>
+            <td>${row.sport}</td>
+            <td>${row.bookmaker}</td>
+            <td>${row.esito}</td>
+            <td><span class="odd-badge">${row.quotaBook.toFixed(2)}</span></td>
+            <td><span class="odd-badge">${row.quotaRef.toFixed(2)}</span></td>
+            <td>
+              <span class="rating-badge ${getRatingClass(rating)}">
+                ${rating.toFixed(2)}%
+              </span>
+            </td>
+            <td>
+              <span class="profit-badge profit-pos">
+                ${formatEuro(profitto)}
+              </span>
+            </td>
+          </tr>
+        `;
+      }).join("");
+
+      resultsCount.innerHTML = `${data.length} match trovati`;
     }
 
-    function searchData(){
-      const q = (document.getElementById("searchInput").value || "").trim().toLowerCase();
+    function searchMatches(){
+      const stake = Number(document.getElementById("stakeInput").value || 0);
+      const maxDate = document.getElementById("dateInput").value || "";
+      const sport = document.getElementById("sportInput").value || "Tutti";
+      const status = document.getElementById("statusText");
 
-      const filtered = allData.filter(row =>
-        row.evento.toLowerCase().includes(q) ||
-        row.bookmaker.toLowerCase().includes(q) ||
-        row.esito.toLowerCase().includes(q)
-      );
+      updateFilterPills();
 
-      renderTable(filtered);
+      if(!stake || stake <= 0){
+        status.className = "pill gold";
+        status.innerHTML = "Inserisci uno stake valido";
+        return;
+      }
+
+      status.className = "pill blue";
+      status.innerHTML = "Ricerca in corso...";
+
+      let filtered = [...demoMatches];
+
+      if(maxDate){
+        filtered = filtered.filter(row => row.soloData <= maxDate);
+      }
+
+      if(sport !== "Tutti"){
+        filtered = filtered.filter(row => row.sport === sport);
+      }
+
+      filtered.sort((a, b) => {
+        const ratingA = getRating(a.quotaBook, a.quotaRef);
+        const ratingB = getRating(b.quotaBook, b.quotaRef);
+        return ratingB - ratingA;
+      });
+
+      renderTable(filtered, stake);
+
+      status.className = "pill green";
+      status.innerHTML = `Ricerca completata: ${filtered.length} risultati`;
     }
 
-    function resetData(){
-      document.getElementById("searchInput").value = "";
-      renderTable(allData);
+    function resetFilters(){
+      document.getElementById("stakeInput").value = "100";
+      document.getElementById("sportInput").value = "Tutti";
+      setDefaultDate();
+      document.getElementById("statusText").className = "pill blue";
+      document.getElementById("statusText").innerHTML = "Reset completato";
+      document.getElementById("resultsBody").innerHTML =
+        `<tr><td colspan="9" class="empty-state">Nessun dato caricato</td></tr>`;
+      document.getElementById("resultsCount").innerHTML = "0 match trovati";
+      updateFilterPills();
     }
 
-    renderTable(allData);
+    setDefaultDate();
+    updateFilterPills();
   </script>
 </body>
 </html>
