@@ -1,1 +1,238 @@
 
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Catsmatcher - Strumenti Andry Matched</title>
+  <style>
+    :root{
+      --bg:#0b1220;
+      --bg2:#111827;
+      --panel:#111827;
+      --line:#334155;
+      --text:#ffffff;
+      --muted:#cbd5e1;
+      --cyan:#06b6d4;
+      --cyan2:#0891b2;
+      --darkInput:#020617;
+      --shadow:0 16px 36px rgba(0,0,0,.22);
+      --radius:20px;
+    }
+
+    *{box-sizing:border-box}
+
+    body{
+      margin:0;
+      font-family:Arial, Helvetica, sans-serif;
+      background:linear-gradient(180deg,var(--bg) 0%, var(--bg2) 100%);
+      color:var(--text);
+    }
+
+    .container{
+      max-width:1100px;
+      margin:auto;
+      padding:32px 18px 70px;
+    }
+
+    .topbar{
+      text-align:center;
+      margin-bottom:28px;
+    }
+
+    h1{
+      margin:0;
+      font-size:40px;
+    }
+
+    .subtitle{
+      color:var(--muted);
+      margin:10px 0 0;
+    }
+
+    .box{
+      background:rgba(17,24,39,.96);
+      border:1px solid var(--line);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      padding:24px;
+      margin-bottom:18px;
+    }
+
+    .field{
+      margin-bottom:16px;
+    }
+
+    label{
+      display:block;
+      margin:0 0 8px;
+      color:#e2e8f0;
+      font-size:15px;
+      font-weight:bold;
+    }
+
+    input{
+      width:100%;
+      padding:14px 14px;
+      border-radius:12px;
+      border:1px solid var(--line);
+      background:var(--darkInput);
+      color:white;
+      font-size:16px;
+      outline:none;
+    }
+
+    .actions{
+      display:flex;
+      gap:12px;
+      flex-wrap:wrap;
+    }
+
+    .action{
+      padding:14px 20px;
+      border-radius:14px;
+      border:none;
+      cursor:pointer;
+      font-weight:bold;
+      font-size:16px;
+      background:linear-gradient(180deg,var(--cyan) 0%, var(--cyan2) 100%);
+      color:white;
+    }
+
+    .action-secondary{
+      padding:14px 20px;
+      border-radius:14px;
+      border:none;
+      cursor:pointer;
+      font-weight:bold;
+      font-size:16px;
+      background:#334155;
+      color:white;
+    }
+
+    .table-wrap{
+      overflow:auto;
+      border:1px solid var(--line);
+      border-radius:16px;
+      background:#0f172a;
+    }
+
+    table{
+      width:100%;
+      border-collapse:collapse;
+    }
+
+    th, td{
+      padding:14px 12px;
+      text-align:left;
+      border-bottom:1px solid rgba(255,255,255,.08);
+      font-size:14px;
+    }
+
+    th{
+      color:#cbd5e1;
+      background:#111827;
+    }
+
+    .back{
+      display:inline-block;
+      margin-top:12px;
+      padding:14px 22px;
+      border-radius:14px;
+      border:none;
+      background:#334155;
+      color:white;
+      font-size:16px;
+      cursor:pointer;
+      text-decoration:none;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="topbar">
+      <h1>Catsmatcher</h1>
+      <p class="subtitle">Ricerca e confronto dati</p>
+    </div>
+
+    <div class="box">
+      <div class="field">
+        <label>Cerca evento</label>
+        <input id="searchInput" type="text" placeholder="Scrivi una partita o parola chiave">
+      </div>
+
+      <div class="actions">
+        <button class="action" onclick="searchData()">Cerca</button>
+        <button class="action-secondary" onclick="resetData()">Reset</button>
+      </div>
+    </div>
+
+    <div class="box">
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Evento</th>
+              <th>Bookmaker</th>
+              <th>Quota</th>
+              <th>Esito</th>
+            </tr>
+          </thead>
+          <tbody id="resultsBody">
+            <tr>
+              <td colspan="4">Nessun dato caricato</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <a class="back" href="index.html">← Torna al menu</a>
+    </div>
+  </div>
+
+  <script>
+    let allData = [
+      { evento: "Milan vs Inter", bookmaker: "Book A", quota: "2.10", esito: "1" },
+      { evento: "Roma vs Napoli", bookmaker: "Book B", quota: "1.95", esito: "X" },
+      { evento: "Juventus vs Lazio", bookmaker: "Book C", quota: "2.30", esito: "2" }
+    ];
+
+    function renderTable(data){
+      const body = document.getElementById("resultsBody");
+
+      if(!data.length){
+        body.innerHTML = '<tr><td colspan="4">Nessun risultato trovato</td></tr>';
+        return;
+      }
+
+      body.innerHTML = data.map(row => `
+        <tr>
+          <td>${row.evento}</td>
+          <td>${row.bookmaker}</td>
+          <td>${row.quota}</td>
+          <td>${row.esito}</td>
+        </tr>
+      `).join("");
+    }
+
+    function searchData(){
+      const q = (document.getElementById("searchInput").value || "").trim().toLowerCase();
+
+      const filtered = allData.filter(row =>
+        row.evento.toLowerCase().includes(q) ||
+        row.bookmaker.toLowerCase().includes(q) ||
+        row.esito.toLowerCase().includes(q)
+      );
+
+      renderTable(filtered);
+    }
+
+    function resetData(){
+      document.getElementById("searchInput").value = "";
+      renderTable(allData);
+    }
+
+    renderTable(allData);
+  </script>
+</body>
+</html>
