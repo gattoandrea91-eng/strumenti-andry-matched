@@ -22,42 +22,38 @@ function getOutcomeByNameAndPoint(market, name, pointWanted = 2.5) {
     return sameName && samePoint;
   });
 
-  if (exact) return exact;
-
-  return null;
+  return exact || null;
 }
 
-function simulatePuntaPunta(stakeBook, oddsBook, oddsRef) {
-  const s1 = Number(stakeBook || 0);
-  const q1 = Number(oddsBook || 0);
-  const q2 = Number(oddsRef || 0);
+function calcContropuntataPuntaPunta(stake, quotaBook, quotaRef) {
+  const s = Number(stake || 0);
+  const q1 = Number(quotaBook || 0);
+  const q2 = Number(quotaRef || 0);
 
-  if (!s1 || !q1 || !q2) {
+  if (!s || !q1 || !q2) {
     return {
       stake_ref: null,
-      profit_book: null,
-      profit_ref: null,
-      profit_min: null
+      profit: null
     };
   }
 
-  const stakeRef = s1 / q2;
-  const profitBook = s1 * (q1 - 1) - stakeRef;
-  const profitRef = stakeRef * (q2 - 1) - s1;
+  const stakeRef = (s * q1) / q2;
+  const profit = (s * q1) - s - stakeRef;
 
   return {
     stake_ref: stakeRef,
-    profit_book: profitBook,
-    profit_ref: profitRef,
-    profit_min: Math.min(profitBook, profitRef)
+    profit
   };
 }
 
 module.exports = async (req, res) => {
   try {
     const apiKey = process.env.ODDS_API_KEY;
+
     if (!apiKey) {
-      return res.status(500).json({ error: "Manca ODDS_API_KEY su Vercel" });
+      return res.status(500).json({
+        error: "Manca ODDS_API_KEY su Vercel"
+      });
     }
 
     const sport = String(req.query.sport || "soccer_italy_serie_a");
@@ -99,6 +95,7 @@ module.exports = async (req, res) => {
     for (const event of events) {
       const home = event?.home_team;
       const away = event?.away_team;
+
       if (!home || !away) continue;
 
       if (until) {
@@ -108,7 +105,10 @@ module.exports = async (req, res) => {
       }
 
       const match = formatMatch(home, away);
-      if (search && !match.toLowerCase().includes(search)) continue;
+
+      if (search && !match.toLowerCase().includes(search)) {
+        continue;
+      }
 
       const book = event.bookmakers?.find((b) => b.key === bookmaker);
       const pin = event.bookmakers?.find((b) => b.key === "pinnacle");
@@ -128,22 +128,17 @@ module.exports = async (req, res) => {
           commence_time: event.commence_time,
           league: event.sport_title || sport,
           bookmaker_title: book.title || bookmaker,
-          bet_label: "Over 2.5",
-          hedge_label: "Under 2.5",
           book_odds: over25?.price ?? null,
           ref_odds: under25?.price ?? null,
-          line: 2.5,
           stake_book: stake,
           stake_ref: null,
-          profit_book: null,
-          profit_ref: null,
           profit_min: null,
           status: "2.5 non disponibile"
         });
         continue;
       }
 
-      const sim = simulatePuntaPunta(stake, over25.price, under25.price);
+      const calc = calcContropuntataPuntaPunta(stake, over25.price, under25.price);
 
       rows.push({
         id: `${event.id}-over25`,
@@ -151,16 +146,11 @@ module.exports = async (req, res) => {
         commence_time: event.commence_time,
         league: event.sport_title || sport,
         bookmaker_title: book.title || bookmaker,
-        bet_label: "Over 2.5",
-        hedge_label: "Under 2.5",
         book_odds: Number(over25.price),
         ref_odds: Number(under25.price),
-        line: 2.5,
         stake_book: stake,
-        stake_ref: sim.stake_ref,
-        profit_book: sim.profit_book,
-        profit_ref: sim.profit_ref,
-        profit_min: sim.profit_min,
+        stake_ref: calc.stake_ref,
+        profit_min: calc.profit,
         status: "OK"
       });
     }
