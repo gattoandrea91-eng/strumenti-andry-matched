@@ -8,22 +8,24 @@
 <style>
 body{
   margin:0;
-  font-family:Arial;
+  font-family:Arial, Helvetica, sans-serif;
   background:#0b1220;
   color:white;
 }
-
 .container{
-  max-width:1100px;
+  max-width:1200px;
   margin:auto;
   padding:30px 16px;
 }
-
 h1{
   text-align:center;
-  margin-bottom:20px;
+  margin-bottom:8px;
 }
-
+.subtitle{
+  text-align:center;
+  color:#cbd5e1;
+  margin-bottom:24px;
+}
 .box{
   background:#111827;
   padding:20px;
@@ -31,7 +33,18 @@ h1{
   border:1px solid #334155;
   margin-bottom:20px;
 }
-
+.filters-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr 1fr;
+  gap:14px;
+}
+label{
+  display:block;
+  margin-bottom:8px;
+  color:#e2e8f0;
+  font-weight:bold;
+  font-size:14px;
+}
 input, select{
   width:100%;
   padding:12px;
@@ -39,144 +52,172 @@ input, select{
   border:1px solid #334155;
   background:#020617;
   color:white;
+  box-sizing:border-box;
 }
-
 .field{ margin-bottom:14px; }
-
-button{
-  width:100%;
-  padding:14px;
-  border:none;
-  border-radius:12px;
-  background:#22c55e;
-  color:black;
-  font-weight:bold;
-  cursor:pointer;
+.actions{
+  margin-top:16px;
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
 }
-
+button{
+  padding:12px 18px;
+  border:none;
+  border-radius:10px;
+  cursor:pointer;
+  font-weight:bold;
+  font-size:15px;
+}
+.btn-main{
+  background:#06b6d4;
+  color:white;
+}
+.btn-sec{
+  background:#334155;
+  color:white;
+}
+.back-btn{
+  display:inline-block;
+  margin-top:14px;
+  padding:12px 18px;
+  border-radius:10px;
+  background:#334155;
+  color:white;
+  text-decoration:none;
+  font-weight:bold;
+}
+.status{
+  margin-top:14px;
+  color:#cbd5e1;
+  font-size:14px;
+}
+.table-wrap{
+  overflow:auto;
+  border:1px solid #334155;
+  border-radius:12px;
+  background:#0f172a;
+}
 table{
   width:100%;
   border-collapse:collapse;
+  min-width:1200px;
 }
-
 th, td{
-  padding:10px;
-  border-bottom:1px solid #334155;
+  padding:12px 10px;
+  border-bottom:1px solid rgba(255,255,255,.08);
+  text-align:left;
   font-size:14px;
+  vertical-align:middle;
 }
-
 th{
-  background:#1e293b;
+  background:#111827;
+  color:#cbd5e1;
+  position:sticky;
+  top:0;
+  z-index:1;
+  white-space:nowrap;
 }
-
-.green{ color:#4ade80; }
-.red{ color:#f87171; }
-
+tr:hover td{
+  background:rgba(255,255,255,.02);
+}
+.green{ color:#22c55e; font-weight:bold; }
+.red{ color:#ef4444; font-weight:bold; }
 .pill{
   background:#1e293b;
   padding:4px 8px;
   border-radius:8px;
+  white-space:nowrap;
 }
-
-.back{
-  margin-top:20px;
-  background:#334155;
+@media (max-width: 900px){
+  .filters-grid{ grid-template-columns:1fr; }
 }
 </style>
 </head>
 
 <body>
-
 <div class="container">
+  <h1>CatsMatcher</h1>
+  <div class="subtitle">Over 2.5 sul book e Under 2.5 su Pinnacle</div>
 
-<h1>CatsMatcher</h1>
+  <div class="box">
+    <div class="filters-grid">
+      <div>
+        <label>Stake Book</label>
+        <input id="stake" type="number" value="100" step="0.01">
+      </div>
 
-<div class="box">
-  <div class="field">
-    <label>Stake</label>
-    <input id="stake" type="number" value="100">
+      <div>
+        <label>Fino a data</label>
+        <input id="until" type="date">
+      </div>
+
+      <div>
+        <label>Bookmaker</label>
+        <select id="book">
+          <option value="williamhill">William Hill</option>
+          <option value="bet365">Bet365</option>
+          <option value="unibet">Unibet</option>
+          <option value="paddypower">Paddy Power</option>
+        </select>
+      </div>
+    </div>
+
+    <div style="margin-top:14px;">
+      <label>Sport</label>
+      <select id="sport">
+        <option value="soccer_italy_serie_a">Serie A</option>
+        <option value="soccer_epl">Premier League</option>
+        <option value="soccer_spain_la_liga">La Liga</option>
+        <option value="soccer_germany_bundesliga">Bundesliga</option>
+      </select>
+    </div>
+
+    <div style="margin-top:14px;">
+      <label>Cerca partita</label>
+      <input id="search" type="text" placeholder="Es. Milan, Roma, Inter...">
+    </div>
+
+    <div class="actions">
+      <button class="btn-main" onclick="searchMatches()">Cerca</button>
+      <button class="btn-sec" onclick="resetFilters()">Reset</button>
+    </div>
+
+    <div id="status" class="status">Pronto</div>
   </div>
 
-  <div class="field">
-    <label>Fino a data</label>
-    <input id="until" type="date">
+  <div class="box">
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Match</th>
+            <th>Data</th>
+            <th>Lega</th>
+            <th>Book</th>
+            <th>Punta</th>
+            <th>Copertura</th>
+            <th>Quota Book</th>
+            <th>Quota Pinnacle</th>
+            <th>Stake Book</th>
+            <th>Stake Pinnacle</th>
+            <th>Profit Book</th>
+            <th>Profit Pinnacle</th>
+            <th>Profit Min</th>
+            <th>Stato</th>
+          </tr>
+        </thead>
+        <tbody id="tableBody">
+          <tr><td colspan="14">Nessun dato</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <a class="back-btn" href="index.html">← Torna al menu</a>
   </div>
-
-  <div class="field">
-    <label>Bookmaker</label>
-    <select id="book">
-      <option value="bet365">Bet365</option>
-      <option value="williamhill">William Hill</option>
-      <option value="sisal">Sisal</option>
-    </select>
-  </div>
-
-  <button onclick="search()">CERCA</button>
-</div>
-
-<div class="box">
-  <table>
-    <thead>
-      <tr>
-        <th>Match</th>
-        <th>Data</th>
-        <th>Book</th>
-        <th>Pick</th>
-        <th>Copertura</th>
-        <th>Quota</th>
-        <th>Quota Ref</th>
-        <th>Stake</th>
-        <th>Stake Ref</th>
-        <th>Profit Book</th>
-        <th>Profit Ref</th>
-        <th>Profit Min</th>
-        <th>Stato</th>
-      </tr>
-    </thead>
-    <tbody id="tableBody">
-      <tr><td colspan="13">Nessun dato</td></tr>
-    </tbody>
-  </table>
-</div>
-
-<button class="back" onclick="history.back()">← Torna indietro</button>
-
 </div>
 
 <script>
-async function search(){
-  const stake = document.getElementById("stake").value;
-  const until = document.getElementById("until").value;
-  const book = document.getElementById("book").value;
-
-  const params = new URLSearchParams({
-    stake,
-    until,
-    bookmaker: book
-  });
-
-  const body = document.getElementById("tableBody");
-  body.innerHTML = `<tr><td colspan="13">Caricamento...</td></tr>`;
-
-  try{
-    const res = await fetch(`/api/catsmatcher?${params}`);
-    const text = await res.text();
-
-    let data;
-    try{
-      data = JSON.parse(text);
-    }catch(e){
-      body.innerHTML = `<tr><td colspan="13">${text}</td></tr>`;
-      return;
-    }
-
-    render(data.rows);
-
-  }catch(err){
-    body.innerHTML = `<tr><td colspan="13">Errore server</td></tr>`;
-  }
-}
-
 function formatDate(d){
   if(!d) return "—";
   return new Date(d).toLocaleString("it-IT");
@@ -192,11 +233,21 @@ function cls(v){
   return Number(v) >= 0 ? "green" : "red";
 }
 
+function setDefaultDate(){
+  const input = document.getElementById("until");
+  if(!input.value){
+    const today = new Date();
+    const future = new Date(today);
+    future.setDate(today.getDate() + 7);
+    input.value = future.toISOString().slice(0,10);
+  }
+}
+
 function render(rows){
   const body = document.getElementById("tableBody");
 
   if(!rows || !rows.length){
-    body.innerHTML = `<tr><td colspan="13">Nessun risultato</td></tr>`;
+    body.innerHTML = `<tr><td colspan="14">Nessun risultato</td></tr>`;
     return;
   }
 
@@ -204,10 +255,11 @@ function render(rows){
     <tr>
       <td>${r.match || "—"}</td>
       <td>${formatDate(r.commence_time)}</td>
+      <td>${r.league || "—"}</td>
       <td>${r.bookmaker_title || "—"}</td>
       <td><span class="pill">${r.bet_label || "—"}</span></td>
       <td><span class="pill">${r.hedge_label || "—"}</span></td>
-      <td>${Number(r.book_odds || 0).toFixed(2)}</td>
+      <td>${r.book_odds == null ? "—" : Number(r.book_odds).toFixed(2)}</td>
       <td>${r.ref_odds == null ? "—" : Number(r.ref_odds).toFixed(2)}</td>
       <td>${euro(r.stake_book)}</td>
       <td>${euro(r.stake_ref)}</td>
@@ -218,7 +270,69 @@ function render(rows){
     </tr>
   `).join("");
 }
-</script>
 
+async function searchMatches(){
+  const stake = document.getElementById("stake").value;
+  const until = document.getElementById("until").value;
+  const bookmaker = document.getElementById("book").value;
+  const sport = document.getElementById("sport").value;
+  const search = document.getElementById("search").value;
+  const status = document.getElementById("status");
+
+  if(!Number(stake) || Number(stake) <= 0){
+    status.innerText = "Inserisci uno stake valido";
+    return;
+  }
+
+  status.innerText = "Caricamento...";
+  document.getElementById("tableBody").innerHTML =
+    `<tr><td colspan="14">Caricamento...</td></tr>`;
+
+  try{
+    const params = new URLSearchParams({
+      stake,
+      until,
+      bookmaker,
+      sport,
+      search
+    });
+
+    const res = await fetch(`/api/catsmatcher?${params.toString()}`);
+    const text = await res.text();
+
+    let json;
+    try{
+      json = JSON.parse(text);
+    }catch(e){
+      throw new Error(text || "Risposta non valida dalla API");
+    }
+
+    if(!res.ok){
+      throw new Error(json.error || json.details || "Errore API");
+    }
+
+    render(json.rows || []);
+    status.innerText = `OK - ${(json.rows || []).length} risultati`;
+  }catch(err){
+    console.error(err);
+    status.innerText = String(err.message || err);
+    document.getElementById("tableBody").innerHTML =
+      `<tr><td colspan="14">Errore</td></tr>`;
+  }
+}
+
+function resetFilters(){
+  document.getElementById("stake").value = "100";
+  document.getElementById("book").value = "williamhill";
+  document.getElementById("sport").value = "soccer_italy_serie_a";
+  document.getElementById("search").value = "";
+  setDefaultDate();
+  document.getElementById("status").innerText = "Reset";
+  document.getElementById("tableBody").innerHTML =
+    `<tr><td colspan="14">Nessun dato</td></tr>`;
+}
+
+setDefaultDate();
+</script>
 </body>
 </html>
