@@ -54,7 +54,6 @@ input, select{
   color:white;
   box-sizing:border-box;
 }
-.field{ margin-bottom:14px; }
 .actions{
   margin-top:16px;
   display:flex;
@@ -101,7 +100,7 @@ button{
 table{
   width:100%;
   border-collapse:collapse;
-  min-width:1200px;
+  min-width:1000px;
 }
 th, td{
   padding:12px 10px;
@@ -138,12 +137,12 @@ tr:hover td{
 <body>
 <div class="container">
   <h1>CatsMatcher</h1>
-  <div class="subtitle">Over 2.5 sul book e Under 2.5 su Pinnacle</div>
+  <div class="subtitle">Over 2.5 book + Under 2.5 Pinnacle con calcolo punta-punta semplice</div>
 
   <div class="box">
     <div class="filters-grid">
       <div>
-        <label>Stake Book</label>
+        <label>Stake</label>
         <input id="stake" type="number" value="100" step="0.01">
       </div>
 
@@ -193,22 +192,17 @@ tr:hover td{
           <tr>
             <th>Match</th>
             <th>Data</th>
-            <th>Lega</th>
             <th>Book</th>
-            <th>Punta</th>
-            <th>Copertura</th>
-            <th>Quota Book</th>
-            <th>Quota Pinnacle</th>
-            <th>Stake Book</th>
-            <th>Stake Pinnacle</th>
-            <th>Profit Book</th>
-            <th>Profit Pinnacle</th>
-            <th>Profit Min</th>
+            <th>Over 2.5</th>
+            <th>Under 2.5</th>
+            <th>Stake</th>
+            <th>Contropuntata</th>
+            <th>Profitto</th>
             <th>Stato</th>
           </tr>
         </thead>
         <tbody id="tableBody">
-          <tr><td colspan="14">Nessun dato</td></tr>
+          <tr><td colspan="9">Nessun dato</td></tr>
         </tbody>
       </table>
     </div>
@@ -247,7 +241,7 @@ function render(rows){
   const body = document.getElementById("tableBody");
 
   if(!rows || !rows.length){
-    body.innerHTML = `<tr><td colspan="14">Nessun risultato</td></tr>`;
+    body.innerHTML = `<tr><td colspan="9">Nessun risultato</td></tr>`;
     return;
   }
 
@@ -255,16 +249,11 @@ function render(rows){
     <tr>
       <td>${r.match || "—"}</td>
       <td>${formatDate(r.commence_time)}</td>
-      <td>${r.league || "—"}</td>
       <td>${r.bookmaker_title || "—"}</td>
-      <td><span class="pill">${r.bet_label || "—"}</span></td>
-      <td><span class="pill">${r.hedge_label || "—"}</span></td>
       <td>${r.book_odds == null ? "—" : Number(r.book_odds).toFixed(2)}</td>
       <td>${r.ref_odds == null ? "—" : Number(r.ref_odds).toFixed(2)}</td>
       <td>${euro(r.stake_book)}</td>
       <td>${euro(r.stake_ref)}</td>
-      <td class="${cls(r.profit_book)}">${euro(r.profit_book)}</td>
-      <td class="${cls(r.profit_ref)}">${euro(r.profit_ref)}</td>
       <td class="${cls(r.profit_min)}">${euro(r.profit_min)}</td>
       <td>${r.status || "—"}</td>
     </tr>
@@ -286,7 +275,7 @@ async function searchMatches(){
 
   status.innerText = "Caricamento...";
   document.getElementById("tableBody").innerHTML =
-    `<tr><td colspan="14">Caricamento...</td></tr>`;
+    `<tr><td colspan="9">Caricamento...</td></tr>`;
 
   try{
     const params = new URLSearchParams({
@@ -317,7 +306,7 @@ async function searchMatches(){
     console.error(err);
     status.innerText = String(err.message || err);
     document.getElementById("tableBody").innerHTML =
-      `<tr><td colspan="14">Errore</td></tr>`;
+      `<tr><td colspan="9">Errore</td></tr>`;
   }
 }
 
@@ -329,7 +318,7 @@ function resetFilters(){
   setDefaultDate();
   document.getElementById("status").innerText = "Reset";
   document.getElementById("tableBody").innerHTML =
-    `<tr><td colspan="14">Nessun dato</td></tr>`;
+    `<tr><td colspan="9">Nessun dato</td></tr>`;
 }
 
 setDefaultDate();
