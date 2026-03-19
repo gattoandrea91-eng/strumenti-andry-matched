@@ -25,9 +25,9 @@ function getH2HPrice(bookmaker, outcomeName) {
 }
 
 function getDoubleChanceNameForBookPick(bookPick, home, away) {
-  if (bookPick === "1") return `${away} or Draw`;   // X2
-  if (bookPick === "X") return `${home} or ${away}`; // 12
-  if (bookPick === "2") return `${home} or Draw`;   // 1X
+  if (bookPick === "1") return `${away} or Draw`;     // X2
+  if (bookPick === "X") return `${home} or ${away}`;  // 12
+  if (bookPick === "2") return `${home} or Draw`;     // 1X
   return null;
 }
 
@@ -56,13 +56,8 @@ function simulatePuntaPunta(stake, bookOdds, dcOdds) {
     };
   }
 
-  // puntata sulla doppia chance per avere ritorno pari allo stake principale
   const stakeRef = s / qDc;
-
-  // se vince il book singolo
   const profitBook = s * (qBook - 1) - stakeRef;
-
-  // se vince la copertura double chance
   const profitRef = stakeRef * (qDc - 1) - s;
 
   return {
@@ -76,11 +71,8 @@ function simulatePuntaPunta(stake, bookOdds, dcOdds) {
 module.exports = async (req, res) => {
   try {
     const apiKey = process.env.ODDS_API_KEY;
-
     if (!apiKey) {
-      return res.status(500).json({
-        error: "Manca ODDS_API_KEY su Vercel"
-      });
+      return res.status(500).json({ error: "Manca ODDS_API_KEY su Vercel" });
     }
 
     const sport = String(req.query.sport || "soccer_italy_serie_a");
@@ -89,7 +81,7 @@ module.exports = async (req, res) => {
     const search = String(req.query.search || "").trim().toLowerCase();
     const stake = Number(req.query.stake || 100);
 
-    // 1) lista eventi con il book selezionato
+    // Lista eventi col solo book scelto
     const listUrl =
       `${ODDS_API_BASE}/sports/${sport}/odds` +
       `?apiKey=${apiKey}` +
@@ -132,15 +124,14 @@ module.exports = async (req, res) => {
       }
 
       const match = formatMatch(home, away);
-
-      if (search && !match.toLowerCase().includes(search)) {
-        continue;
-      }
+      if (search && !match.toLowerCase().includes(search)) continue;
 
       const book = event.bookmakers?.find((b) => b.key === bookmaker);
       if (!book) continue;
 
-      // 2) per ogni evento prendiamo la double chance di Pinnacle
+      // provo a prendere la DC di Pinnacle per questo evento
+      let dcMarket = null;
+
       const eventUrl =
         `${ODDS_API_BASE}/sports/${sport}/events/${event.id}/odds` +
         `?apiKey=${apiKey}` +
@@ -149,32 +140,48 @@ module.exports = async (req, res) => {
         `&oddsFormat=decimal` +
         `&bookmakers=pinnacle`;
 
-      const eventResponse = await fetch(eventUrl);
-      const eventRaw = await eventResponse.text();
-
-      if (!eventResponse.ok) {
-        continue;
-      }
-
-      let eventOdds;
       try {
-        eventOdds = JSON.parse(eventRaw);
-      } catch (e) {
-        continue;
-      }
+        const eventResponse = await fetch(eventUrl);
+        const eventRaw = await eventResponse.text();
 
-      const pinnacle = eventOdds?.bookmakers?.find((b) => b.key === "pinnacle");
-      const dcMarket = getDoubleChanceMarket(pinnacle);
-      if (!dcMarket) continue;
+        if (eventResponse.ok) {
+          const eventOdds = JSON.parse(eventRaw);
+          const pinnacle = eventOdds?.bookmakers?.find((b) => b.key === "pinnacle");
+          dcMarket = getDoubleChanceMarket(pinnacle);
+        }
+      } catch (e) {
+        dcMarket = null;
+      }
 
       for (const pick of ["1", "X", "2"]) {
         const bookOutcomeName = getBookOutcomeName(pick, home, away);
-        const dcOutcomeName = getDoubleChanceNameForBookPick(pick, home, away);
-
         const bookOdds = getH2HPrice(book, bookOutcomeName);
-        const refOdds = getOutcomePriceFromMarket(dcMarket, dcOutcomeName);
+        if (!bookOdds) continue;
 
-        if (!bookOdds || !refOdds) continue;
+        const dcOutcomeName = getDoubleChanceNameForBookPick(pick, home, away);
+        const refOdds = dcMarket
+          ? getOutcomePriceFromMarket(dcMarket, dcOutcomeName)
+          : null;
+
+        if (!refOdds) {
+          rows.push({
+            id: `${event.id}-${pick}`,
+            match,
+            commence_time: event.commence_time,
+            bookmaker_title: book.title || bookmaker,
+            bet_label: pick,
+            hedge_label: dcOutcomeName,
+            book_odds: bookOdds,
+            ref_odds: null,
+            stake_book: stake,
+            stake_ref: null,
+            profit_book: null,
+            profit_ref: null,
+            profit_min: null,
+            status: "DC non disponibile"
+          });
+          continue;
+        }
 
         const sim = simulatePuntaPunta(stake, bookOdds, refOdds);
 
@@ -182,7 +189,6 @@ module.exports = async (req, res) => {
           id: `${event.id}-${pick}`,
           match,
           commence_time: event.commence_time,
-          league: event.sport_title || sport,
           bookmaker_title: book.title || bookmaker,
           bet_label: pick,
           hedge_label: dcOutcomeName,
@@ -192,12 +198,17 @@ module.exports = async (req, res) => {
           stake_ref: sim.stake_ref,
           profit_book: sim.profit_book,
           profit_ref: sim.profit_ref,
-          profit_min: sim.profit_min
+          profit_min: sim.profit_min,
+          status: "OK"
         });
       }
     }
 
-    rows.sort((a, b) => b.profit_min - a.profit_min);
+    rows.sort((a, b) => {
+      const aVal = a.profit_min == null ? -999999 : a.profit_min;
+      const bVal = b.profit_min == null ? -999999 : b.profit_min;
+      return bVal - aVal;
+    });
 
     return res.status(200).json({ rows });
   } catch (error) {
