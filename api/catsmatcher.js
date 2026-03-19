@@ -5,60 +5,45 @@ function toNum(v) {
   return Number.isFinite(n) ? n : null;
 }
 
-function getH2HMarket(bookmaker) {
-  return bookmaker?.markets?.find((m) => m.key === "h2h");
-}
-
-function getDoubleChanceMarket(bookmaker) {
-  return bookmaker?.markets?.find((m) => m.key === "double_chance");
-}
-
-function getOutcomePriceFromMarket(market, outcomeName) {
-  const outcome = market?.outcomes?.find(
-    (o) => String(o.name || "").toLowerCase() === String(outcomeName || "").toLowerCase()
-  );
-  return toNum(outcome?.price);
-}
-
-function getH2HPrice(bookmaker, outcomeName) {
-  return getOutcomePriceFromMarket(getH2HMarket(bookmaker), outcomeName);
-}
-
-function getDoubleChanceNameForBookPick(bookPick, home, away) {
-  if (bookPick === "1") return `${away} or Draw`;     // X2
-  if (bookPick === "X") return `${home} or ${away}`;  // 12
-  if (bookPick === "2") return `${home} or Draw`;     // 1X
-  return null;
-}
-
-function getBookOutcomeName(bookPick, home, away) {
-  if (bookPick === "1") return home;
-  if (bookPick === "X") return "Draw";
-  if (bookPick === "2") return away;
-  return null;
-}
-
 function formatMatch(home, away) {
   return `${home} vs ${away}`;
 }
 
-function simulatePuntaPunta(stake, bookOdds, dcOdds) {
-  const s = Number(stake || 0);
-  const qBook = Number(bookOdds || 0);
-  const qDc = Number(dcOdds || 0);
+function getTotalsMarket(bookmaker) {
+  return bookmaker?.markets?.find((m) => m.key === "totals");
+}
 
-  if (!s || !qBook || !qDc) {
+function getOutcomeByNameAndPoint(market, name, pointWanted = 2.5) {
+  if (!market?.outcomes?.length) return null;
+
+  const exact = market.outcomes.find((o) => {
+    const sameName = String(o.name || "").toLowerCase() === String(name).toLowerCase();
+    const samePoint = Number(o.point) === Number(pointWanted);
+    return sameName && samePoint;
+  });
+
+  if (exact) return exact;
+
+  return null;
+}
+
+function simulatePuntaPunta(stakeBook, oddsBook, oddsRef) {
+  const s1 = Number(stakeBook || 0);
+  const q1 = Number(oddsBook || 0);
+  const q2 = Number(oddsRef || 0);
+
+  if (!s1 || !q1 || !q2) {
     return {
-      stake_ref: 0,
-      profit_book: 0,
-      profit_ref: 0,
-      profit_min: 0
+      stake_ref: null,
+      profit_book: null,
+      profit_ref: null,
+      profit_min: null
     };
   }
 
-  const stakeRef = s / qDc;
-  const profitBook = s * (qBook - 1) - stakeRef;
-  const profitRef = stakeRef * (qDc - 1) - s;
+  const stakeRef = s1 / q2;
+  const profitBook = s1 * (q1 - 1) - stakeRef;
+  const profitRef = stakeRef * (q2 - 1) - s1;
 
   return {
     stake_ref: stakeRef,
@@ -76,37 +61,36 @@ module.exports = async (req, res) => {
     }
 
     const sport = String(req.query.sport || "soccer_italy_serie_a");
-    const bookmaker = String(req.query.bookmaker || "bet365");
+    const bookmaker = String(req.query.bookmaker || "williamhill");
     const until = String(req.query.until || "");
     const search = String(req.query.search || "").trim().toLowerCase();
     const stake = Number(req.query.stake || 100);
 
-    // Lista eventi col solo book scelto
-    const listUrl =
+    const url =
       `${ODDS_API_BASE}/sports/${sport}/odds` +
       `?apiKey=${apiKey}` +
       `&regions=eu` +
-      `&markets=h2h` +
+      `&markets=totals` +
       `&oddsFormat=decimal` +
-      `&bookmakers=${bookmaker}`;
+      `&bookmakers=${bookmaker},pinnacle`;
 
-    const listResponse = await fetch(listUrl);
-    const listRaw = await listResponse.text();
+    const response = await fetch(url);
+    const rawText = await response.text();
 
-    if (!listResponse.ok) {
-      return res.status(listResponse.status).json({
-        error: "Errore lista eventi The Odds API",
-        details: listRaw
+    if (!response.ok) {
+      return res.status(response.status).json({
+        error: "Errore The Odds API",
+        details: rawText
       });
     }
 
     let events = [];
     try {
-      events = JSON.parse(listRaw);
+      events = JSON.parse(rawText);
     } catch (e) {
       return res.status(500).json({
-        error: "Risposta lista eventi non valida",
-        details: listRaw
+        error: "Risposta API non valida",
+        details: rawText
       });
     }
 
@@ -127,81 +111,58 @@ module.exports = async (req, res) => {
       if (search && !match.toLowerCase().includes(search)) continue;
 
       const book = event.bookmakers?.find((b) => b.key === bookmaker);
+      const pin = event.bookmakers?.find((b) => b.key === "pinnacle");
+
       if (!book) continue;
 
-      // provo a prendere la DC di Pinnacle per questo evento
-      let dcMarket = null;
+      const bookTotals = getTotalsMarket(book);
+      const pinTotals = getTotalsMarket(pin);
 
-      const eventUrl =
-        `${ODDS_API_BASE}/sports/${sport}/events/${event.id}/odds` +
-        `?apiKey=${apiKey}` +
-        `&regions=eu` +
-        `&markets=double_chance` +
-        `&oddsFormat=decimal` +
-        `&bookmakers=pinnacle`;
+      const over25 = getOutcomeByNameAndPoint(bookTotals, "Over", 2.5);
+      const under25 = getOutcomeByNameAndPoint(pinTotals, "Under", 2.5);
 
-      try {
-        const eventResponse = await fetch(eventUrl);
-        const eventRaw = await eventResponse.text();
-
-        if (eventResponse.ok) {
-          const eventOdds = JSON.parse(eventRaw);
-          const pinnacle = eventOdds?.bookmakers?.find((b) => b.key === "pinnacle");
-          dcMarket = getDoubleChanceMarket(pinnacle);
-        }
-      } catch (e) {
-        dcMarket = null;
-      }
-
-      for (const pick of ["1", "X", "2"]) {
-        const bookOutcomeName = getBookOutcomeName(pick, home, away);
-        const bookOdds = getH2HPrice(book, bookOutcomeName);
-        if (!bookOdds) continue;
-
-        const dcOutcomeName = getDoubleChanceNameForBookPick(pick, home, away);
-        const refOdds = dcMarket
-          ? getOutcomePriceFromMarket(dcMarket, dcOutcomeName)
-          : null;
-
-        if (!refOdds) {
-          rows.push({
-            id: `${event.id}-${pick}`,
-            match,
-            commence_time: event.commence_time,
-            bookmaker_title: book.title || bookmaker,
-            bet_label: pick,
-            hedge_label: dcOutcomeName,
-            book_odds: bookOdds,
-            ref_odds: null,
-            stake_book: stake,
-            stake_ref: null,
-            profit_book: null,
-            profit_ref: null,
-            profit_min: null,
-            status: "DC non disponibile"
-          });
-          continue;
-        }
-
-        const sim = simulatePuntaPunta(stake, bookOdds, refOdds);
-
+      if (!over25 || !under25) {
         rows.push({
-          id: `${event.id}-${pick}`,
+          id: `${event.id}-over25`,
           match,
           commence_time: event.commence_time,
+          league: event.sport_title || sport,
           bookmaker_title: book.title || bookmaker,
-          bet_label: pick,
-          hedge_label: dcOutcomeName,
-          book_odds: bookOdds,
-          ref_odds: refOdds,
+          bet_label: "Over 2.5",
+          hedge_label: "Under 2.5",
+          book_odds: over25?.price ?? null,
+          ref_odds: under25?.price ?? null,
+          line: 2.5,
           stake_book: stake,
-          stake_ref: sim.stake_ref,
-          profit_book: sim.profit_book,
-          profit_ref: sim.profit_ref,
-          profit_min: sim.profit_min,
-          status: "OK"
+          stake_ref: null,
+          profit_book: null,
+          profit_ref: null,
+          profit_min: null,
+          status: "2.5 non disponibile"
         });
+        continue;
       }
+
+      const sim = simulatePuntaPunta(stake, over25.price, under25.price);
+
+      rows.push({
+        id: `${event.id}-over25`,
+        match,
+        commence_time: event.commence_time,
+        league: event.sport_title || sport,
+        bookmaker_title: book.title || bookmaker,
+        bet_label: "Over 2.5",
+        hedge_label: "Under 2.5",
+        book_odds: Number(over25.price),
+        ref_odds: Number(under25.price),
+        line: 2.5,
+        stake_book: stake,
+        stake_ref: sim.stake_ref,
+        profit_book: sim.profit_book,
+        profit_ref: sim.profit_ref,
+        profit_min: sim.profit_min,
+        status: "OK"
+      });
     }
 
     rows.sort((a, b) => {
