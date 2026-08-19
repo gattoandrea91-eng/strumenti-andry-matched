@@ -51,11 +51,6 @@ function calculateRtg(home, away) {
   const blockedShots =
     home.blockedShots + away.blockedShots;
 
-  /*
-    Formula RTG iniziale SoccerTrend.
-    La miglioreremo dopo aver raccolto dati reali.
-  */
-
   const rtg =
       (shotsOnGoal * 1.8)
     + (shotsInsideBox * 0.65)
@@ -67,7 +62,6 @@ function calculateRtg(home, away) {
 }
 
 async function apiRequest(path, apiKey) {
-
   const response = await fetch(`${API_BASE}${path}`, {
     headers: {
       "x-apisports-key": apiKey
@@ -79,6 +73,26 @@ async function apiRequest(path, apiKey) {
   return {
     response,
     data
+  };
+}
+
+function getQuota(response) {
+  const remaining =
+    response.headers.get("x-ratelimit-requests-remaining");
+
+  const limit =
+    response.headers.get("x-ratelimit-requests-limit");
+
+  return {
+    remaining:
+      remaining !== null
+        ? Number(remaining)
+        : null,
+
+    limit:
+      limit !== null
+        ? Number(limit)
+        : null
   };
 }
 
@@ -94,12 +108,13 @@ module.exports = async (req, res) => {
       });
     }
 
-    /*
-      -----------------------------------------
-      MODALITÀ STATISTICHE
 
-      /api/soccertrend?stats=1563650
-      -----------------------------------------
+    /*
+    ==================================================
+    MODALITÀ STATISTICHE SINGOLA PARTITA
+
+    /api/soccertrend?stats=1563650
+    ==================================================
     */
 
     const statsFixture =
@@ -117,11 +132,14 @@ module.exports = async (req, res) => {
         data.errors &&
         Object.keys(data.errors).length > 0
       ) {
+
         return res.status(200).json({
           success: false,
           mode: "STATS",
-          errors: data.errors
+          errors: data.errors,
+          api: getQuota(response)
         });
+
       }
 
       const blocks = data.response || [];
@@ -139,16 +157,6 @@ module.exports = async (req, res) => {
         hasStats
           ? calculateRtg(home, away)
           : 0;
-
-      const remaining =
-        response.headers.get(
-          "x-ratelimit-requests-remaining"
-        );
-
-      const limit =
-        response.headers.get(
-          "x-ratelimit-requests-limit"
-        );
 
       return res.status(200).json({
 
@@ -198,6 +206,10 @@ module.exports = async (req, res) => {
             home.shotsInsideBox +
             away.shotsInsideBox,
 
+          shotsOutsideBox:
+            home.shotsOutsideBox +
+            away.shotsOutsideBox,
+
           corners:
             home.corners +
             away.corners
@@ -206,29 +218,23 @@ module.exports = async (req, res) => {
 
         rtg,
 
-        api: {
-
-          remaining:
-            remaining !== null
-              ? Number(remaining)
-              : null,
-
-          limit:
-            limit !== null
-              ? Number(limit)
-              : null
-        }
+        api: getQuota(response)
 
       });
 
     }
 
-    /*
-      -----------------------------------------
-      MODALITÀ LIVE
 
-      /api/soccertrend
-      -----------------------------------------
+    /*
+    ==================================================
+    MODALITÀ LIVE
+
+    /api/soccertrend
+
+    Ora aggiunge:
+    - leagueId
+    - season
+    ==================================================
     */
 
     const { response, data } =
@@ -241,11 +247,14 @@ module.exports = async (req, res) => {
       data.errors &&
       Object.keys(data.errors).length > 0
     ) {
+
       return res.status(200).json({
         success: false,
         mode: "LIVE",
-        errors: data.errors
+        errors: data.errors,
+        api: getQuota(response)
       });
+
     }
 
     const fixtures =
@@ -257,11 +266,20 @@ module.exports = async (req, res) => {
         id:
           item.fixture?.id,
 
+        leagueId:
+          item.league?.id || null,
+
         league:
           item.league?.name || "",
 
         country:
           item.league?.country || "",
+
+        season:
+          item.league?.season || null,
+
+        round:
+          item.league?.round || "",
 
         minute:
           item.fixture?.status?.elapsed || 0,
@@ -289,15 +307,48 @@ module.exports = async (req, res) => {
 
       }));
 
-    const remaining =
-      response.headers.get(
-        "x-ratelimit-requests-remaining"
-      );
 
-    const limit =
-      response.headers.get(
-        "x-ratelimit-requests-limit"
-      );
+    /*
+      Elenco unico dei campionati attualmente live.
+
+      Ci servirà dopo per controllare la coverage
+      senza analizzare la stessa lega più volte.
+    */
+
+    const leaguesMap = new Map();
+
+    matches.forEach(match => {
+
+      if (!match.leagueId) return;
+
+      const key =
+        `${match.leagueId}-${match.season}`;
+
+      if (!leaguesMap.has(key)) {
+
+        leaguesMap.set(key, {
+
+          leagueId:
+            match.leagueId,
+
+          league:
+            match.league,
+
+          country:
+            match.country,
+
+          season:
+            match.season
+
+        });
+
+      }
+
+    });
+
+    const liveLeagues =
+      Array.from(leaguesMap.values());
+
 
     return res.status(200).json({
 
@@ -308,19 +359,13 @@ module.exports = async (req, res) => {
       count:
         matches.length,
 
-      api: {
+      leagueCount:
+        liveLeagues.length,
 
-        remaining:
-          remaining !== null
-            ? Number(remaining)
-            : null,
+      api:
+        getQuota(response),
 
-        limit:
-          limit !== null
-            ? Number(limit)
-            : null
-
-      },
+      liveLeagues,
 
       matches
 
