@@ -115,7 +115,7 @@
       50%{opacity:.45;transform:scale(.8)}
     }
 
-    .demo{
+    .notice{
       margin-bottom:18px;
       padding:12px 15px;
       border-radius:13px;
@@ -149,16 +149,6 @@
       position:relative;
     }
 
-    .top-card::before{
-      content:"";
-      position:absolute;
-      inset:0;
-      background:
-        radial-gradient(circle at 80% 20%,rgba(52,211,153,.12),transparent 28%),
-        radial-gradient(circle at 20% 80%,rgba(34,211,238,.08),transparent 35%);
-      pointer-events:none;
-    }
-
     .top-head{
       padding:18px 20px;
       border-bottom:1px solid var(--line);
@@ -185,8 +175,6 @@
 
     .top-body{
       padding:25px;
-      position:relative;
-      z-index:1;
     }
 
     .match-line{
@@ -212,7 +200,6 @@
     .score-big{
       font-size:36px;
       font-weight:900;
-      letter-spacing:.02em;
     }
 
     .minute-pill{
@@ -284,7 +271,6 @@
       height:100%;
       border-radius:999px;
       background:linear-gradient(90deg,var(--green2),var(--cyan));
-      box-shadow:0 0 18px rgba(52,211,153,.28);
       transition:width .4s ease;
     }
 
@@ -319,11 +305,10 @@
       text-align:center;
       padding:13px;
       border-radius:14px;
-      background:rgba(52,211,153,.10);
-      border:1px solid rgba(52,211,153,.28);
-      color:#a7f3d0;
+      background:rgba(148,163,184,.08);
+      border:1px solid var(--line);
+      color:#cbd5e1;
       font-weight:900;
-      letter-spacing:.04em;
     }
 
     .insight-card{
@@ -344,10 +329,8 @@
       display:flex;
       align-items:center;
       justify-content:center;
-      background:
-        conic-gradient(var(--green) 0deg 324deg,#1a293a 324deg 360deg);
+      background:conic-gradient(var(--green) 0deg 0deg,#1a293a 0deg 360deg);
       position:relative;
-      box-shadow:0 0 30px rgba(52,211,153,.08);
     }
 
     .gauge::after{
@@ -376,7 +359,6 @@
       color:var(--muted);
       font-size:11px;
       text-transform:uppercase;
-      letter-spacing:.08em;
       font-weight:800;
     }
 
@@ -390,11 +372,6 @@
       border:1px solid var(--line);
       margin-top:10px;
       font-size:13px;
-    }
-
-    .pressure-state span:last-child{
-      font-weight:900;
-      color:#a7f3d0;
     }
 
     .filters{
@@ -413,7 +390,6 @@
       font-size:10px;
       font-weight:800;
       text-transform:uppercase;
-      letter-spacing:.06em;
     }
 
     select,input{
@@ -443,7 +419,6 @@
       font-size:10px;
       text-transform:uppercase;
       font-weight:800;
-      letter-spacing:.06em;
     }
 
     .stats-value{
@@ -492,7 +467,6 @@
       color:#94a3b8;
       font-size:10px;
       text-transform:uppercase;
-      letter-spacing:.05em;
       white-space:nowrap;
     }
 
@@ -501,18 +475,6 @@
       border-top:1px solid rgba(255,255,255,.05);
       text-align:center;
       font-size:13px;
-    }
-
-    tbody tr{
-      transition:.15s ease;
-    }
-
-    tbody tr:hover{
-      background:rgba(255,255,255,.025);
-    }
-
-    tbody tr.hot-row{
-      background:linear-gradient(90deg,rgba(52,211,153,.045),transparent);
     }
 
     .match-cell{
@@ -544,11 +506,8 @@
     .rtg{
       font-size:18px;
       font-weight:900;
+      color:#64748b;
     }
-
-    .rtg-hot{color:var(--green)}
-    .rtg-watch{color:var(--yellow)}
-    .rtg-cold{color:var(--red)}
 
     .momentum-small{
       width:105px;
@@ -570,20 +529,8 @@
     .small-fill{
       height:100%;
       border-radius:999px;
+      background:#334155;
     }
-
-    .fill-green{background:var(--green)}
-    .fill-yellow{background:var(--yellow)}
-    .fill-red{background:var(--red)}
-
-    .trend{
-      font-weight:900;
-      font-size:16px;
-    }
-
-    .trend-up{color:var(--green)}
-    .trend-flat{color:var(--yellow)}
-    .trend-down{color:var(--red)}
 
     .signal{
       display:inline-flex;
@@ -593,31 +540,15 @@
       border-radius:999px;
       font-size:10px;
       font-weight:900;
-      white-space:nowrap;
+      color:#cbd5e1;
+      border:1px solid var(--line);
+      background:rgba(148,163,184,.07);
     }
 
-    .strong{
-      color:#a7f3d0;
-      border:1px solid rgba(52,211,153,.28);
-      background:rgba(52,211,153,.09);
-    }
-
-    .rapid{
-      color:#fed7aa;
-      border:1px solid rgba(251,146,60,.28);
-      background:rgba(251,146,60,.09);
-    }
-
-    .watch{
-      color:#fef08a;
-      border:1px solid rgba(250,204,21,.25);
-      background:rgba(250,204,21,.08);
-    }
-
-    .cold{
-      color:#fecaca;
-      border:1px solid rgba(248,113,113,.25);
-      background:rgba(248,113,113,.08);
+    .empty{
+      padding:30px;
+      color:var(--muted);
+      text-align:center;
     }
 
     .footer{
@@ -674,8 +605,8 @@
 
   </div>
 
-  <div class="demo">
-    ⚙️ Modalità demo — grafica e motore RTG già attivi. I dati verranno poi sostituiti con le statistiche live reali.
+  <div class="notice">
+    ✅ Dati partite LIVE collegati. RTG, Momentum e statistiche avanzate saranno attivati nel prossimo passaggio.
   </div>
 
   <div class="hero">
@@ -698,14 +629,12 @@
 
         <div class="match-line">
 
-          <div class="team" id="topHome">
-            —
-          </div>
+          <div class="team" id="topHome">—</div>
 
           <div class="score-center">
 
             <div class="score-big" id="topScore">
-              0 - 0
+              — - —
             </div>
 
             <div class="minute-pill" id="topMinute">
@@ -714,9 +643,7 @@
 
           </div>
 
-          <div class="team away" id="topAway">
-            —
-          </div>
+          <div class="team away" id="topAway">—</div>
 
         </div>
 
@@ -724,7 +651,7 @@
 
           <div class="metric">
             <div class="metric-label">RTG</div>
-            <div class="metric-value green" id="topRtg">0</div>
+            <div class="metric-value green" id="topRtg">0.0</div>
           </div>
 
           <div class="metric">
@@ -755,29 +682,29 @@
         <div class="mini-stats">
 
           <div class="mini-stat">
-            <strong id="topShots">0</strong>
+            <strong id="topShots">—</strong>
             <span>Tiri</span>
           </div>
 
           <div class="mini-stat">
-            <strong id="topTarget">0</strong>
+            <strong id="topTarget">—</strong>
             <span>In porta</span>
           </div>
 
           <div class="mini-stat">
-            <strong id="topBox">0</strong>
+            <strong id="topBox">—</strong>
             <span>In area</span>
           </div>
 
           <div class="mini-stat">
-            <strong id="topCorners">0</strong>
+            <strong id="topCorners">—</strong>
             <span>Corner</span>
           </div>
 
         </div>
 
         <div class="signal-big" id="topSignal">
-          —
+          IN ATTESA STATISTICHE
         </div>
 
       </div>
@@ -827,7 +754,6 @@
 
     <div class="field">
       <label>Minuto minimo</label>
-
       <select id="minMinute">
         <option value="0">Tutti</option>
         <option value="20">20+</option>
@@ -841,7 +767,6 @@
 
     <div class="field">
       <label>RTG minimo</label>
-
       <select id="minRtg">
         <option value="0">Tutti</option>
         <option value="8">8+</option>
@@ -854,7 +779,6 @@
 
     <div class="field">
       <label>Momentum minimo</label>
-
       <select id="minMomentum">
         <option value="0">Tutti</option>
         <option value="40">40+</option>
@@ -867,7 +791,6 @@
 
     <div class="field">
       <label>Risultato</label>
-
       <select id="scoreFilter">
         <option value="all">Tutti</option>
         <option value="00">Solo 0-0</option>
@@ -896,12 +819,12 @@
 
     <div class="stats-card">
       <div class="stats-label">RTG Medio</div>
-      <div class="stats-value" id="avgRtg">0</div>
+      <div class="stats-value" id="avgRtg">0.0</div>
     </div>
 
     <div class="stats-card">
       <div class="stats-label">Refresh</div>
-      <div class="stats-value" id="countdown">15s</div>
+      <div class="stats-value" id="countdown">60s</div>
     </div>
 
   </div>
@@ -910,7 +833,7 @@
 
     <div class="scanner-head">
       <h2>Live Match Scanner</h2>
-      <div class="updated" id="lastUpdate">—</div>
+      <div class="updated" id="lastUpdate">Caricamento...</div>
     </div>
 
     <div class="table-wrap">
@@ -924,7 +847,6 @@
             <th>Ris.</th>
             <th>RTG</th>
             <th>Momentum</th>
-            <th>Trend</th>
             <th>Tiri</th>
             <th>In porta</th>
             <th>In area</th>
@@ -951,219 +873,54 @@
 
 <script>
 
-let matches = [
+let matches = [];
 
-  {
-    minute:67,
-    home:"Inter",
-    away:"Milan",
-    league:"Serie A",
-    homeGoals:0,
-    awayGoals:0,
-    rtg:18.4,
-    momentum:92,
-    previousMomentum:81,
-    shots:"14 - 6",
-    target:"6 - 2",
-    box:"9 - 3",
-    corners:"7 - 2"
-  },
+async function loadLiveMatches(){
 
-  {
-    minute:74,
-    home:"Arsenal",
-    away:"Chelsea",
-    league:"Premier League",
-    homeGoals:1,
-    awayGoals:0,
-    rtg:15.1,
-    momentum:78,
-    previousMomentum:72,
-    shots:"11 - 10",
-    target:"4 - 4",
-    box:"6 - 7",
-    corners:"4 - 5"
-  },
+  try{
 
-  {
-    minute:58,
-    home:"Torino",
-    away:"Parma",
-    league:"Serie A",
-    homeGoals:0,
-    awayGoals:0,
-    rtg:10.7,
-    momentum:61,
-    previousMomentum:63,
-    shots:"7 - 4",
-    target:"2 - 1",
-    box:"4 - 2",
-    corners:"3 - 1"
-  },
+    document.getElementById("lastUpdate").textContent =
+      "Aggiornamento dati...";
 
-  {
-    minute:81,
-    home:"Sevilla",
-    away:"Getafe",
-    league:"La Liga",
-    homeGoals:1,
-    awayGoals:1,
-    rtg:5.2,
-    momentum:27,
-    previousMomentum:39,
-    shots:"8 - 7",
-    target:"2 - 2",
-    box:"3 - 4",
-    corners:"2 - 3"
-  },
+    const response = await fetch("/api/soccertrend");
 
-  {
-    minute:35,
-    home:"PSV",
-    away:"Ajax",
-    league:"Eredivisie",
-    homeGoals:0,
-    awayGoals:0,
-    rtg:14.3,
-    momentum:83,
-    previousMomentum:66,
-    shots:"9 - 5",
-    target:"5 - 1",
-    box:"7 - 2",
-    corners:"5 - 1"
+    const data = await response.json();
+
+    if(!response.ok){
+
+      console.error("Errore API:", data);
+
+      document.getElementById("lastUpdate").textContent =
+        "Errore caricamento";
+
+      return;
+    }
+
+    matches = (data.matches || []).map(match => ({
+      ...match,
+
+      rtg:0,
+      momentum:0,
+
+      shots:"—",
+      target:"—",
+      box:"—",
+      corners:"—",
+
+      signal:"IN ATTESA"
+    }));
+
+    render();
+
+  }catch(error){
+
+    console.error("Errore SoccerTrend:", error);
+
+    document.getElementById("lastUpdate").textContent =
+      "Errore connessione";
+
   }
 
-];
-
-function trendInfo(match){
-
-  const diff = match.momentum - match.previousMomentum;
-
-  if(diff >= 10){
-    return {
-      text:"↑↑",
-      className:"trend-up",
-      label:"RAPIDA CRESCITA"
-    };
-  }
-
-  if(diff >= 3){
-    return {
-      text:"↑",
-      className:"trend-up",
-      label:"IN CRESCITA"
-    };
-  }
-
-  if(diff <= -8){
-    return {
-      text:"↓↓",
-      className:"trend-down",
-      label:"FORTE CALO"
-    };
-  }
-
-  if(diff <= -3){
-    return {
-      text:"↓",
-      className:"trend-down",
-      label:"IN CALO"
-    };
-  }
-
-  return {
-    text:"→",
-    className:"trend-flat",
-    label:"STABILE"
-  };
-}
-
-function getSignal(match){
-
-  const trend = trendInfo(match);
-  const diff = match.momentum - match.previousMomentum;
-
-  if(
-    match.momentum >= 80 &&
-    diff >= 10 &&
-    match.rtg >= 11
-  ){
-    return {
-      text:"🔥 RAPID PRESSURE",
-      className:"rapid"
-    };
-  }
-
-  if(
-    match.rtg >= 14 &&
-    match.momentum >= 70 &&
-    diff > -5
-  ){
-    return {
-      text:"🟢 STRONG",
-      className:"strong"
-    };
-  }
-
-  if(
-    match.rtg >= 9 &&
-    match.momentum >= 50
-  ){
-    return {
-      text:"🟡 WATCH",
-      className:"watch"
-    };
-  }
-
-  return {
-    text:"🔴 COLD",
-    className:"cold"
-  };
-}
-
-function rtgClass(rtg){
-
-  if(rtg >= 14) return "rtg-hot";
-  if(rtg >= 9) return "rtg-watch";
-
-  return "rtg-cold";
-}
-
-function fillClass(momentum){
-
-  if(momentum >= 70) return "fill-green";
-  if(momentum >= 45) return "fill-yellow";
-
-  return "fill-red";
-}
-
-function pressureScore(match){
-
-  const rtgPart = Math.min(100,(match.rtg / 20) * 100);
-  const momentumPart = match.momentum;
-
-  const trendDiff =
-    Math.max(-20,Math.min(20,match.momentum - match.previousMomentum));
-
-  const trendPart =
-    50 + (trendDiff * 2.5);
-
-  return Math.round(
-    (rtgPart * .42) +
-    (momentumPart * .43) +
-    (trendPart * .15)
-  );
-}
-
-function opportunityScore(match){
-
-  const pressure = pressureScore(match);
-
-  return (
-    pressure +
-    (match.rtg * 2) +
-    (match.momentum * .3)
-  );
 }
 
 function filteredMatches(){
@@ -1187,52 +944,53 @@ function filteredMatches(){
       .toLowerCase()
       .trim();
 
-  return matches
-    .filter(match => {
+  return matches.filter(match => {
 
-      if(match.minute < minMinute) return false;
-      if(match.rtg < minRtg) return false;
-      if(match.momentum < minMomentum) return false;
+    if(match.minute < minMinute) return false;
 
-      if(
-        search &&
-        !match.home.toLowerCase().includes(search) &&
-        !match.away.toLowerCase().includes(search)
-      ){
-        return false;
-      }
+    if(match.rtg < minRtg) return false;
 
-      if(
-        scoreFilter === "00" &&
-        !(match.homeGoals === 0 && match.awayGoals === 0)
-      ){
-        return false;
-      }
+    if(match.momentum < minMomentum) return false;
 
-      if(
-        scoreFilter === "draw" &&
-        match.homeGoals !== match.awayGoals
-      ){
-        return false;
-      }
+    if(
+      search &&
+      !match.home.toLowerCase().includes(search) &&
+      !match.away.toLowerCase().includes(search)
+    ){
+      return false;
+    }
 
-      return true;
+    if(
+      scoreFilter === "00" &&
+      !(match.homeGoals === 0 && match.awayGoals === 0)
+    ){
+      return false;
+    }
 
-    })
-    .sort((a,b) =>
-      opportunityScore(b) - opportunityScore(a)
-    );
+    if(
+      scoreFilter === "draw" &&
+      match.homeGoals !== match.awayGoals
+    ){
+      return false;
+    }
+
+    return true;
+
+  }).sort((a,b) => b.minute - a.minute);
+
 }
 
 function renderTop(match){
 
   if(!match){
+
+    document.getElementById("topHome").textContent = "—";
+    document.getElementById("topAway").textContent = "—";
+    document.getElementById("topScore").textContent = "— - —";
+    document.getElementById("topMinute").textContent = "LIVE";
+
     return;
   }
-
-  const signal = getSignal(match);
-  const trend = trendInfo(match);
-  const pressure = pressureScore(match);
 
   document.getElementById("topHome").textContent =
     match.home;
@@ -1241,69 +999,59 @@ function renderTop(match){
     match.away;
 
   document.getElementById("topLeague").textContent =
-    match.league;
+    `${match.country || ""} • ${match.league}`;
 
   document.getElementById("topScore").textContent =
     `${match.homeGoals} - ${match.awayGoals}`;
 
   document.getElementById("topMinute").textContent =
-    `LIVE • ${match.minute}'`;
+    `${match.status} • ${match.minute}'`;
 
   document.getElementById("topRtg").textContent =
-    match.rtg.toFixed(1);
+    "0.0";
 
   document.getElementById("topMomentum").textContent =
-    `${match.momentum}/100`;
+    "0";
 
   document.getElementById("topPressure").textContent =
-    trend.text;
+    "—";
 
   document.getElementById("topMomentumPercent").textContent =
-    `${match.momentum}%`;
+    "0%";
 
   document.getElementById("topMomentumBar").style.width =
-    `${match.momentum}%`;
+    "0%";
 
   document.getElementById("topShots").textContent =
-    match.shots;
+    "—";
 
   document.getElementById("topTarget").textContent =
-    match.target;
+    "—";
 
   document.getElementById("topBox").textContent =
-    match.box;
+    "—";
 
   document.getElementById("topCorners").textContent =
-    match.corners;
+    "—";
 
   document.getElementById("topSignal").textContent =
-    signal.text;
+    "IN ATTESA STATISTICHE";
 
   document.getElementById("gaugeValue").textContent =
-    pressure;
+    "0";
 
   document.getElementById("gauge").style.background =
-    `conic-gradient(
-      var(--green) 0deg ${pressure * 3.6}deg,
-      #1a293a ${pressure * 3.6}deg 360deg
-    )`;
+    "conic-gradient(var(--green) 0deg 0deg,#1a293a 0deg 360deg)";
 
   document.getElementById("pressureTrend").textContent =
-    trend.label;
+    "—";
 
   document.getElementById("rtgStatus").textContent =
-    match.rtg >= 14
-      ? "HOT"
-      : match.rtg >= 9
-      ? "WATCH"
-      : "LOW";
+    "—";
 
   document.getElementById("signalStatus").textContent =
-    signal.text
-      .replace("🔥 ","")
-      .replace("🟢 ","")
-      .replace("🟡 ","")
-      .replace("🔴 ","");
+    "—";
+
 }
 
 function render(){
@@ -1315,124 +1063,97 @@ function render(){
 
   tbody.innerHTML = "";
 
-  data.forEach(match => {
+  if(data.length === 0){
 
-    const signal = getSignal(match);
-    const trend = trendInfo(match);
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="10" class="empty">
+          Nessuna partita trovata con questi filtri.
+        </td>
+      </tr>
+    `;
 
-    const tr =
-      document.createElement("tr");
+  }else{
 
-    if(
-      signal.className === "strong" ||
-      signal.className === "rapid"
-    ){
-      tr.classList.add("hot-row");
-    }
+    data.forEach(match => {
 
-    tr.innerHTML = `
+      const tr =
+        document.createElement("tr");
 
-      <td class="minute">
-        ${match.minute}'
-      </td>
+      tr.innerHTML = `
 
-      <td class="match-cell">
+        <td class="minute">
+          ${match.minute}'
+        </td>
 
-        <div class="teams">
-          ${match.home} - ${match.away}
-        </div>
+        <td class="match-cell">
 
-        <div class="league">
-          ${match.league}
-        </div>
-
-      </td>
-
-      <td class="score">
-        ${match.homeGoals}-${match.awayGoals}
-      </td>
-
-      <td>
-
-        <span class="rtg ${rtgClass(match.rtg)}">
-          ${match.rtg.toFixed(1)}
-        </span>
-
-      </td>
-
-      <td>
-
-        <div class="momentum-small">
-
-          <div class="momentum-number">
-            ${match.momentum}
+          <div class="teams">
+            ${match.home} - ${match.away}
           </div>
 
-          <div class="small-track">
+          <div class="league">
+            ${match.country || ""} • ${match.league}
+          </div>
 
-            <div
-              class="small-fill ${fillClass(match.momentum)}"
-              style="width:${match.momentum}%">
+        </td>
+
+        <td class="score">
+          ${match.homeGoals}-${match.awayGoals}
+        </td>
+
+        <td>
+          <span class="rtg">
+            ${match.rtg.toFixed(1)}
+          </span>
+        </td>
+
+        <td>
+
+          <div class="momentum-small">
+
+            <div class="momentum-number">
+              ${match.momentum}
+            </div>
+
+            <div class="small-track">
+              <div
+                class="small-fill"
+                style="width:${match.momentum}%">
+              </div>
             </div>
 
           </div>
 
-        </div>
+        </td>
 
-      </td>
+        <td>${match.shots}</td>
+        <td>${match.target}</td>
+        <td>${match.box}</td>
+        <td>${match.corners}</td>
 
-      <td>
+        <td>
+          <span class="signal">
+            ${match.signal}
+          </span>
+        </td>
 
-        <span class="trend ${trend.className}">
-          ${trend.text}
-        </span>
+      `;
 
-      </td>
+      tbody.appendChild(tr);
 
-      <td>${match.shots}</td>
-      <td>${match.target}</td>
-      <td>${match.box}</td>
-      <td>${match.corners}</td>
+    });
 
-      <td>
-
-        <span class="signal ${signal.className}">
-          ${signal.text}
-        </span>
-
-      </td>
-
-    `;
-
-    tbody.appendChild(tr);
-
-  });
+  }
 
   document.getElementById("liveCount").textContent =
     data.length;
 
-  const strong =
-    data.filter(match => {
-
-      const signal = getSignal(match);
-
-      return (
-        signal.className === "strong" ||
-        signal.className === "rapid"
-      );
-
-    }).length;
-
   document.getElementById("strongCount").textContent =
-    strong;
-
-  const avg =
-    data.length
-      ? data.reduce((sum,m) => sum + m.rtg,0) / data.length
-      : 0;
+    0;
 
   document.getElementById("avgRtg").textContent =
-    avg.toFixed(1);
+    "0.0";
 
   document.getElementById("lastUpdate").textContent =
     "Aggiornato: " +
@@ -1450,7 +1171,7 @@ document
 
   });
 
-let seconds = 15;
+let seconds = 60;
 
 setInterval(() => {
 
@@ -1458,38 +1179,9 @@ setInterval(() => {
 
   if(seconds <= 0){
 
-    seconds = 15;
+    seconds = 60;
 
-    matches =
-      matches.map(match => {
-
-        const previous =
-          match.momentum;
-
-        let newMomentum =
-          match.momentum +
-          Math.floor(Math.random() * 15) - 7;
-
-        newMomentum =
-          Math.max(5,Math.min(100,newMomentum));
-
-        let newRtg =
-          match.rtg +
-          (Math.random() * 1.4 - .7);
-
-        newRtg =
-          Math.max(0,newRtg);
-
-        return {
-          ...match,
-          previousMomentum:previous,
-          momentum:newMomentum,
-          rtg:newRtg
-        };
-
-      });
-
-    render();
+    loadLiveMatches();
 
   }
 
@@ -1498,7 +1190,7 @@ setInterval(() => {
 
 },1000);
 
-render();
+loadLiveMatches();
 
 </script>
 
