@@ -35,27 +35,10 @@ function parseTeamStats(teamBlock) {
 }
 
 function calculateRtg(home, away) {
-
-  const totalTarget =
-    home.shotsOnGoal + away.shotsOnGoal;
-
-  const totalInside =
-    home.shotsInsideBox + away.shotsInsideBox;
-
-  const totalShots =
-    home.totalShots + away.totalShots;
-
-  const totalCorners =
-    home.corners + away.corners;
-
-  /*
-    PRIMA FORMULA SOCCERTREND
-
-    Tiro in porta  = peso alto
-    Tiro in area    = peso medio
-    Tiro totale     = peso basso
-    Corner          = pressione offensiva
-  */
+  const totalTarget = home.shotsOnGoal + away.shotsOnGoal;
+  const totalInside = home.shotsInsideBox + away.shotsInsideBox;
+  const totalShots = home.totalShots + away.totalShots;
+  const totalCorners = home.corners + away.corners;
 
   const raw =
     (totalTarget * 1.8) +
@@ -67,9 +50,7 @@ function calculateRtg(home, away) {
 }
 
 module.exports = async (req, res) => {
-
   try {
-
     const apiKey = process.env.API_FOOTBALL_KEY;
 
     if (!apiKey) {
@@ -78,29 +59,25 @@ module.exports = async (req, res) => {
       });
     }
 
-    /*
-      MODALITÀ 1:
-      nessun ids passato -> elenco di tutte le partite live
-    */
-
     const idsParam = String(req.query.ids || "").trim();
 
     let url;
 
     if (idsParam) {
-
       const ids = idsParam
         .split("-")
         .filter(Boolean)
-        .slice(0, 20)
-        .join("-");
+        .slice(0, 20);
 
-      url = `${API_BASE}/fixtures?ids=${encodeURIComponent(ids)}`;
+      // Se c'è una sola partita usiamo ?id=
+      if (ids.length === 1) {
+        url = `${API_BASE}/fixtures?id=${ids[0]}`;
+      } else {
+        url = `${API_BASE}/fixtures?ids=${ids.join("-")}`;
+      }
 
     } else {
-
       url = `${API_BASE}/fixtures?live=all`;
-
     }
 
     const response = await fetch(url, {
@@ -111,17 +88,22 @@ module.exports = async (req, res) => {
 
     const data = await response.json();
 
-    if (!response.ok) {
-      return res.status(response.status).json({
-        error: "Errore API-Football",
-        details: data
+    // Mostriamo eventuali errori API-Football
+    if (
+      data.errors &&
+      Object.keys(data.errors).length > 0
+    ) {
+      return res.status(200).json({
+        success: false,
+        apiErrors: data.errors,
+        parameters: data.parameters || {},
+        results: data.results ?? null
       });
     }
 
     const fixtures = data.response || [];
 
     const matches = fixtures.map(item => {
-
       const teamStats =
         Array.isArray(item.statistics)
           ? item.statistics
@@ -130,8 +112,7 @@ module.exports = async (req, res) => {
       const homeStats = parseTeamStats(teamStats[0]);
       const awayStats = parseTeamStats(teamStats[1]);
 
-      const hasStats =
-        teamStats.length >= 2;
+      const hasStats = teamStats.length >= 2;
 
       const rtg =
         hasStats
@@ -139,72 +120,41 @@ module.exports = async (req, res) => {
           : 0;
 
       return {
-
         id: item.fixture?.id,
 
-        league:
-          item.league?.name || "",
+        league: item.league?.name || "",
+        country: item.league?.country || "",
 
-        country:
-          item.league?.country || "",
+        minute: item.fixture?.status?.elapsed || 0,
+        status: item.fixture?.status?.short || "",
 
-        minute:
-          item.fixture?.status?.elapsed || 0,
+        home: item.teams?.home?.name || "",
+        away: item.teams?.away?.name || "",
 
-        status:
-          item.fixture?.status?.short || "",
-
-        home:
-          item.teams?.home?.name || "",
-
-        away:
-          item.teams?.away?.name || "",
-
-        homeLogo:
-          item.teams?.home?.logo || "",
-
-        awayLogo:
-          item.teams?.away?.logo || "",
-
-        homeGoals:
-          item.goals?.home ?? 0,
-
-        awayGoals:
-          item.goals?.away ?? 0,
+        homeGoals: item.goals?.home ?? 0,
+        awayGoals: item.goals?.away ?? 0,
 
         hasStats,
-
         rtg,
 
         stats: {
-
           home: homeStats,
           away: awayStats,
 
           totalShots:
-            homeStats.totalShots +
-            awayStats.totalShots,
+            homeStats.totalShots + awayStats.totalShots,
 
           shotsOnGoal:
-            homeStats.shotsOnGoal +
-            awayStats.shotsOnGoal,
+            homeStats.shotsOnGoal + awayStats.shotsOnGoal,
 
           shotsInsideBox:
-            homeStats.shotsInsideBox +
-            awayStats.shotsInsideBox,
+            homeStats.shotsInsideBox + awayStats.shotsInsideBox,
 
           corners:
-            homeStats.corners +
-            awayStats.corners
+            homeStats.corners + awayStats.corners
         }
       };
-
     });
-
-    /*
-      Leggiamo anche le informazioni sulla quota API
-      quando API-Sports ce le restituisce.
-    */
 
     const remaining =
       response.headers.get("x-ratelimit-requests-remaining");
@@ -213,8 +163,12 @@ module.exports = async (req, res) => {
       response.headers.get("x-ratelimit-requests-limit");
 
     return res.status(200).json({
-
       success: true,
+
+      queryMode:
+        idsParam
+          ? "DETAIL"
+          : "LIVE",
 
       count: matches.length,
 
@@ -234,11 +188,9 @@ module.exports = async (req, res) => {
     });
 
   } catch (error) {
-
     return res.status(500).json({
       error: "Errore interno SoccerTrend",
       details: String(error?.message || error)
     });
-
   }
 };
