@@ -1,56 +1,91 @@
 const API_BASE = "https://v3.football.api-sports.io";
 
 function numberOrZero(value) {
+  if (value === null || value === undefined) return 0;
+
+  if (typeof value === "string" && value.includes("%")) {
+    value = value.replace("%", "");
+  }
+
   const n = Number(value);
   return Number.isFinite(n) ? n : 0;
 }
 
-function statValue(statistics, name) {
-  const item = statistics?.find(
+function getStat(stats, name) {
+  const found = (stats || []).find(
     s => String(s.type || "").toLowerCase() === name.toLowerCase()
   );
 
-  if (!item) return 0;
-
-  if (typeof item.value === "string" && item.value.includes("%")) {
-    return numberOrZero(item.value.replace("%", ""));
-  }
-
-  return numberOrZero(item.value);
+  return found ? numberOrZero(found.value) : 0;
 }
 
-function parseTeamStats(teamBlock) {
+function parseStats(teamBlock) {
   const stats = teamBlock?.statistics || [];
 
   return {
-    shotsOnGoal: statValue(stats, "Shots on Goal"),
-    shotsOffGoal: statValue(stats, "Shots off Goal"),
-    totalShots: statValue(stats, "Total Shots"),
-    blockedShots: statValue(stats, "Blocked Shots"),
-    shotsInsideBox: statValue(stats, "Shots insidebox"),
-    shotsOutsideBox: statValue(stats, "Shots outsidebox"),
-    corners: statValue(stats, "Corner Kicks"),
-    possession: statValue(stats, "Ball Possession")
+    shotsOnGoal: getStat(stats, "Shots on Goal"),
+    shotsOffGoal: getStat(stats, "Shots off Goal"),
+    totalShots: getStat(stats, "Total Shots"),
+    blockedShots: getStat(stats, "Blocked Shots"),
+    shotsInsideBox: getStat(stats, "Shots insidebox"),
+    shotsOutsideBox: getStat(stats, "Shots outsidebox"),
+    corners: getStat(stats, "Corner Kicks"),
+    possession: getStat(stats, "Ball Possession"),
+    goalkeeperSaves: getStat(stats, "Goalkeeper Saves")
   };
 }
 
 function calculateRtg(home, away) {
-  const totalTarget = home.shotsOnGoal + away.shotsOnGoal;
-  const totalInside = home.shotsInsideBox + away.shotsInsideBox;
-  const totalShots = home.totalShots + away.totalShots;
-  const totalCorners = home.corners + away.corners;
+  const shotsOnGoal =
+    home.shotsOnGoal + away.shotsOnGoal;
 
-  const raw =
-    (totalTarget * 1.8) +
-    (totalInside * 0.65) +
-    (totalShots * 0.18) +
-    (totalCorners * 0.55);
+  const shotsInsideBox =
+    home.shotsInsideBox + away.shotsInsideBox;
 
-  return Math.round(raw * 10) / 10;
+  const totalShots =
+    home.totalShots + away.totalShots;
+
+  const corners =
+    home.corners + away.corners;
+
+  const blockedShots =
+    home.blockedShots + away.blockedShots;
+
+  /*
+    Formula RTG iniziale SoccerTrend.
+    La miglioreremo dopo aver raccolto dati reali.
+  */
+
+  const rtg =
+      (shotsOnGoal * 1.8)
+    + (shotsInsideBox * 0.65)
+    + (totalShots * 0.18)
+    + (corners * 0.55)
+    + (blockedShots * 0.20);
+
+  return Math.round(rtg * 10) / 10;
+}
+
+async function apiRequest(path, apiKey) {
+
+  const response = await fetch(`${API_BASE}${path}`, {
+    headers: {
+      "x-apisports-key": apiKey
+    }
+  });
+
+  const data = await response.json();
+
+  return {
+    response,
+    data
+  };
 }
 
 module.exports = async (req, res) => {
+
   try {
+
     const apiKey = process.env.API_FOOTBALL_KEY;
 
     if (!apiKey) {
@@ -59,120 +94,222 @@ module.exports = async (req, res) => {
       });
     }
 
-    const idsParam = String(req.query.ids || "").trim();
+    /*
+      -----------------------------------------
+      MODALITÀ STATISTICHE
 
-    let url;
+      /api/soccertrend?stats=1563650
+      -----------------------------------------
+    */
 
-    if (idsParam) {
-      const ids = idsParam
-        .split("-")
-        .filter(Boolean)
-        .slice(0, 20);
+    const statsFixture =
+      String(req.query.stats || "").trim();
 
-      // Se c'è una sola partita usiamo ?id=
-      if (ids.length === 1) {
-        url = `${API_BASE}/fixtures?id=${ids[0]}`;
-      } else {
-        url = `${API_BASE}/fixtures?ids=${ids.join("-")}`;
+    if (statsFixture) {
+
+      const { response, data } =
+        await apiRequest(
+          `/fixtures/statistics?fixture=${encodeURIComponent(statsFixture)}`,
+          apiKey
+        );
+
+      if (
+        data.errors &&
+        Object.keys(data.errors).length > 0
+      ) {
+        return res.status(200).json({
+          success: false,
+          mode: "STATS",
+          errors: data.errors
+        });
       }
 
-    } else {
-      url = `${API_BASE}/fixtures?live=all`;
+      const blocks = data.response || [];
+
+      const homeBlock = blocks[0] || null;
+      const awayBlock = blocks[1] || null;
+
+      const home = parseStats(homeBlock);
+      const away = parseStats(awayBlock);
+
+      const hasStats =
+        blocks.length >= 2;
+
+      const rtg =
+        hasStats
+          ? calculateRtg(home, away)
+          : 0;
+
+      const remaining =
+        response.headers.get(
+          "x-ratelimit-requests-remaining"
+        );
+
+      const limit =
+        response.headers.get(
+          "x-ratelimit-requests-limit"
+        );
+
+      return res.status(200).json({
+
+        success: true,
+
+        mode: "STATS",
+
+        fixture: Number(statsFixture),
+
+        hasStats,
+
+        teams: {
+
+          home: {
+            name: homeBlock?.team?.name || "",
+            logo: homeBlock?.team?.logo || "",
+            ...home
+          },
+
+          away: {
+            name: awayBlock?.team?.name || "",
+            logo: awayBlock?.team?.logo || "",
+            ...away
+          }
+
+        },
+
+        totals: {
+
+          shotsOnGoal:
+            home.shotsOnGoal +
+            away.shotsOnGoal,
+
+          shotsOffGoal:
+            home.shotsOffGoal +
+            away.shotsOffGoal,
+
+          totalShots:
+            home.totalShots +
+            away.totalShots,
+
+          blockedShots:
+            home.blockedShots +
+            away.blockedShots,
+
+          shotsInsideBox:
+            home.shotsInsideBox +
+            away.shotsInsideBox,
+
+          corners:
+            home.corners +
+            away.corners
+
+        },
+
+        rtg,
+
+        api: {
+
+          remaining:
+            remaining !== null
+              ? Number(remaining)
+              : null,
+
+          limit:
+            limit !== null
+              ? Number(limit)
+              : null
+        }
+
+      });
+
     }
 
-    const response = await fetch(url, {
-      headers: {
-        "x-apisports-key": apiKey
-      }
-    });
+    /*
+      -----------------------------------------
+      MODALITÀ LIVE
 
-    const data = await response.json();
+      /api/soccertrend
+      -----------------------------------------
+    */
 
-    // Mostriamo eventuali errori API-Football
+    const { response, data } =
+      await apiRequest(
+        "/fixtures?live=all",
+        apiKey
+      );
+
     if (
       data.errors &&
       Object.keys(data.errors).length > 0
     ) {
       return res.status(200).json({
         success: false,
-        apiErrors: data.errors,
-        parameters: data.parameters || {},
-        results: data.results ?? null
+        mode: "LIVE",
+        errors: data.errors
       });
     }
 
-    const fixtures = data.response || [];
+    const fixtures =
+      data.response || [];
 
-    const matches = fixtures.map(item => {
-      const teamStats =
-        Array.isArray(item.statistics)
-          ? item.statistics
-          : [];
+    const matches =
+      fixtures.map(item => ({
 
-      const homeStats = parseTeamStats(teamStats[0]);
-      const awayStats = parseTeamStats(teamStats[1]);
+        id:
+          item.fixture?.id,
 
-      const hasStats = teamStats.length >= 2;
+        league:
+          item.league?.name || "",
 
-      const rtg =
-        hasStats
-          ? calculateRtg(homeStats, awayStats)
-          : 0;
+        country:
+          item.league?.country || "",
 
-      return {
-        id: item.fixture?.id,
+        minute:
+          item.fixture?.status?.elapsed || 0,
 
-        league: item.league?.name || "",
-        country: item.league?.country || "",
+        status:
+          item.fixture?.status?.short || "",
 
-        minute: item.fixture?.status?.elapsed || 0,
-        status: item.fixture?.status?.short || "",
+        home:
+          item.teams?.home?.name || "",
 
-        home: item.teams?.home?.name || "",
-        away: item.teams?.away?.name || "",
+        away:
+          item.teams?.away?.name || "",
 
-        homeGoals: item.goals?.home ?? 0,
-        awayGoals: item.goals?.away ?? 0,
+        homeLogo:
+          item.teams?.home?.logo || "",
 
-        hasStats,
-        rtg,
+        awayLogo:
+          item.teams?.away?.logo || "",
 
-        stats: {
-          home: homeStats,
-          away: awayStats,
+        homeGoals:
+          item.goals?.home ?? 0,
 
-          totalShots:
-            homeStats.totalShots + awayStats.totalShots,
+        awayGoals:
+          item.goals?.away ?? 0
 
-          shotsOnGoal:
-            homeStats.shotsOnGoal + awayStats.shotsOnGoal,
-
-          shotsInsideBox:
-            homeStats.shotsInsideBox + awayStats.shotsInsideBox,
-
-          corners:
-            homeStats.corners + awayStats.corners
-        }
-      };
-    });
+      }));
 
     const remaining =
-      response.headers.get("x-ratelimit-requests-remaining");
+      response.headers.get(
+        "x-ratelimit-requests-remaining"
+      );
 
     const limit =
-      response.headers.get("x-ratelimit-requests-limit");
+      response.headers.get(
+        "x-ratelimit-requests-limit"
+      );
 
     return res.status(200).json({
+
       success: true,
 
-      queryMode:
-        idsParam
-          ? "DETAIL"
-          : "LIVE",
+      mode: "LIVE",
 
-      count: matches.length,
+      count:
+        matches.length,
 
       api: {
+
         remaining:
           remaining !== null
             ? Number(remaining)
@@ -182,15 +319,25 @@ module.exports = async (req, res) => {
           limit !== null
             ? Number(limit)
             : null
+
       },
 
       matches
+
     });
 
   } catch (error) {
+
     return res.status(500).json({
-      error: "Errore interno SoccerTrend",
-      details: String(error?.message || error)
+
+      error:
+        "Errore interno SoccerTrend",
+
+      details:
+        String(error?.message || error)
+
     });
+
   }
+
 };
