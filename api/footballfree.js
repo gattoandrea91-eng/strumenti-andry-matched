@@ -38,6 +38,13 @@ async function fotmobFetch(url) {
   return JSON.parse(text);
 }
 
+
+/*
+==========================================
+CERCA UNA STATISTICA FOTMOB
+==========================================
+*/
+
 function findStat(statsRoot, wantedKey) {
   const allPeriod =
     statsRoot?.Periods?.All?.stats || [];
@@ -57,6 +64,13 @@ function findStat(statsRoot, wantedKey) {
 
   return [0, 0];
 }
+
+
+/*
+==========================================
+CONVERSIONE NUMERO
+==========================================
+*/
 
 function num(value) {
   if (
@@ -87,18 +101,37 @@ function num(value) {
     : 0;
 }
 
+
+/*
+==========================================
+STAT HOME / AWAY / TOTAL
+==========================================
+*/
+
 function pair(statsRoot, key) {
   const values =
     findStat(statsRoot, key);
 
+  const home =
+    num(values?.[0]);
+
+  const away =
+    num(values?.[1]);
+
   return {
-    home: num(values?.[0]),
-    away: num(values?.[1]),
+    home,
+    away,
     total:
-      num(values?.[0]) +
-      num(values?.[1])
+      home + away
   };
 }
+
+
+/*
+==========================================
+RTG SOCCERTREND
+==========================================
+*/
 
 function calculateRtg(stats) {
   const totalShots =
@@ -123,8 +156,17 @@ function calculateRtg(stats) {
     + (touchesBox * 0.6)
     + (bigChances * 5);
 
-  return Math.round(raw * 10) / 10;
+  return Math.round(
+    raw * 10
+  ) / 10;
 }
+
+
+/*
+==========================================
+MOMENTUM
+==========================================
+*/
 
 function normalizeMomentum(rawMomentum) {
   if (!rawMomentum) {
@@ -145,6 +187,7 @@ function normalizeMomentum(rawMomentum) {
 
   return [];
 }
+
 
 function lastMomentumValue(momentum) {
   const arr =
@@ -168,16 +211,77 @@ function lastMomentumValue(momentum) {
   return null;
 }
 
+
+/*
+==========================================
+MINUTO LIVE
+==========================================
+*/
+
+function getLiveMinute(status) {
+  if (!status) {
+    return "";
+  }
+
+  /*
+    FotMob può restituire liveTime
+    in formati leggermente diversi.
+  */
+
+  if (status.liveTime?.short) {
+    return String(
+      status.liveTime.short
+    );
+  }
+
+  if (status.liveTime?.long) {
+    return String(
+      status.liveTime.long
+    );
+  }
+
+  if (typeof status.liveTime === "string") {
+    return status.liveTime;
+  }
+
+  /*
+    In alcuni casi reason contiene
+    direttamente il minuto, tipo 67'
+  */
+
+  if (
+    status.reason &&
+    String(status.reason).includes("'")
+  ) {
+    return String(
+      status.reason
+    );
+  }
+
+  return "";
+}
+
+
+/*
+==========================================
+MAIN
+==========================================
+*/
+
 module.exports = async (req, res) => {
   try {
 
     const matchId =
-      String(req.query.matchId || "").trim();
+      String(
+        req.query.matchId || ""
+      ).trim();
 
 
     /*
     ==========================================
     DETTAGLIO PARTITA
+
+    /api/footballfree?matchId=123
     ==========================================
     */
 
@@ -193,6 +297,13 @@ module.exports = async (req, res) => {
 
       const statsRoot =
         content?.stats || {};
+
+
+      /*
+      ========================================
+      STATISTICHE
+      ========================================
+      */
 
       const stats = {
 
@@ -246,8 +357,24 @@ module.exports = async (req, res) => {
 
       };
 
+
+      /*
+      ========================================
+      RTG
+      ========================================
+      */
+
       const rtg =
-        calculateRtg(stats);
+        calculateRtg(
+          stats
+        );
+
+
+      /*
+      ========================================
+      MOMENTUM
+      ========================================
+      */
 
       const momentum =
         content?.momentum ||
@@ -255,16 +382,45 @@ module.exports = async (req, res) => {
         null;
 
       const momentumArray =
-        normalizeMomentum(momentum);
+        normalizeMomentum(
+          momentum
+        );
 
       const latestMomentum =
-        lastMomentumValue(momentum);
+        lastMomentumValue(
+          momentum
+        );
+
+
+      /*
+      ========================================
+      EVENTI / SHOTMAP
+      ========================================
+      */
 
       const events =
         content?.matchFacts?.events || [];
 
       const shotmap =
         content?.shotmap || null;
+
+
+      /*
+      ========================================
+      STATUS / MINUTO DETTAGLIO
+      ========================================
+      */
+
+      const matchStatus =
+        data?.general?.matchStatus ||
+        data?.general?.status ||
+        "";
+
+      const matchTime =
+        data?.general?.matchTime ||
+        data?.general?.liveTime ||
+        "";
+
 
       return res.status(200).json({
 
@@ -278,18 +434,23 @@ module.exports = async (req, res) => {
           data?.general?.matchName || "",
 
         status:
-          data?.general?.matchStatus || "",
+          matchStatus,
+
+        minute:
+          matchTime,
 
         stats,
 
         rtg,
 
         momentum: {
+
           latest:
             latestMomentum,
 
           history:
             momentumArray
+
         },
 
         events,
@@ -316,6 +477,8 @@ module.exports = async (req, res) => {
     /*
     ==========================================
     PARTITE LIVE DI OGGI
+
+    /api/footballfree
     ==========================================
     */
 
@@ -325,30 +488,46 @@ module.exports = async (req, res) => {
         todayYYYYMMDD()
       );
 
+
     const data =
       await fotmobFetch(
         `${FOTMOB_BASE}/matches?date=${encodeURIComponent(date)}`
       );
 
+
     const leagues =
-      Array.isArray(data?.leagues)
+      Array.isArray(
+        data?.leagues
+      )
         ? data.leagues
         : [];
+
 
     const matches =
       [];
 
+
     for (const league of leagues) {
 
       const leagueMatches =
-        Array.isArray(league.matches)
+        Array.isArray(
+          league.matches
+        )
           ? league.matches
           : [];
+
 
       for (const match of leagueMatches) {
 
         const status =
           match.status || {};
+
+
+        const minute =
+          getLiveMinute(
+            status
+          );
+
 
         matches.push({
 
@@ -391,6 +570,22 @@ module.exports = async (req, res) => {
           score:
             status.scoreStr || "",
 
+
+          /*
+          ==============================
+          MINUTO LIVE
+          ==============================
+          */
+
+          minute,
+
+
+          /*
+          Manteniamo anche reason
+          perché può essere utile per
+          HT, FT, ET, ecc.
+          */
+
           reason:
             status.reason || "",
 
@@ -403,12 +598,21 @@ module.exports = async (req, res) => {
 
     }
 
+
+    /*
+    ==========================================
+    SOLO LIVE
+    ==========================================
+    */
+
     const liveMatches =
-      matches.filter(match =>
-        match.started &&
-        !match.finished &&
-        !match.cancelled
+      matches.filter(
+        match =>
+          match.started &&
+          !match.finished &&
+          !match.cancelled
       );
+
 
     return res.status(200).json({
 
@@ -427,6 +631,7 @@ module.exports = async (req, res) => {
       liveMatches
 
     });
+
 
   } catch (error) {
 
