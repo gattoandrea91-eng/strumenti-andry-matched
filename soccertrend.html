@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+   <!DOCTYPE html>
 <html lang="it">
 <head>
   <meta charset="UTF-8">
@@ -71,8 +71,6 @@
       padding:26px 18px 65px;
     }
 
-    /* HEADER */
-
     .topbar{
       display:flex;
       align-items:center;
@@ -113,10 +111,8 @@
 
     .brand h1{
       margin:0;
-
       font-size:35px;
       font-weight:900;
-
       letter-spacing:-1px;
     }
 
@@ -126,9 +122,7 @@
 
     .brand p{
       margin:5px 0 0;
-
       color:var(--muted);
-
       font-size:12px;
     }
 
@@ -201,14 +195,10 @@
       font-size:11px;
     }
 
-    /* HERO */
-
     .hero{
       display:grid;
       grid-template-columns:1.25fr .75fr;
-
       gap:17px;
-
       margin-bottom:17px;
     }
 
@@ -221,9 +211,7 @@
         );
 
       border:1px solid var(--line);
-
       border-radius:22px;
-
       box-shadow:var(--shadow);
     }
 
@@ -235,20 +223,15 @@
       display:flex;
       align-items:center;
       justify-content:space-between;
-
       gap:10px;
-
       padding:16px 19px;
-
       border-bottom:1px solid var(--line);
     }
 
     .card-title{
       color:#fde68a;
-
       font-size:11px;
       font-weight:900;
-
       letter-spacing:.08em;
     }
 
@@ -263,21 +246,18 @@
 
     .match-line{
       display:grid;
-
       grid-template-columns:
         minmax(0,1fr)
         auto
         minmax(0,1fr);
 
       align-items:center;
-
       gap:18px;
     }
 
     .team{
       font-size:24px;
       font-weight:900;
-
       overflow-wrap:anywhere;
     }
 
@@ -297,63 +277,41 @@
 
     .minute{
       display:inline-block;
-
       margin-top:6px;
-
       padding:5px 9px;
-
       border-radius:999px;
-
       color:#bfdbfe;
-
-      background:
-        rgba(96,165,250,.09);
-
-      border:
-        1px solid rgba(96,165,250,.18);
-
+      background:rgba(96,165,250,.09);
+      border:1px solid rgba(96,165,250,.18);
       font-size:10px;
       font-weight:bold;
     }
 
-    /* RTG */
-
     .rtg-grid{
       display:grid;
       grid-template-columns:repeat(3,1fr);
-
       gap:11px;
-
       margin-top:22px;
     }
 
     .metric{
       padding:15px;
-
       text-align:center;
-
       border-radius:15px;
-
-      background:
-        rgba(1,7,15,.40);
-
-      border:
-        1px solid var(--line);
+      background:rgba(1,7,15,.40);
+      border:1px solid var(--line);
     }
 
     .metric-label{
       color:var(--muted);
-
       font-size:9px;
       font-weight:bold;
-
       text-transform:uppercase;
       letter-spacing:.08em;
     }
 
     .metric-value{
       margin-top:7px;
-
       font-size:27px;
       font-weight:900;
     }
@@ -370,29 +328,19 @@
       color:var(--yellow);
     }
 
-    /* RTG HISTORY */
-
     .history-box{
       margin-top:19px;
-
       padding:15px;
-
       border-radius:16px;
-
-      background:
-        rgba(1,7,15,.36);
-
-      border:
-        1px solid var(--line);
+      background:rgba(1,7,15,.36);
+      border:1px solid var(--line);
     }
 
     .history-head{
       display:flex;
       align-items:center;
       justify-content:space-between;
-
       gap:10px;
-
       margin-bottom:13px;
     }
 
@@ -407,157 +355,108 @@
 
     .history-bars{
       height:110px;
-
       display:flex;
       align-items:flex-end;
-
       gap:6px;
-
       overflow-x:auto;
-
       padding-bottom:4px;
     }
 
     .history-column{
-      min-width:29px;
-
+      min-width:33px;
       display:flex;
       flex-direction:column;
       align-items:center;
       justify-content:flex-end;
-
       height:100%;
     }
 
     .history-value{
       margin-bottom:4px;
-
       color:#cbd5e1;
-
       font-size:8px;
       font-weight:bold;
     }
 
     .history-bar{
       width:17px;
-
       min-height:3px;
-
       border-radius:5px 5px 2px 2px;
-
       background:
         linear-gradient(
           180deg,
           var(--green),
           var(--green2)
         );
-
       transition:.3s ease;
     }
 
     .history-minute{
       margin-top:5px;
-
       color:#64748b;
-
       font-size:8px;
+      white-space:nowrap;
     }
-
-    /* STATS */
 
     .stats-grid{
       display:grid;
       grid-template-columns:repeat(5,1fr);
-
       gap:9px;
-
       margin-top:18px;
     }
 
     .stat{
       padding:11px 8px;
-
       text-align:center;
-
       border-radius:13px;
-
-      background:
-        rgba(2,8,18,.40);
-
-      border:
-        1px solid var(--line);
+      background:rgba(2,8,18,.40);
+      border:1px solid var(--line);
     }
 
     .stat strong{
       display:block;
-
       margin-bottom:4px;
-
       font-size:17px;
     }
 
     .stat span{
       color:var(--muted);
-
       font-size:9px;
     }
 
     .stat-detail{
       margin-top:4px;
-
       color:#64748b;
-
       font-size:8px;
     }
 
-    /* SIGNAL */
-
     .signal{
       margin-top:17px;
-
       padding:13px;
-
       text-align:center;
-
       border-radius:14px;
-
       font-size:11px;
       font-weight:900;
-
       letter-spacing:.06em;
     }
 
     .signal-hot{
       color:#a7f3d0;
-
-      background:
-        rgba(53,229,155,.11);
-
-      border:
-        1px solid rgba(53,229,155,.28);
+      background:rgba(53,229,155,.11);
+      border:1px solid rgba(53,229,155,.28);
     }
 
     .signal-watch{
       color:#fef08a;
-
-      background:
-        rgba(250,204,21,.09);
-
-      border:
-        1px solid rgba(250,204,21,.22);
+      background:rgba(250,204,21,.09);
+      border:1px solid rgba(250,204,21,.22);
     }
 
     .signal-cold{
       color:#cbd5e1;
-
-      background:
-        rgba(148,163,184,.06);
-
-      border:
-        1px solid rgba(148,163,184,.14);
+      background:rgba(148,163,184,.06);
+      border:1px solid rgba(148,163,184,.14);
     }
-
-    /* RIGHT */
 
     .side-card{
       padding:19px;
@@ -565,24 +464,18 @@
 
     .side-card h3{
       margin:0 0 16px;
-
       font-size:16px;
     }
 
     .gauge{
       position:relative;
-
       width:180px;
       height:180px;
-
       margin:12px auto 20px;
-
       display:flex;
       align-items:center;
       justify-content:center;
-
       border-radius:50%;
-
       background:
         conic-gradient(
           var(--green) 0deg 0deg,
@@ -592,39 +485,30 @@
 
     .gauge::after{
       content:"";
-
       position:absolute;
-
       width:143px;
       height:143px;
-
       border-radius:50%;
-
       background:#0a1726;
-
       border:1px solid var(--line);
     }
 
     .gauge-inner{
       position:relative;
       z-index:2;
-
       text-align:center;
     }
 
     .gauge-value{
       font-size:40px;
       font-weight:900;
-
       color:var(--green);
     }
 
     .gauge-label{
       color:var(--muted);
-
       font-size:9px;
       font-weight:bold;
-
       text-transform:uppercase;
     }
 
@@ -632,21 +516,12 @@
       display:flex;
       align-items:center;
       justify-content:space-between;
-
       gap:12px;
-
       margin-top:9px;
-
       padding:11px 12px;
-
       border-radius:12px;
-
-      background:
-        rgba(1,7,15,.36);
-
-      border:
-        1px solid var(--line);
-
+      background:rgba(1,7,15,.36);
+      border:1px solid var(--line);
       font-size:10px;
     }
 
@@ -658,105 +533,70 @@
       text-align:right;
     }
 
-    /* FILTERS */
-
     .filters{
       display:grid;
       grid-template-columns:repeat(4,1fr);
-
       gap:10px;
-
       margin-bottom:14px;
-
       padding:14px;
-
       border-radius:17px;
-
       background:var(--panel);
-
       border:1px solid var(--line);
     }
 
     .field label{
       display:block;
-
       margin-bottom:5px;
-
       color:var(--muted);
-
       font-size:9px;
       font-weight:bold;
-
       text-transform:uppercase;
     }
 
     select,
     input{
       width:100%;
-
       padding:10px 11px;
-
       border-radius:10px;
-
       border:1px solid var(--line);
-
       outline:none;
-
       color:white;
-
       background:#06111d;
-
       font-size:11px;
     }
-
-    /* SUMMARY */
 
     .summary{
       display:grid;
       grid-template-columns:repeat(4,1fr);
-
       gap:10px;
-
       margin-bottom:14px;
     }
 
     .summary-card{
       padding:14px;
-
       border-radius:15px;
-
       background:var(--panel);
-
       border:1px solid var(--line);
     }
 
     .summary-label{
       color:var(--muted);
-
       font-size:9px;
       font-weight:bold;
-
       text-transform:uppercase;
     }
 
     .summary-value{
       margin-top:5px;
-
       font-size:24px;
       font-weight:900;
     }
 
-    /* TABLE */
-
     .scanner{
       overflow:hidden;
-
       border-radius:19px;
-
       background:var(--panel);
-
       border:1px solid var(--line);
-
       box-shadow:var(--shadow);
     }
 
@@ -764,23 +604,18 @@
       display:flex;
       align-items:center;
       justify-content:space-between;
-
       gap:12px;
-
       padding:15px 17px;
-
       border-bottom:1px solid var(--line);
     }
 
     .scanner-head h2{
       margin:0;
-
       font-size:16px;
     }
 
     .updated{
       color:var(--muted);
-
       font-size:9px;
     }
 
@@ -790,39 +625,29 @@
 
     table{
       width:100%;
-
-      min-width:900px;
-
+      min-width:950px;
       border-collapse:collapse;
     }
 
     th{
       padding:11px 9px;
-
       background:#081421;
-
       color:#8798ae;
-
       font-size:9px;
       font-weight:bold;
-
       text-transform:uppercase;
     }
 
     td{
       padding:13px 9px;
-
       border-top:
         1px solid rgba(255,255,255,.045);
-
       text-align:center;
-
       font-size:11px;
     }
 
     tbody tr{
       cursor:pointer;
-
       transition:.16s ease;
     }
 
@@ -855,9 +680,7 @@
 
     .league-small{
       margin-top:3px;
-
       color:#718096;
-
       font-size:9px;
     }
 
@@ -866,14 +689,18 @@
       font-weight:900;
     }
 
+    .table-minute{
+      color:#bfdbfe;
+      font-size:12px;
+      font-weight:900;
+      white-space:nowrap;
+    }
+
     .select-text{
       color:#93c5fd;
-
       font-size:9px;
       font-weight:bold;
     }
-
-    /* LOADING */
 
     .loading{
       opacity:.55;
@@ -882,36 +709,24 @@
 
     .empty{
       padding:30px;
-
       color:#64748b;
-
       text-align:center;
     }
-
-    /* FOOTER */
 
     .footer{
       display:flex;
       justify-content:center;
-
       margin-top:21px;
     }
 
     .back{
       padding:11px 18px;
-
       border:1px solid var(--line);
-
       border-radius:11px;
-
       color:white;
-
       background:#122034;
-
       cursor:pointer;
     }
-
-    /* MOBILE */
 
     @media(max-width:1000px){
 
@@ -977,8 +792,6 @@
 
 <div class="app">
 
-  <!-- HEADER -->
-
   <div class="topbar">
 
     <div class="brand">
@@ -1026,8 +839,6 @@
   </div>
 
 
-  <!-- HERO -->
-
   <div class="hero">
 
     <div class="main-match card" id="mainCard">
@@ -1071,8 +882,6 @@
 
         </div>
 
-
-        <!-- RTG -->
 
         <div class="rtg-grid">
 
@@ -1126,8 +935,6 @@
         </div>
 
 
-        <!-- HISTORY -->
-
         <div class="history-box">
 
           <div class="history-head">
@@ -1158,8 +965,6 @@
 
         </div>
 
-
-        <!-- STATS -->
 
         <div class="stats-grid">
 
@@ -1277,8 +1082,6 @@
     </div>
 
 
-    <!-- SIDE -->
-
     <div class="side-card card">
 
       <h3>
@@ -1350,6 +1153,19 @@
       <div class="side-row">
 
         <span>
+          Minuto partita
+        </span>
+
+        <strong id="sideMinute">
+          —
+        </strong>
+
+      </div>
+
+
+      <div class="side-row">
+
+        <span>
           Ultimo aggiornamento
         </span>
 
@@ -1363,8 +1179,6 @@
 
   </div>
 
-
-  <!-- FILTERS -->
 
   <div class="filters">
 
@@ -1440,6 +1254,10 @@
           Competizione
         </option>
 
+        <option value="minute">
+          Minuto più alto
+        </option>
+
         <option value="score">
           Gol partita
         </option>
@@ -1450,8 +1268,6 @@
 
   </div>
 
-
-  <!-- SUMMARY -->
 
   <div class="summary">
 
@@ -1522,8 +1338,6 @@
   </div>
 
 
-  <!-- MATCH LIST -->
-
   <div class="scanner">
 
     <div class="scanner-head">
@@ -1549,6 +1363,7 @@
         <thead>
 
           <tr>
+            <th>Min</th>
             <th>Partita</th>
             <th>Ris.</th>
             <th>Campionato</th>
@@ -1590,16 +1405,6 @@ let selectedMatch = null;
 
 let seconds = 120;
 
-
-/*
-==========================================
-RTG HISTORY
-
-Viene mantenuto nel browser
-finché lasci aperta SoccerTrend.
-==========================================
-*/
-
 const rtgHistory = {};
 
 
@@ -1616,25 +1421,145 @@ function n(value){
   return Number.isFinite(num)
     ? num
     : 0;
+
 }
 
 
-function calculateTeamRtg(stats, side){
+function cleanMinute(value){
+
+  if(
+    value === null ||
+    value === undefined ||
+    value === ""
+  ){
+    return "";
+  }
+
+  let text =
+    String(value).trim();
+
+  if(
+    text.toLowerCase() ===
+    "live"
+  ){
+    return "";
+  }
+
+  return text;
+
+}
+
+
+function minuteNumber(value){
+
+  const text =
+    cleanMinute(value);
+
+  const match =
+    text.match(/\d+/);
+
+  if(!match){
+    return 0;
+  }
+
+  return Number(match[0]) || 0;
+
+}
+
+
+function displayMinute(match){
+
+  const minute =
+    cleanMinute(
+      match?.minute
+    );
+
+  if(minute){
+
+    if(
+      minute.includes("'")
+    ){
+      return minute;
+    }
+
+    return `${minute}'`;
+
+  }
+
+
+  const reason =
+    String(
+      match?.reason || ""
+    ).trim();
+
+
+  if(reason){
+
+    const lower =
+      reason.toLowerCase();
+
+    if(
+      lower === "half time" ||
+      lower === "ht"
+    ){
+      return "HT";
+    }
+
+    if(
+      lower === "extra time"
+    ){
+      return "ET";
+    }
+
+    if(
+      reason.includes("'")
+    ){
+      return reason;
+    }
+
+  }
+
+
+  return "LIVE";
+
+}
+
+
+/*
+==========================================
+RTG
+==========================================
+*/
+
+function calculateTeamRtg(
+  stats,
+  side
+){
 
   const shotsOnTarget =
-    n(stats?.shotsOnTarget?.[side]);
+    n(
+      stats?.shotsOnTarget?.[side]
+    );
 
   const totalShots =
-    n(stats?.totalShots?.[side]);
+    n(
+      stats?.totalShots?.[side]
+    );
 
   const corners =
-    n(stats?.corners?.[side]);
+    n(
+      stats?.corners?.[side]
+    );
 
   const touchesBox =
-    n(stats?.touchesBox?.[side]);
+    n(
+      stats?.touchesBox?.[side]
+    );
 
   const bigChances =
-    n(stats?.bigChances?.[side]);
+    n(
+      stats?.bigChances?.[side]
+    );
 
 
   const value =
@@ -1657,33 +1582,48 @@ function signalForRtg(rtg){
   if(rtg >= 25){
 
     return {
-      text:"🔥 RTG MOLTO ALTO",
-      className:"signal-hot"
+      text:
+        "🔥 RTG MOLTO ALTO",
+
+      className:
+        "signal-hot"
     };
 
   }
+
 
   if(rtg >= 14){
 
     return {
-      text:"🟢 PRESSIONE INTERESSANTE",
-      className:"signal-hot"
+      text:
+        "🟢 PRESSIONE INTERESSANTE",
+
+      className:
+        "signal-hot"
     };
 
   }
+
 
   if(rtg >= 8){
 
     return {
-      text:"🟡 WATCH",
-      className:"signal-watch"
+      text:
+        "🟡 WATCH",
+
+      className:
+        "signal-watch"
     };
 
   }
 
+
   return {
-    text:"❄️ PRESSIONE BASSA",
-    className:"signal-cold"
+    text:
+      "❄️ PRESSIONE BASSA",
+
+    className:
+      "signal-cold"
   };
 
 }
@@ -1695,15 +1635,18 @@ function trendArrow(history){
     return "→";
   }
 
+
   const last =
     history[
       history.length - 1
     ].rtg;
 
+
   const previous =
     history[
       history.length - 2
     ].rtg;
+
 
   const diff =
     last - previous;
@@ -1725,6 +1668,7 @@ function trendArrow(history){
     return "↓";
   }
 
+
   return "→";
 
 }
@@ -1741,7 +1685,9 @@ async function loadMatches(){
   try{
 
     document
-      .getElementById("listUpdate")
+      .getElementById(
+        "listUpdate"
+      )
       .textContent =
         "Aggiornamento...";
 
@@ -1762,11 +1708,14 @@ async function loadMatches(){
     if(!data.success){
 
       document
-        .getElementById("listUpdate")
+        .getElementById(
+          "listUpdate"
+        )
         .textContent =
           "Errore FotMob";
 
       return;
+
     }
 
 
@@ -1780,13 +1729,17 @@ async function loadMatches(){
 
 
     document
-      .getElementById("liveCount")
+      .getElementById(
+        "liveCount"
+      )
       .textContent =
         liveMatches.length;
 
 
     document
-      .getElementById("listUpdate")
+      .getElementById(
+        "listUpdate"
+      )
       .textContent =
         "Aggiornato: " +
         new Date()
@@ -1797,7 +1750,7 @@ async function loadMatches(){
 
     /*
       Se non abbiamo ancora scelto
-      una partita, selezioniamo la prima.
+      una partita selezioniamo la prima.
     */
 
     if(
@@ -1812,9 +1765,39 @@ async function loadMatches(){
     }
 
 
+    /*
+      Se abbiamo già una partita selezionata,
+      aggiorniamo anche punteggio e minuto
+      dalla nuova lista live.
+    */
+
+    if(selectedMatchId){
+
+      const updated =
+        liveMatches.find(
+          match =>
+            String(match.matchId) ===
+            String(selectedMatchId)
+        );
+
+
+      if(updated){
+
+        selectedMatch =
+          updated;
+
+        renderSelectedBasic();
+
+      }
+
+    }
+
+
   }catch(error){
 
-    console.error(error);
+    console.error(
+      error
+    );
 
   }
 
@@ -1844,8 +1827,9 @@ function buildLeagueFilter(){
     [
       ...new Set(
         liveMatches
-          .map(match =>
-            match.league
+          .map(
+            match =>
+              match.league
           )
           .filter(Boolean)
       )
@@ -1861,30 +1845,41 @@ function buildLeagueFilter(){
     `;
 
 
-  leagues.forEach(league => {
+  leagues.forEach(
+    league => {
 
-    const option =
-      document
-        .createElement("option");
+      const option =
+        document
+          .createElement(
+            "option"
+          );
 
-    option.value =
-      league;
 
-    option.textContent =
-      league;
+      option.value =
+        league;
 
-    select.appendChild(
-      option
-    );
 
-  });
+      option.textContent =
+        league;
+
+
+      select.appendChild(
+        option
+      );
+
+    }
+  );
 
 
   if(
-    leagues.includes(current)
+    leagues.includes(
+      current
+    )
   ){
+
     select.value =
       current;
+
   }
 
 }
@@ -1900,7 +1895,9 @@ function filteredMatches(){
 
   const search =
     document
-      .getElementById("search")
+      .getElementById(
+        "search"
+      )
       .value
       .toLowerCase()
       .trim();
@@ -1934,6 +1931,7 @@ function filteredMatches(){
     liveMatches.filter(
       match => {
 
+
         if(
           search &&
           !String(match.home)
@@ -1957,10 +1955,15 @@ function filteredMatches(){
 
 
         const home =
-          n(match.homeGoals);
+          n(
+            match.homeGoals
+          );
+
 
         const away =
-          n(match.awayGoals);
+          n(
+            match.awayGoals
+          );
 
 
         if(
@@ -2013,14 +2016,39 @@ function filteredMatches(){
         )
     );
 
-  }else{
+  }
+
+
+  else if(
+    sortFilter === "minute"
+  ){
 
     data.sort(
       (a,b) =>
-        String(a.league)
-          .localeCompare(
-            String(b.league)
+        minuteNumber(
+          b.minute
+        )
+        -
+        minuteNumber(
+          a.minute
+        )
+    );
+
+  }
+
+
+  else{
+
+    data.sort(
+      (a,b) =>
+        String(
+          a.league
+        )
+        .localeCompare(
+          String(
+            b.league
           )
+        )
     );
 
   }
@@ -2060,7 +2088,7 @@ function renderMatches(){
       `
         <tr>
           <td
-            colspan="4"
+            colspan="5"
             class="empty"
           >
             Nessuna partita trovata.
@@ -2073,76 +2101,91 @@ function renderMatches(){
   }
 
 
-  data.forEach(match => {
+  data.forEach(
+    match => {
 
-    const tr =
-      document
-        .createElement("tr");
-
-
-    if(
-      String(match.matchId) ===
-      String(selectedMatchId)
-    ){
-      tr.classList.add(
-        "selected"
-      );
-    }
+      const tr =
+        document
+          .createElement(
+            "tr"
+          );
 
 
-    tr.innerHTML =
-      `
-
-        <td class="match-cell">
-
-          <div class="teams">
-            ${match.home}
-            -
-            ${match.away}
-          </div>
-
-          <div class="league-small">
-            ${match.country || ""}
-            •
-            ${match.league || ""}
-          </div>
-
-        </td>
-
-
-        <td class="table-score">
-          ${match.homeGoals ?? 0}
-          -
-          ${match.awayGoals ?? 0}
-        </td>
-
-
-        <td>
-          ${match.league || "—"}
-        </td>
-
-
-        <td class="select-text">
-          ANALIZZA →
-        </td>
-
-      `;
-
-
-    tr.addEventListener(
-      "click",
-      () =>
-        selectMatch(
+      if(
+        String(
           match.matchId
+        ) ===
+        String(
+          selectedMatchId
         )
-    );
+      ){
+
+        tr.classList.add(
+          "selected"
+        );
+
+      }
 
 
-    tbody.appendChild(
-      tr
-    );
+      tr.innerHTML =
+        `
 
-  });
+          <td class="table-minute">
+            ${displayMinute(match)}
+          </td>
+
+
+          <td class="match-cell">
+
+            <div class="teams">
+              ${match.home}
+              -
+              ${match.away}
+            </div>
+
+            <div class="league-small">
+              ${match.country || ""}
+              •
+              ${match.league || ""}
+            </div>
+
+          </td>
+
+
+          <td class="table-score">
+            ${match.homeGoals ?? 0}
+            -
+            ${match.awayGoals ?? 0}
+          </td>
+
+
+          <td>
+            ${match.league || "—"}
+          </td>
+
+
+          <td class="select-text">
+            ANALIZZA →
+          </td>
+
+        `;
+
+
+      tr.addEventListener(
+        "click",
+        () =>
+          selectMatch(
+            match.matchId
+          )
+      );
+
+
+      tbody.appendChild(
+        tr
+      );
+
+    }
+  );
 
 }
 
@@ -2153,7 +2196,9 @@ SELECT MATCH
 ==========================================
 */
 
-async function selectMatch(matchId){
+async function selectMatch(
+  matchId
+){
 
   selectedMatchId =
     matchId;
@@ -2162,49 +2207,101 @@ async function selectMatch(matchId){
   selectedMatch =
     liveMatches.find(
       match =>
-        String(match.matchId) ===
-        String(matchId)
+        String(
+          match.matchId
+        ) ===
+        String(
+          matchId
+        )
     );
 
 
   renderMatches();
 
 
-  if(selectedMatch){
-
-    document
-      .getElementById("homeTeam")
-      .textContent =
-        selectedMatch.home;
-
-
-    document
-      .getElementById("awayTeam")
-      .textContent =
-        selectedMatch.away;
-
-
-    document
-      .getElementById("mainScore")
-      .textContent =
-        `${selectedMatch.homeGoals ?? 0} - ${selectedMatch.awayGoals ?? 0}`;
-
-
-    document
-      .getElementById("selectedLeague")
-      .textContent =
-        `${selectedMatch.country || ""} • ${selectedMatch.league || ""}`;
-
-
-    document
-      .getElementById("selectedName")
-      .textContent =
-        `${selectedMatch.home} - ${selectedMatch.away}`;
-
-  }
+  renderSelectedBasic();
 
 
   await loadMatchDetail();
+
+}
+
+
+/*
+==========================================
+BASIC SELECTED DATA
+==========================================
+*/
+
+function renderSelectedBasic(){
+
+  if(!selectedMatch){
+    return;
+  }
+
+
+  document
+    .getElementById(
+      "homeTeam"
+    )
+    .textContent =
+      selectedMatch.home;
+
+
+  document
+    .getElementById(
+      "awayTeam"
+    )
+    .textContent =
+      selectedMatch.away;
+
+
+  document
+    .getElementById(
+      "mainScore"
+    )
+    .textContent =
+      `${selectedMatch.homeGoals ?? 0} - ${selectedMatch.awayGoals ?? 0}`;
+
+
+  document
+    .getElementById(
+      "selectedLeague"
+    )
+    .textContent =
+      `${selectedMatch.country || ""} • ${selectedMatch.league || ""}`;
+
+
+  document
+    .getElementById(
+      "selectedName"
+    )
+    .textContent =
+      `${selectedMatch.home} - ${selectedMatch.away}`;
+
+
+  const minute =
+    displayMinute(
+      selectedMatch
+    );
+
+
+  document
+    .getElementById(
+      "mainStatus"
+    )
+    .textContent =
+      minute === "LIVE"
+        ? "LIVE"
+        : `LIVE • ${minute}`;
+
+
+  document
+    .getElementById(
+      "sideMinute"
+    )
+    .textContent =
+      minute;
 
 }
 
@@ -2261,7 +2358,9 @@ async function loadMatchDetail(){
 
   }catch(error){
 
-    console.error(error);
+    console.error(
+      error
+    );
 
   }finally{
 
@@ -2310,34 +2409,36 @@ function renderDetail(data){
 
 
   document
-    .getElementById("rtgHome")
+    .getElementById(
+      "rtgHome"
+    )
     .textContent =
       rtgHome.toFixed(1);
 
 
   document
-    .getElementById("rtgAway")
+    .getElementById(
+      "rtgAway"
+    )
     .textContent =
       rtgAway.toFixed(1);
 
 
   document
-    .getElementById("rtgTotal")
+    .getElementById(
+      "rtgTotal"
+    )
     .textContent =
       rtgTotal.toFixed(1);
 
 
   document
-    .getElementById("summaryRtg")
+    .getElementById(
+      "summaryRtg"
+    )
     .textContent =
       rtgTotal.toFixed(1);
 
-
-  /*
-  ==============================
-  STATS
-  ==============================
-  */
 
   setStat(
     "totalShots",
@@ -2413,12 +2514,6 @@ function renderDetail(data){
         );
 
 
-  /*
-  ==============================
-  SIGNAL
-  ==============================
-  */
-
   const signal =
     signalForRtg(
       rtgTotal
@@ -2440,19 +2535,13 @@ function renderDetail(data){
     signal.text;
 
 
-  /*
-  ==============================
-  GAUGE
-
-  Per ora RTG 40+ = 100%.
-  ==============================
-  */
-
   const gaugeScore =
     Math.min(
       100,
       Math.round(
-        rtgTotal / 40 * 100
+        rtgTotal /
+        40 *
+        100
       )
     );
 
@@ -2481,14 +2570,48 @@ function renderDetail(data){
 
 
   /*
-  ==============================
-  SAVE RTG HISTORY
-  ==============================
+    Se il dettaglio restituisce un minuto,
+    lo usiamo. Altrimenti usiamo quello
+    della lista live.
   */
+
+  const detailMinute =
+    cleanMinute(
+      data.minute
+    );
+
+
+  if(detailMinute){
+
+    document
+      .getElementById(
+        "mainStatus"
+      )
+      .textContent =
+        detailMinute.includes("'")
+          ? `LIVE • ${detailMinute}`
+          : `LIVE • ${detailMinute}'`;
+
+
+    document
+      .getElementById(
+        "sideMinute"
+      )
+      .textContent =
+        detailMinute.includes("'")
+          ? detailMinute
+          : `${detailMinute}'`;
+
+  }
+
 
   saveHistory(
     selectedMatchId,
-    rtgTotal
+    rtgTotal,
+    detailMinute ||
+    displayMinute(
+      selectedMatch
+    )
   );
 
 
@@ -2537,33 +2660,60 @@ SAVE HISTORY
 
 function saveHistory(
   matchId,
-  rtg
+  rtg,
+  matchMinute
 ){
 
-  if(!rtgHistory[matchId]){
+  if(
+    !rtgHistory[
+      matchId
+    ]
+  ){
 
-    rtgHistory[matchId] =
-      [];
+    rtgHistory[
+      matchId
+    ] = [];
 
   }
 
 
   const history =
-    rtgHistory[matchId];
+    rtgHistory[
+      matchId
+    ];
 
 
-  const now =
-    new Date();
-
-
-  const label =
-    now.toLocaleTimeString(
-      "it-IT",
-      {
-        hour:"2-digit",
-        minute:"2-digit"
-      }
+  let label =
+    cleanMinute(
+      matchMinute
     );
+
+
+  if(!label){
+
+    label =
+      new Date()
+        .toLocaleTimeString(
+          "it-IT",
+          {
+            hour:"2-digit",
+            minute:"2-digit"
+          }
+        );
+
+  }
+
+
+  if(
+    /^\d+$/.test(
+      label
+    )
+  ){
+
+    label =
+      `${label}'`;
+
+  }
 
 
   const previous =
@@ -2573,13 +2723,15 @@ function saveHistory(
 
 
   /*
-    Evitiamo duplicati se il refresh
-    arriva nello stesso minuto.
+    Se siamo sempre allo stesso minuto
+    aggiorniamo l'ultima barra anziché
+    aggiungerne una identica.
   */
 
   if(
     previous &&
-    previous.minute === label
+    previous.minute ===
+    label
   ){
 
     previous.rtg =
@@ -2592,18 +2744,18 @@ function saveHistory(
 
   history.push({
 
-    minute:label,
+    minute:
+      label,
 
     rtg
 
   });
 
 
-  /*
-    Teniamo massimo 30 rilevazioni.
-  */
-
-  if(history.length > 30){
+  if(
+    history.length >
+    30
+  ){
 
     history.shift();
 
@@ -2623,7 +2775,9 @@ function renderHistory(
 ){
 
   const history =
-    rtgHistory[matchId] || [];
+    rtgHistory[
+      matchId
+    ] || [];
 
 
   const container =
@@ -2637,7 +2791,9 @@ function renderHistory(
     "";
 
 
-  if(!history.length){
+  if(
+    !history.length
+  ){
 
     container.innerHTML =
       `
@@ -2661,52 +2817,56 @@ function renderHistory(
     );
 
 
-  history.forEach(item => {
+  history.forEach(
+    item => {
 
-    const column =
-      document
-        .createElement("div");
+      const column =
+        document
+          .createElement(
+            "div"
+          );
 
 
-    column.className =
-      "history-column";
+      column.className =
+        "history-column";
 
 
-    const height =
-      Math.max(
-        3,
-        Math.round(
-          item.rtg /
-          max *
-          80
-        )
+      const height =
+        Math.max(
+          3,
+          Math.round(
+            item.rtg /
+            max *
+            80
+          )
+        );
+
+
+      column.innerHTML =
+        `
+
+          <div class="history-value">
+            ${item.rtg.toFixed(1)}
+          </div>
+
+          <div
+            class="history-bar"
+            style="height:${height}px"
+          ></div>
+
+          <div class="history-minute">
+            ${item.minute}
+          </div>
+
+        `;
+
+
+      container.appendChild(
+        column
       );
 
-
-    column.innerHTML =
-      `
-
-        <div class="history-value">
-          ${item.rtg.toFixed(1)}
-        </div>
-
-        <div
-          class="history-bar"
-          style="height:${height}px"
-        ></div>
-
-        <div class="history-minute">
-          ${item.minute}
-        </div>
-
-      `;
-
-
-    container.appendChild(
-      column
-    );
-
-  });
+    }
+  );
 
 
   document
@@ -2731,14 +2891,16 @@ document
   .querySelectorAll(
     "#search,#scoreFilter,#leagueFilter,#sortFilter"
   )
-  .forEach(element => {
+  .forEach(
+    element => {
 
-    element.addEventListener(
-      "input",
-      renderMatches
-    );
+      element.addEventListener(
+        "input",
+        renderMatches
+      );
 
-  });
+    }
+  );
 
 
 /*
@@ -2747,44 +2909,45 @@ document
 ==========================================
 */
 
-setInterval(() => {
+setInterval(
+  () => {
 
-  seconds--;
-
-
-  document
-    .getElementById(
-      "countdown"
-    )
-    .textContent =
-      `${seconds}s`;
+    seconds--;
 
 
-  document
-    .getElementById(
-      "summaryCountdown"
-    )
-    .textContent =
-      `${seconds}s`;
+    document
+      .getElementById(
+        "countdown"
+      )
+      .textContent =
+        `${seconds}s`;
 
 
-  if(seconds <= 0){
+    document
+      .getElementById(
+        "summaryCountdown"
+      )
+      .textContent =
+        `${seconds}s`;
 
-    seconds = 120;
+
+    if(
+      seconds <= 0
+    ){
+
+      seconds =
+        120;
 
 
-    /*
-      Aggiorniamo elenco live
-      e dettaglio selezionato.
-    */
+      loadMatches();
 
-    loadMatches();
+      loadMatchDetail();
 
-    loadMatchDetail();
+    }
 
-  }
-
-},1000);
+  },
+  1000
+);
 
 
 /*
@@ -2799,4 +2962,3 @@ loadMatches();
 
 </body>
 </html>
-   
