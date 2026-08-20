@@ -38,30 +38,236 @@ async function fotmobFetch(url) {
   return JSON.parse(text);
 }
 
+function findStat(statsRoot, wantedKey) {
+  const allPeriod =
+    statsRoot?.Periods?.All?.stats || [];
+
+  for (const group of allPeriod) {
+    const stats =
+      Array.isArray(group?.stats)
+        ? group.stats
+        : [];
+
+    for (const stat of stats) {
+      if (stat?.key === wantedKey) {
+        return stat.stats || [0, 0];
+      }
+    }
+  }
+
+  return [0, 0];
+}
+
+function num(value) {
+  if (
+    value === null ||
+    value === undefined ||
+    value === ""
+  ) {
+    return 0;
+  }
+
+  if (typeof value === "string") {
+    const clean =
+      value
+        .replace("%", "")
+        .split(" ")[0];
+
+    const n = Number(clean);
+
+    return Number.isFinite(n)
+      ? n
+      : 0;
+  }
+
+  const n = Number(value);
+
+  return Number.isFinite(n)
+    ? n
+    : 0;
+}
+
+function pair(statsRoot, key) {
+  const values =
+    findStat(statsRoot, key);
+
+  return {
+    home: num(values?.[0]),
+    away: num(values?.[1]),
+    total:
+      num(values?.[0]) +
+      num(values?.[1])
+  };
+}
+
+function calculateRtg(stats) {
+  const totalShots =
+    stats.totalShots.total;
+
+  const shotsOnTarget =
+    stats.shotsOnTarget.total;
+
+  const corners =
+    stats.corners.total;
+
+  const touchesBox =
+    stats.touchesBox.total;
+
+  const bigChances =
+    stats.bigChances.total;
+
+  const raw =
+      (shotsOnTarget * 4)
+    + (totalShots * 1)
+    + (corners * 1.5)
+    + (touchesBox * 0.6)
+    + (bigChances * 5);
+
+  return Math.round(raw * 10) / 10;
+}
+
+function normalizeMomentum(rawMomentum) {
+  if (!rawMomentum) {
+    return [];
+  }
+
+  if (Array.isArray(rawMomentum)) {
+    return rawMomentum;
+  }
+
+  if (Array.isArray(rawMomentum?.main)) {
+    return rawMomentum.main;
+  }
+
+  if (Array.isArray(rawMomentum?.data)) {
+    return rawMomentum.data;
+  }
+
+  return [];
+}
+
+function lastMomentumValue(momentum) {
+  const arr =
+    normalizeMomentum(momentum);
+
+  if (!arr.length) {
+    return null;
+  }
+
+  const last =
+    arr[arr.length - 1];
+
+  if (typeof last === "number") {
+    return last;
+  }
+
+  if (typeof last?.value === "number") {
+    return last.value;
+  }
+
+  return null;
+}
+
 module.exports = async (req, res) => {
   try {
-
-    /*
-    ==========================================
-    MODALITÀ DETTAGLIO
-
-    /api/footballfree?matchId=XXXX
-    ==========================================
-    */
 
     const matchId =
       String(req.query.matchId || "").trim();
 
+
+    /*
+    ==========================================
+    DETTAGLIO PARTITA
+    ==========================================
+    */
+
     if (matchId) {
 
-      const data = await fotmobFetch(
-        `${FOTMOB_BASE}/matchDetails?matchId=${encodeURIComponent(matchId)}`
-      );
+      const data =
+        await fotmobFetch(
+          `${FOTMOB_BASE}/matchDetails?matchId=${encodeURIComponent(matchId)}`
+        );
 
       const content =
         data?.content || {};
 
+      const statsRoot =
+        content?.stats || {};
+
+      const stats = {
+
+        possession:
+          pair(
+            statsRoot,
+            "BallPossesion"
+          ),
+
+        totalShots:
+          pair(
+            statsRoot,
+            "total_shots"
+          ),
+
+        shotsOnTarget:
+          pair(
+            statsRoot,
+            "ShotsOnTarget"
+          ),
+
+        shotsOffTarget:
+          pair(
+            statsRoot,
+            "ShotsOffTarget"
+          ),
+
+        corners:
+          pair(
+            statsRoot,
+            "corners"
+          ),
+
+        touchesBox:
+          pair(
+            statsRoot,
+            "touches_opp_box"
+          ),
+
+        bigChances:
+          pair(
+            statsRoot,
+            "big_chance"
+          ),
+
+        bigChancesMissed:
+          pair(
+            statsRoot,
+            "big_chance_missed_title"
+          )
+
+      };
+
+      const rtg =
+        calculateRtg(stats);
+
+      const momentum =
+        content?.momentum ||
+        content?.matchMomentum ||
+        null;
+
+      const momentumArray =
+        normalizeMomentum(momentum);
+
+      const latestMomentum =
+        lastMomentumValue(momentum);
+
+      const events =
+        content?.matchFacts?.events || [];
+
+      const shotmap =
+        content?.shotmap || null;
+
       return res.status(200).json({
+
         success: true,
 
         mode: "DETAIL",
@@ -71,60 +277,66 @@ module.exports = async (req, res) => {
         matchName:
           data?.general?.matchName || "",
 
+        status:
+          data?.general?.matchStatus || "",
+
+        stats,
+
+        rtg,
+
+        momentum: {
+          latest:
+            latestMomentum,
+
+          history:
+            momentumArray
+        },
+
+        events,
+
+        shotmap,
+
         hasStats:
           !!content?.stats,
 
+        hasMomentum:
+          !!momentum,
+
         hasShotmap:
-          !!content?.shotmap,
+          !!shotmap,
 
         hasEvents:
-          !!content?.matchFacts?.events,
+          Array.isArray(events)
 
-        hasMomentum:
-          !!content?.momentum ||
-          !!content?.matchMomentum,
-
-        contentKeys:
-          Object.keys(content),
-
-        stats:
-          content?.stats || null,
-
-        shotmap:
-          content?.shotmap || null,
-
-        events:
-          content?.matchFacts?.events || null,
-
-        momentum:
-          content?.momentum ||
-          content?.matchMomentum ||
-          null
       });
+
     }
 
 
     /*
     ==========================================
-    MODALITÀ PARTITE DI OGGI
-
-    /api/footballfree
+    PARTITE LIVE DI OGGI
     ==========================================
     */
 
     const date =
-      String(req.query.date || todayYYYYMMDD());
+      String(
+        req.query.date ||
+        todayYYYYMMDD()
+      );
 
-    const data = await fotmobFetch(
-      `${FOTMOB_BASE}/matches?date=${encodeURIComponent(date)}`
-    );
+    const data =
+      await fotmobFetch(
+        `${FOTMOB_BASE}/matches?date=${encodeURIComponent(date)}`
+      );
 
     const leagues =
       Array.isArray(data?.leagues)
         ? data.leagues
         : [];
 
-    const matches = [];
+    const matches =
+      [];
 
     for (const league of leagues) {
 
@@ -186,13 +398,10 @@ module.exports = async (req, res) => {
             status.utcTime || null
 
         });
+
       }
+
     }
-
-
-    /*
-      Solo partite attualmente LIVE.
-    */
 
     const liveMatches =
       matches.filter(match =>
@@ -200,7 +409,6 @@ module.exports = async (req, res) => {
         !match.finished &&
         !match.cancelled
       );
-
 
     return res.status(200).json({
 
