@@ -1,1370 +1,1023 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-  <title>SoccerTrend - Andry Matched</title>
-
-  <style>
-    :root{
-      --bg:#030810;
-      --bg2:#07111d;
-      --panel:#0a1523;
-      --line:rgba(148,163,184,.15);
-
-      --text:#f8fafc;
-      --muted:#8ea0b7;
-
-      --green:#35e59b;
-      --green2:#0dbb78;
-      --cyan:#22d3ee;
-      --blue:#60a5fa;
-      --yellow:#facc15;
-      --orange:#fb923c;
-      --red:#fb7185;
-
-      --shadow:0 20px 55px rgba(0,0,0,.34);
-    }
-
-    *{
-      box-sizing:border-box;
-    }
-
-    body{
-      margin:0;
-      min-height:100vh;
-      font-family:Inter,Arial,Helvetica,sans-serif;
-      color:var(--text);
-
-      background:
-        radial-gradient(circle at 10% 0%,rgba(34,211,238,.11),transparent 26%),
-        radial-gradient(circle at 88% 5%,rgba(53,229,155,.10),transparent 25%),
-        linear-gradient(180deg,var(--bg2),var(--bg));
-
-      background-attachment:fixed;
-    }
-
-    .app{
-      width:min(1500px,100%);
-      margin:auto;
-      padding:26px 18px 65px;
-    }
-
-    .topbar{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:18px;
-      flex-wrap:wrap;
-      margin-bottom:18px;
-    }
-
-    .brand{
-      display:flex;
-      align-items:center;
-      gap:14px;
-    }
-
-    .logo{
-      width:58px;
-      height:58px;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      border-radius:18px;
-      font-size:28px;
-
-      background:
-        linear-gradient(
-          145deg,
-          rgba(53,229,155,.23),
-          rgba(34,211,238,.10)
-        );
-
-      border:1px solid rgba(53,229,155,.30);
-    }
-
-    .brand h1{
-      margin:0;
-      font-size:35px;
-      font-weight:900;
-      letter-spacing:-1px;
-    }
-
-    .brand h1 span{
-      color:var(--green);
-    }
-
-    .brand p{
-      margin:5px 0 0;
-      color:var(--muted);
-      font-size:12px;
-    }
-
-    .live-box{
-      display:flex;
-      align-items:center;
-      gap:9px;
-      padding:10px 14px;
-      border-radius:999px;
-      color:#a7f3d0;
-      background:rgba(53,229,155,.08);
-      border:1px solid rgba(53,229,155,.22);
-      font-size:11px;
-      font-weight:bold;
-    }
-
-    .live-dot{
-      width:8px;
-      height:8px;
-      border-radius:50%;
-      background:var(--green);
-      box-shadow:0 0 13px var(--green);
-      animation:pulse 1.4s infinite;
-    }
-
-    @keyframes pulse{
-      0%,100%{opacity:1}
-      50%{opacity:.35}
-    }
-
-    .info{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:12px;
-      flex-wrap:wrap;
-      margin-bottom:17px;
-      padding:12px 15px;
-      border-radius:14px;
-      background:rgba(59,130,246,.07);
-      border:1px solid rgba(96,165,250,.15);
-      color:#bfdbfe;
-      font-size:11px;
-    }
-
-    .hero{
-      display:grid;
-      grid-template-columns:1.25fr .75fr;
-      gap:17px;
-      margin-bottom:17px;
-    }
-
-    .card{
-      background:
-        linear-gradient(
-          180deg,
-          rgba(12,26,43,.95),
-          rgba(7,17,30,.95)
-        );
-
-      border:1px solid var(--line);
-      border-radius:22px;
-      box-shadow:var(--shadow);
-    }
-
-    .main-match{
-      overflow:hidden;
-    }
-
-    .card-head{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:10px;
-      padding:16px 19px;
-      border-bottom:1px solid var(--line);
-    }
-
-    .card-title{
-      color:#fde68a;
-      font-size:11px;
-      font-weight:900;
-      letter-spacing:.08em;
-    }
-
-    .league{
-      color:var(--muted);
-      font-size:10px;
-    }
-
-    .main-body{
-      padding:24px;
-    }
-
-    .match-line{
-      display:grid;
-      grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);
-      align-items:center;
-      gap:18px;
-    }
-
-    .team{
-      font-size:24px;
-      font-weight:900;
-      overflow-wrap:anywhere;
-    }
-
-    .team.away{
-      text-align:right;
-    }
-
-    .score-center{
-      min-width:130px;
-      text-align:center;
-    }
-
-    .score{
-      font-size:38px;
-      font-weight:900;
-    }
-
-    .minute{
-      display:inline-block;
-      margin-top:6px;
-      padding:5px 9px;
-      border-radius:999px;
-      color:#bfdbfe;
-      background:rgba(96,165,250,.09);
-      border:1px solid rgba(96,165,250,.18);
-      font-size:10px;
-      font-weight:bold;
-    }
-
-    .rtg-grid{
-      display:grid;
-      grid-template-columns:repeat(3,1fr);
-      gap:11px;
-      margin-top:22px;
-    }
-
-    .metric{
-      padding:15px;
-      text-align:center;
-      border-radius:15px;
-      background:rgba(1,7,15,.40);
-      border:1px solid var(--line);
-    }
-
-    .metric-label{
-      color:var(--muted);
-      font-size:9px;
-      font-weight:bold;
-      text-transform:uppercase;
-      letter-spacing:.08em;
-    }
-
-    .metric-value{
-      margin-top:7px;
-      font-size:27px;
-      font-weight:900;
-    }
-
-    .total-rtg{
-      color:var(--green);
-    }
-
-    .home-rtg{
-      color:var(--cyan);
-    }
-
-    .away-rtg{
-      color:var(--yellow);
-    }
-
-    .history-box{
-      margin-top:19px;
-      padding:15px;
-      border-radius:16px;
-      background:rgba(1,7,15,.36);
-      border:1px solid var(--line);
-    }
-
-    .history-head{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:10px;
-      margin-bottom:13px;
-    }
-
-    .history-head strong{
-      font-size:11px;
-    }
-
-    .history-trend{
-      font-size:12px;
-      font-weight:900;
-    }
-
-    .history-bars{
-      height:110px;
-      display:flex;
-      align-items:flex-end;
-      gap:6px;
-      overflow-x:auto;
-      padding-bottom:4px;
-    }
-
-    .history-column{
-      min-width:33px;
-      display:flex;
-      flex-direction:column;
-      align-items:center;
-      justify-content:flex-end;
-      height:100%;
-    }
-
-    .history-value{
-      margin-bottom:4px;
-      color:#cbd5e1;
-      font-size:8px;
-      font-weight:bold;
-    }
-
-    .history-bar{
-      width:17px;
-      min-height:3px;
-      border-radius:5px 5px 2px 2px;
-      background:linear-gradient(180deg,var(--green),var(--green2));
-      transition:.3s ease;
-    }
-
-    .history-minute{
-      margin-top:5px;
-      color:#64748b;
-      font-size:8px;
-      white-space:nowrap;
-    }
-
-    .stats-grid{
-      display:grid;
-      grid-template-columns:repeat(5,1fr);
-      gap:9px;
-      margin-top:18px;
-    }
-
-    .stat{
-      padding:11px 8px;
-      text-align:center;
-      border-radius:13px;
-      background:rgba(2,8,18,.40);
-      border:1px solid var(--line);
-    }
-
-    .stat strong{
-      display:block;
-      margin-bottom:4px;
-      font-size:17px;
-    }
-
-    .stat span{
-      color:var(--muted);
-      font-size:9px;
-    }
-
-    .stat-detail{
-      margin-top:4px;
-      color:#64748b;
-      font-size:8px;
-    }
-
-    .goal-grid{
-      display:grid;
-      grid-template-columns:repeat(3,1fr);
-      gap:11px;
-      margin-top:18px;
-    }
-
-    .goal-box{
-      padding:14px;
-      text-align:center;
-      border-radius:15px;
-      background:rgba(1,7,15,.42);
-      border:1px solid var(--line);
-    }
-
-    .goal-label{
-      color:var(--muted);
-      font-size:9px;
-      font-weight:bold;
-      text-transform:uppercase;
-      letter-spacing:.08em;
-    }
-
-    .goal-value{
-      margin-top:7px;
-      font-size:21px;
-      font-weight:900;
-    }
-
-    #rtgPerMinute{
-      color:var(--cyan);
-    }
-
-    #rtgDelta{
-      color:var(--yellow);
-    }
-
-    .signal{
-      margin-top:17px;
-      padding:14px;
-      text-align:center;
-      border-radius:14px;
-      font-size:12px;
-      font-weight:900;
-      letter-spacing:.06em;
-    }
-
-    .signal-hot{
-      color:#a7f3d0;
-      background:rgba(53,229,155,.11);
-      border:1px solid rgba(53,229,155,.28);
-      box-shadow:0 0 26px rgba(53,229,155,.07);
-    }
-
-    .signal-ready{
-      color:#a5f3fc;
-      background:rgba(34,211,238,.09);
-      border:1px solid rgba(34,211,238,.24);
-    }
-
-    .signal-watch{
-      color:#fef08a;
-      background:rgba(250,204,21,.09);
-      border:1px solid rgba(250,204,21,.22);
-    }
-
-    .signal-cold{
-      color:#cbd5e1;
-      background:rgba(148,163,184,.06);
-      border:1px solid rgba(148,163,184,.14);
-    }
-
-    .side-card{
-      padding:19px;
-    }
-
-    .side-card h3{
-      margin:0 0 16px;
-      font-size:16px;
-    }
-
-    .gauge{
-      position:relative;
-      width:180px;
-      height:180px;
-      margin:12px auto 20px;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      border-radius:50%;
-
-      background:
-        conic-gradient(
-          var(--green) 0deg 0deg,
-          #172537 0deg 360deg
-        );
-    }
-
-    .gauge::after{
-      content:"";
-      position:absolute;
-      width:143px;
-      height:143px;
-      border-radius:50%;
-      background:#0a1726;
-      border:1px solid var(--line);
-    }
-
-    .gauge-inner{
-      position:relative;
-      z-index:2;
-      text-align:center;
-    }
-
-    .gauge-value{
-      font-size:40px;
-      font-weight:900;
-      color:var(--green);
-    }
-
-    .gauge-label{
-      color:var(--muted);
-      font-size:9px;
-      font-weight:bold;
-      text-transform:uppercase;
-    }
-
-    .side-row{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:12px;
-      margin-top:9px;
-      padding:11px 12px;
-      border-radius:12px;
-      background:rgba(1,7,15,.36);
-      border:1px solid var(--line);
-      font-size:10px;
-    }
-
-    .side-row span{
-      color:var(--muted);
-    }
-
-    .side-row strong{
-      text-align:right;
-    }
-
-    .filters{
-      display:grid;
-      grid-template-columns:repeat(4,1fr);
-      gap:10px;
-      margin-bottom:14px;
-      padding:14px;
-      border-radius:17px;
-      background:var(--panel);
-      border:1px solid var(--line);
-    }
-
-    .field label{
-      display:block;
-      margin-bottom:5px;
-      color:var(--muted);
-      font-size:9px;
-      font-weight:bold;
-      text-transform:uppercase;
-    }
-
-    select,
-    input{
-      width:100%;
-      padding:10px 11px;
-      border-radius:10px;
-      border:1px solid var(--line);
-      outline:none;
-      color:white;
-      background:#06111d;
-      font-size:11px;
-    }
-
-    .summary{
-      display:grid;
-      grid-template-columns:repeat(4,1fr);
-      gap:10px;
-      margin-bottom:14px;
-    }
-
-    .summary-card{
-      padding:14px;
-      border-radius:15px;
-      background:var(--panel);
-      border:1px solid var(--line);
-    }
-
-    .summary-label{
-      color:var(--muted);
-      font-size:9px;
-      font-weight:bold;
-      text-transform:uppercase;
-    }
-
-    .summary-value{
-      margin-top:5px;
-      font-size:24px;
-      font-weight:900;
-    }
-
-    .scanner{
-      overflow:hidden;
-      border-radius:19px;
-      background:var(--panel);
-      border:1px solid var(--line);
-      box-shadow:var(--shadow);
-    }
-
-    .scanner-head{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:12px;
-      padding:15px 17px;
-      border-bottom:1px solid var(--line);
-    }
-
-    .scanner-head h2{
-      margin:0;
-      font-size:16px;
-    }
-
-    .updated{
-      color:var(--muted);
-      font-size:9px;
-    }
-
-    .table-wrap{
-      overflow:auto;
-    }
-
-    table{
-      width:100%;
-      min-width:950px;
-      border-collapse:collapse;
-    }
-
-    th{
-      padding:11px 9px;
-      background:#081421;
-      color:#8798ae;
-      font-size:9px;
-      font-weight:bold;
-      text-transform:uppercase;
-    }
-
-    td{
-      padding:13px 9px;
-      border-top:1px solid rgba(255,255,255,.045);
-      text-align:center;
-      font-size:11px;
-    }
-
-    tbody tr{
-      cursor:pointer;
-      transition:.16s ease;
-    }
-
-    tbody tr:hover{
-      background:rgba(255,255,255,.035);
-    }
-
-    tbody tr.selected{
-      background:
-        linear-gradient(
-          90deg,
-          rgba(53,229,155,.10),
-          rgba(34,211,238,.035)
-        );
-
-      box-shadow:inset 3px 0 0 var(--green);
-    }
-
-    .match-cell{
-      min-width:260px;
-      text-align:left;
-    }
-
-    .teams{
-      font-size:12px;
-      font-weight:850;
-    }
-
-    .league-small{
-      margin-top:3px;
-      color:#718096;
-      font-size:9px;
-    }
-
-    .table-score{
-      font-size:15px;
-      font-weight:900;
-    }
-
-    .table-minute{
-      color:#bfdbfe;
-      font-size:12px;
-      font-weight:900;
-      white-space:nowrap;
-    }
-
-    .select-text{
-      color:#93c5fd;
-      font-size:9px;
-      font-weight:bold;
-    }
-
-    .loading{
-      opacity:.55;
-      pointer-events:none;
-    }
-
-    .empty{
-      padding:30px;
-      color:#64748b;
-      text-align:center;
-    }
-
-    .footer{
-      display:flex;
-      justify-content:center;
-      margin-top:21px;
-    }
-
-    .back{
-      padding:11px 18px;
-      border:1px solid var(--line);
-      border-radius:11px;
-      color:white;
-      background:#122034;
-      cursor:pointer;
-    }
-
-    @media(max-width:1000px){
-      .hero{
-        grid-template-columns:1fr;
-      }
-
-      .stats-grid{
-        grid-template-columns:repeat(3,1fr);
-      }
-    }
-
-    @media(max-width:750px){
-      .filters{
-        grid-template-columns:1fr 1fr;
-      }
-
-      .summary{
-        grid-template-columns:1fr 1fr;
-      }
-
-      .rtg-grid,
-      .goal-grid{
-        grid-template-columns:1fr;
-      }
-    }
-
-    @media(max-width:520px){
-      .filters,
-      .summary{
-        grid-template-columns:1fr;
-      }
-
-      .stats-grid{
-        grid-template-columns:1fr 1fr;
-      }
-
-      .match-line{
-        grid-template-columns:1fr;
-      }
-
-      .team,
-      .team.away{
-        text-align:center;
-      }
-
-      .score-center{
-        order:-1;
-      }
-
-      .brand h1{
-        font-size:29px;
-      }
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>SoccerTrend - Andry Matched</title>
+
+<style>
+:root{
+  --bg:#030810;
+  --bg2:#07111d;
+  --panel:#0a1523;
+  --line:rgba(148,163,184,.15);
+
+  --text:#f8fafc;
+  --muted:#8ea0b7;
+
+  --green:#35e59b;
+  --cyan:#22d3ee;
+  --yellow:#facc15;
+  --orange:#fb923c;
+  --red:#fb7185;
+
+  --shadow:0 20px 55px rgba(0,0,0,.34);
+}
+
+*{box-sizing:border-box}
+
+body{
+  margin:0;
+  min-height:100vh;
+  font-family:Inter,Arial,Helvetica,sans-serif;
+  color:var(--text);
+
+  background:
+    radial-gradient(circle at 10% 0%,rgba(34,211,238,.11),transparent 26%),
+    radial-gradient(circle at 88% 5%,rgba(53,229,155,.10),transparent 25%),
+    linear-gradient(180deg,var(--bg2),var(--bg));
+
+  background-attachment:fixed;
+}
+
+.app{
+  width:min(1500px,100%);
+  margin:auto;
+  padding:26px 18px 65px;
+}
+
+.topbar{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:18px;
+  flex-wrap:wrap;
+  margin-bottom:18px;
+}
+
+.brand{
+  display:flex;
+  align-items:center;
+  gap:14px;
+}
+
+.logo{
+  width:58px;
+  height:58px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  border-radius:18px;
+  font-size:28px;
+  background:linear-gradient(145deg,rgba(53,229,155,.23),rgba(34,211,238,.10));
+  border:1px solid rgba(53,229,155,.30);
+}
+
+.brand h1{
+  margin:0;
+  font-size:35px;
+  font-weight:900;
+  letter-spacing:-1px;
+}
+
+.brand h1 span{color:var(--green)}
+
+.brand p{
+  margin:5px 0 0;
+  color:var(--muted);
+  font-size:12px;
+}
+
+.live-box{
+  display:flex;
+  align-items:center;
+  gap:9px;
+  padding:10px 14px;
+  border-radius:999px;
+  color:#a7f3d0;
+  background:rgba(53,229,155,.08);
+  border:1px solid rgba(53,229,155,.22);
+  font-size:11px;
+  font-weight:bold;
+}
+
+.live-dot{
+  width:8px;
+  height:8px;
+  border-radius:50%;
+  background:var(--green);
+  box-shadow:0 0 13px var(--green);
+  animation:pulse 1.4s infinite;
+}
+
+@keyframes pulse{
+  0%,100%{opacity:1}
+  50%{opacity:.35}
+}
+
+.info{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  flex-wrap:wrap;
+  margin-bottom:17px;
+  padding:12px 15px;
+  border-radius:14px;
+  background:rgba(59,130,246,.07);
+  border:1px solid rgba(96,165,250,.15);
+  color:#bfdbfe;
+  font-size:11px;
+}
+
+.hero{
+  display:grid;
+  grid-template-columns:1.25fr .75fr;
+  gap:17px;
+  margin-bottom:17px;
+}
+
+.card{
+  background:linear-gradient(180deg,rgba(12,26,43,.95),rgba(7,17,30,.95));
+  border:1px solid var(--line);
+  border-radius:22px;
+  box-shadow:var(--shadow);
+}
+
+.main-match{overflow:hidden}
+
+.card-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  padding:16px 19px;
+  border-bottom:1px solid var(--line);
+}
+
+.card-title{
+  color:#fde68a;
+  font-size:11px;
+  font-weight:900;
+  letter-spacing:.08em;
+}
+
+.league{
+  color:var(--muted);
+  font-size:10px;
+}
+
+.main-body{padding:24px}
+
+.match-line{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);
+  align-items:center;
+  gap:18px;
+}
+
+.team{
+  font-size:24px;
+  font-weight:900;
+  overflow-wrap:anywhere;
+}
+
+.team.away{text-align:right}
+
+.score-center{
+  min-width:130px;
+  text-align:center;
+}
+
+.score{
+  font-size:38px;
+  font-weight:900;
+}
+
+.minute{
+  display:inline-block;
+  margin-top:6px;
+  padding:5px 9px;
+  border-radius:999px;
+  color:#bfdbfe;
+  background:rgba(96,165,250,.09);
+  border:1px solid rgba(96,165,250,.18);
+  font-size:10px;
+  font-weight:bold;
+}
+
+.rtg-grid,
+.goal-grid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:11px;
+  margin-top:20px;
+}
+
+.metric,
+.goal-box{
+  padding:15px;
+  text-align:center;
+  border-radius:15px;
+  background:rgba(1,7,15,.40);
+  border:1px solid var(--line);
+}
+
+.metric-label,
+.goal-label{
+  color:var(--muted);
+  font-size:9px;
+  font-weight:bold;
+  text-transform:uppercase;
+  letter-spacing:.08em;
+}
+
+.metric-value{
+  margin-top:7px;
+  font-size:27px;
+  font-weight:900;
+}
+
+.goal-value{
+  margin-top:7px;
+  font-size:20px;
+  font-weight:900;
+}
+
+.total-rtg{color:var(--green)}
+.home-rtg{color:var(--cyan)}
+.away-rtg{color:var(--yellow)}
+
+#rtgPerMinute{color:var(--cyan)}
+#rtgDelta{color:var(--yellow)}
+
+.history-box{
+  margin-top:19px;
+  padding:15px;
+  border-radius:16px;
+  background:rgba(1,7,15,.36);
+  border:1px solid var(--line);
+}
+
+.history-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  margin-bottom:13px;
+}
+
+.history-head strong{font-size:11px}
+
+.history-trend{
+  font-size:12px;
+  font-weight:900;
+}
+
+.history-bars{
+  height:110px;
+  display:flex;
+  align-items:flex-end;
+  gap:6px;
+  overflow-x:auto;
+  padding-bottom:4px;
+}
+
+.history-column{
+  min-width:33px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:flex-end;
+  height:100%;
+}
+
+.history-value{
+  margin-bottom:4px;
+  color:#cbd5e1;
+  font-size:8px;
+  font-weight:bold;
+}
+
+.history-bar{
+  width:17px;
+  min-height:3px;
+  border-radius:5px 5px 2px 2px;
+  background:linear-gradient(180deg,var(--green),#0dbb78);
+}
+
+.history-minute{
+  margin-top:5px;
+  color:#64748b;
+  font-size:8px;
+  white-space:nowrap;
+}
+
+.stats-grid{
+  display:grid;
+  grid-template-columns:repeat(5,1fr);
+  gap:9px;
+  margin-top:18px;
+}
+
+.stat{
+  padding:11px 8px;
+  text-align:center;
+  border-radius:13px;
+  background:rgba(2,8,18,.40);
+  border:1px solid var(--line);
+}
+
+.stat strong{
+  display:block;
+  margin-bottom:4px;
+  font-size:17px;
+}
+
+.stat span{
+  color:var(--muted);
+  font-size:9px;
+}
+
+.stat-detail{
+  margin-top:4px;
+  color:#64748b;
+  font-size:8px;
+}
+
+.signal{
+  margin-top:17px;
+  padding:14px;
+  text-align:center;
+  border-radius:14px;
+  font-size:12px;
+  font-weight:900;
+  letter-spacing:.06em;
+}
+
+.signal-hot{
+  color:#a7f3d0;
+  background:rgba(53,229,155,.11);
+  border:1px solid rgba(53,229,155,.28);
+}
+
+.signal-ready{
+  color:#a5f3fc;
+  background:rgba(34,211,238,.09);
+  border:1px solid rgba(34,211,238,.24);
+}
+
+.signal-watch{
+  color:#fef08a;
+  background:rgba(250,204,21,.09);
+  border:1px solid rgba(250,204,21,.22);
+}
+
+.signal-cold{
+  color:#cbd5e1;
+  background:rgba(148,163,184,.06);
+  border:1px solid rgba(148,163,184,.14);
+}
+
+.side-card{padding:19px}
+
+.side-card h3{
+  margin:0 0 16px;
+  font-size:16px;
+}
+
+.gauge{
+  position:relative;
+  width:180px;
+  height:180px;
+  margin:12px auto 20px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  border-radius:50%;
+  background:conic-gradient(var(--green) 0deg 0deg,#172537 0deg 360deg);
+}
+
+.gauge::after{
+  content:"";
+  position:absolute;
+  width:143px;
+  height:143px;
+  border-radius:50%;
+  background:#0a1726;
+  border:1px solid var(--line);
+}
+
+.gauge-inner{
+  position:relative;
+  z-index:2;
+  text-align:center;
+}
+
+.gauge-value{
+  font-size:40px;
+  font-weight:900;
+  color:var(--green);
+}
+
+.gauge-label{
+  color:var(--muted);
+  font-size:9px;
+  font-weight:bold;
+}
+
+.side-row{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  margin-top:9px;
+  padding:11px 12px;
+  border-radius:12px;
+  background:rgba(1,7,15,.36);
+  border:1px solid var(--line);
+  font-size:10px;
+}
+
+.side-row span{color:var(--muted)}
+
+.filters{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:10px;
+  margin-bottom:14px;
+  padding:14px;
+  border-radius:17px;
+  background:var(--panel);
+  border:1px solid var(--line);
+}
+
+.field label{
+  display:block;
+  margin-bottom:5px;
+  color:var(--muted);
+  font-size:9px;
+  font-weight:bold;
+  text-transform:uppercase;
+}
+
+select,input{
+  width:100%;
+  padding:10px 11px;
+  border-radius:10px;
+  border:1px solid var(--line);
+  color:white;
+  background:#06111d;
+}
+
+.summary{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:10px;
+  margin-bottom:14px;
+}
+
+.summary-card{
+  padding:14px;
+  border-radius:15px;
+  background:var(--panel);
+  border:1px solid var(--line);
+}
+
+.summary-label{
+  color:var(--muted);
+  font-size:9px;
+  font-weight:bold;
+  text-transform:uppercase;
+}
+
+.summary-value{
+  margin-top:5px;
+  font-size:24px;
+  font-weight:900;
+}
+
+.scanner{
+  overflow:hidden;
+  border-radius:19px;
+  background:var(--panel);
+  border:1px solid var(--line);
+  box-shadow:var(--shadow);
+}
+
+.scanner-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  padding:15px 17px;
+  border-bottom:1px solid var(--line);
+  flex-wrap:wrap;
+}
+
+.scanner-head h2{
+  margin:0;
+  font-size:16px;
+}
+
+.scanner-actions{
+  display:flex;
+  align-items:center;
+  gap:12px;
+}
+
+.scan-button{
+  border:1px solid rgba(53,229,155,.28);
+  background:rgba(53,229,155,.10);
+  color:#a7f3d0;
+  padding:9px 13px;
+  border-radius:10px;
+  font-size:10px;
+  font-weight:900;
+  cursor:pointer;
+}
+
+.scan-button:disabled{
+  opacity:.5;
+  cursor:wait;
+}
+
+.updated{
+  color:var(--muted);
+  font-size:9px;
+}
+
+.table-wrap{overflow:auto}
+
+table{
+  width:100%;
+  min-width:1100px;
+  border-collapse:collapse;
+}
+
+th{
+  padding:11px 9px;
+  background:#081421;
+  color:#8798ae;
+  font-size:9px;
+  text-transform:uppercase;
+}
+
+td{
+  padding:13px 9px;
+  border-top:1px solid rgba(255,255,255,.045);
+  text-align:center;
+  font-size:11px;
+}
+
+tbody tr{
+  cursor:pointer;
+  transition:.16s ease;
+}
+
+tbody tr:hover{
+  background:rgba(255,255,255,.035);
+}
+
+tbody tr.selected{
+  background:linear-gradient(90deg,rgba(53,229,155,.10),rgba(34,211,238,.035));
+  box-shadow:inset 3px 0 0 var(--green);
+}
+
+.row-hot{
+  background:rgba(53,229,155,.055);
+}
+
+.match-cell{
+  min-width:250px;
+  text-align:left;
+}
+
+.teams{
+  font-size:12px;
+  font-weight:850;
+}
+
+.league-small{
+  margin-top:3px;
+  color:#718096;
+  font-size:9px;
+}
+
+.table-score{
+  font-size:15px;
+  font-weight:900;
+}
+
+.table-minute{
+  color:#bfdbfe;
+  font-size:12px;
+  font-weight:900;
+}
+
+.status-badge{
+  display:inline-flex;
+  padding:7px 9px;
+  border-radius:999px;
+  font-size:9px;
+  font-weight:900;
+  white-space:nowrap;
+}
+
+.badge-hot{
+  color:#a7f3d0;
+  border:1px solid rgba(53,229,155,.28);
+  background:rgba(53,229,155,.10);
+}
+
+.badge-ready{
+  color:#a5f3fc;
+  border:1px solid rgba(34,211,238,.25);
+  background:rgba(34,211,238,.09);
+}
+
+.badge-watch{
+  color:#fef08a;
+  border:1px solid rgba(250,204,21,.23);
+  background:rgba(250,204,21,.08);
+}
+
+.badge-cold{
+  color:#94a3b8;
+  border:1px solid rgba(148,163,184,.14);
+  background:rgba(148,163,184,.05);
+}
+
+.badge-early{
+  color:#93c5fd;
+  border:1px solid rgba(96,165,250,.18);
+  background:rgba(96,165,250,.06);
+}
+
+.badge-none{
+  color:#64748b;
+  border:1px solid rgba(100,116,139,.12);
+  background:rgba(100,116,139,.04);
+}
+
+.legend{
+  margin-top:14px;
+  padding:15px;
+  border-radius:17px;
+  background:var(--panel);
+  border:1px solid var(--line);
+}
+
+.legend-title{
+  margin-bottom:12px;
+  font-size:11px;
+  font-weight:900;
+}
+
+.legend-grid{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:10px;
+}
+
+.legend-item{
+  padding:11px;
+  border-radius:12px;
+  background:rgba(1,7,15,.35);
+  border:1px solid var(--line);
+  font-size:10px;
+}
+
+.legend-item p{
+  margin:6px 0 0;
+  color:var(--muted);
+  line-height:1.4;
+}
+
+.loading{
+  opacity:.55;
+  pointer-events:none;
+}
+
+.footer{
+  display:flex;
+  justify-content:center;
+  margin-top:21px;
+}
+
+.back{
+  padding:11px 18px;
+  border:1px solid var(--line);
+  border-radius:11px;
+  color:white;
+  background:#122034;
+  cursor:pointer;
+}
+
+@media(max-width:1000px){
+  .hero{grid-template-columns:1fr}
+  .legend-grid{grid-template-columns:1fr 1fr}
+}
+
+@media(max-width:750px){
+  .filters,.summary{grid-template-columns:1fr 1fr}
+  .rtg-grid,.goal-grid{grid-template-columns:1fr}
+  .stats-grid{grid-template-columns:repeat(3,1fr)}
+}
+
+@media(max-width:520px){
+  .filters,.summary,.legend-grid{grid-template-columns:1fr}
+  .match-line{grid-template-columns:1fr}
+  .team,.team.away{text-align:center}
+  .score-center{order:-1}
+}
+</style>
 </head>
 
 <body>
 
 <div class="app">
 
-  <div class="topbar">
+<div class="topbar">
 
-    <div class="brand">
-
-      <div class="logo">
-        ⚽
-      </div>
-
-      <div>
-        <h1>
-          Soccer<span>Trend</span>
-        </h1>
-
-        <p>
-          Live RTG & Goal Pressure Scanner
-        </p>
-      </div>
-
-    </div>
-
-    <div class="live-box">
-      <span class="live-dot"></span>
-      FOTMOB LIVE
-    </div>
-
-  </div>
-
-
-  <div class="info">
+  <div class="brand">
+    <div class="logo">⚽</div>
 
     <div>
-      ✅ FotMob collegato • RTG live • Goal Signal sperimentale
+      <h1>Soccer<span>Trend</span></h1>
+      <p>Live RTG & Goal Pressure Scanner</p>
     </div>
-
-    <div>
-      Refresh:
-      <strong id="countdown">120s</strong>
-    </div>
-
   </div>
 
-
-  <div class="hero">
-
-    <div class="main-match card" id="mainCard">
-
-      <div class="card-head">
-
-        <div class="card-title">
-          🔥 MATCH ANALYSIS
-        </div>
-
-        <div class="league" id="selectedLeague">
-          Seleziona una partita
-        </div>
-
-      </div>
-
-
-      <div class="main-body">
-
-        <div class="match-line">
-
-          <div class="team" id="homeTeam">
-            —
-          </div>
-
-          <div class="score-center">
-
-            <div class="score" id="mainScore">
-              — - —
-            </div>
-
-            <div class="minute" id="mainStatus">
-              LIVE
-            </div>
-
-          </div>
-
-          <div class="team away" id="awayTeam">
-            —
-          </div>
-
-        </div>
-
-
-        <div class="rtg-grid">
-
-          <div class="metric">
-
-            <div class="metric-label">
-              RTG Match
-            </div>
-
-            <div class="metric-value total-rtg" id="rtgTotal">
-              0.0
-            </div>
-
-          </div>
-
-
-          <div class="metric">
-
-            <div class="metric-label">
-              RTG Casa
-            </div>
-
-            <div class="metric-value home-rtg" id="rtgHome">
-              0.0
-            </div>
-
-          </div>
-
-
-          <div class="metric">
-
-            <div class="metric-label">
-              RTG Trasferta
-            </div>
-
-            <div class="metric-value away-rtg" id="rtgAway">
-              0.0
-            </div>
-
-          </div>
-
-        </div>
-
-
-        <div class="history-box">
-
-          <div class="history-head">
-
-            <strong>
-              📊 RTG HISTORY
-            </strong>
-
-            <div class="history-trend" id="historyTrend">
-              →
-            </div>
-
-          </div>
-
-          <div class="history-bars" id="historyBars">
-
-            <div class="empty">
-              Seleziona una partita
-            </div>
-
-          </div>
-
-        </div>
-
-
-        <div class="stats-grid">
-
-          <div class="stat">
-
-            <strong id="totalShots">
-              —
-            </strong>
-
-            <span>
-              Tiri
-            </span>
-
-            <div class="stat-detail" id="totalShotsSplit">
-              —
-            </div>
-
-          </div>
-
-
-          <div class="stat">
-
-            <strong id="shotsTarget">
-              —
-            </strong>
-
-            <span>
-              In porta
-            </span>
-
-            <div class="stat-detail" id="shotsTargetSplit">
-              —
-            </div>
-
-          </div>
-
-
-          <div class="stat">
-
-            <strong id="corners">
-              —
-            </strong>
-
-            <span>
-              Corner
-            </span>
-
-            <div class="stat-detail" id="cornersSplit">
-              —
-            </div>
-
-          </div>
-
-
-          <div class="stat">
-
-            <strong id="touchesBox">
-              —
-            </strong>
-
-            <span>
-              Tocchi area
-            </span>
-
-            <div class="stat-detail" id="touchesBoxSplit">
-              —
-            </div>
-
-          </div>
-
-
-          <div class="stat">
-
-            <strong id="bigChances">
-              —
-            </strong>
-
-            <span>
-              Big chances
-            </span>
-
-            <div class="stat-detail" id="bigChancesSplit">
-              —
-            </div>
-
-          </div>
-
-        </div>
-
-
-        <div class="goal-grid">
-
-          <div class="goal-box">
-
-            <div class="goal-label">
-              RTG / MIN
-            </div>
-
-            <div class="goal-value" id="rtgPerMinute">
-              0.00
-            </div>
-
-          </div>
-
-
-          <div class="goal-box">
-
-            <div class="goal-label">
-              Δ RTG
-            </div>
-
-            <div class="goal-value" id="rtgDelta">
-              0.0
-            </div>
-
-          </div>
-
-
-          <div class="goal-box">
-
-            <div class="goal-label">
-              Goal Signal
-            </div>
-
-            <div class="goal-value" id="goalSignal">
-              —
-            </div>
-
-          </div>
-
-        </div>
-
-
-        <div class="signal signal-cold" id="signal">
-          SELEZIONA UNA PARTITA
-        </div>
-
-      </div>
-
-    </div>
-
-
-    <div class="side-card card">
-
-      <h3>
-        Match Pressure
-      </h3>
-
-      <div class="gauge" id="gauge">
-
-        <div class="gauge-inner">
-
-          <div class="gauge-value" id="gaugeValue">
-            0
-          </div>
-
-          <div class="gauge-label">
-            RTG INDEX
-          </div>
-
-        </div>
-
-      </div>
-
-
-      <div class="side-row">
-
-        <span>
-          Possesso
-        </span>
-
-        <strong id="possession">
-          —
-        </strong>
-
-      </div>
-
-
-      <div class="side-row">
-
-        <span>
-          Shotmap
-        </span>
-
-        <strong id="shotmapStatus">
-          —
-        </strong>
-
-      </div>
-
-
-      <div class="side-row">
-
-        <span>
-          Momentum FotMob
-        </span>
-
-        <strong id="momentumStatus">
-          —
-        </strong>
-
-      </div>
-
-
-      <div class="side-row">
-
-        <span>
-          Minuto partita
-        </span>
-
-        <strong id="sideMinute">
-          —
-        </strong>
-
-      </div>
-
-
-      <div class="side-row">
-
-        <span>
-          Soglia RTG/min
-        </span>
-
-        <strong id="thresholdDisplay">
-          —
-        </strong>
-
-      </div>
-
-
-      <div class="side-row">
-
-        <span>
-          Ultimo aggiornamento
-        </span>
-
-        <strong id="detailUpdate">
-          —
-        </strong>
-
-      </div>
-
-    </div>
-
+  <div class="live-box">
+    <span class="live-dot"></span>
+    FOTMOB LIVE
   </div>
 
-
-  <div class="filters">
-
-    <div class="field">
-
-      <label>
-        Cerca squadra
-      </label>
-
-      <input
-        id="search"
-        placeholder="es. Inter"
-      >
-
-    </div>
+</div>
 
 
-    <div class="field">
+<div class="info">
 
-      <label>
-        Risultato
-      </label>
-
-      <select id="scoreFilter">
-
-        <option value="all">
-          Tutti
-        </option>
-
-        <option value="00">
-          Solo 0-0
-        </option>
-
-        <option value="draw">
-          Pareggio
-        </option>
-
-        <option value="oneGoal">
-          Max 1 gol
-        </option>
-
-      </select>
-
-    </div>
-
-
-    <div class="field">
-
-      <label>
-        Competizione
-      </label>
-
-      <select id="leagueFilter">
-
-        <option value="all">
-          Tutte
-        </option>
-
-      </select>
-
-    </div>
-
-
-    <div class="field">
-
-      <label>
-        Ordina
-      </label>
-
-      <select id="sortFilter">
-
-        <option value="league">
-          Competizione
-        </option>
-
-        <option value="minute">
-          Minuto più alto
-        </option>
-
-        <option value="score">
-          Gol partita
-        </option>
-
-      </select>
-
-    </div>
-
+  <div>
+    ✅ RTG live • Scanner Goal • clicca una partita per analizzarla
   </div>
 
-
-  <div class="summary">
-
-    <div class="summary-card">
-
-      <div class="summary-label">
-        Live FotMob
-      </div>
-
-      <div class="summary-value" id="liveCount">
-        0
-      </div>
-
-    </div>
-
-
-    <div class="summary-card">
-
-      <div class="summary-label">
-        Partita selezionata
-      </div>
-
-      <div
-        class="summary-value"
-        style="font-size:15px;"
-        id="selectedName"
-      >
-        —
-      </div>
-
-    </div>
-
-
-    <div class="summary-card">
-
-      <div class="summary-label">
-        RTG attuale
-      </div>
-
-      <div class="summary-value" id="summaryRtg">
-        —
-      </div>
-
-    </div>
-
-
-    <div class="summary-card">
-
-      <div class="summary-label">
-        Refresh
-      </div>
-
-      <div class="summary-value" id="summaryCountdown">
-        120s
-      </div>
-
-    </div>
-
+  <div>
+    Refresh partita selezionata:
+    <strong id="countdown">120s</strong>
   </div>
 
-
-  <div class="scanner">
-
-    <div class="scanner-head">
-
-      <h2>
-        📡 Partite Live
-      </h2>
-
-      <div class="updated" id="listUpdate">
-        Caricamento...
-      </div>
-
-    </div>
+</div>
 
 
-    <div class="table-wrap">
+<div class="hero">
 
-      <table>
+<div class="main-match card" id="mainCard">
 
-        <thead>
+<div class="card-head">
 
-          <tr>
-            <th>Min</th>
-            <th>Partita</th>
-            <th>Ris.</th>
-            <th>Campionato</th>
-            <th>Analizza</th>
-          </tr>
-
-        </thead>
-
-        <tbody id="matches"></tbody>
-
-      </table>
-
-    </div>
-
+  <div class="card-title">
+    🔥 MATCH ANALYSIS
   </div>
 
+  <div class="league" id="selectedLeague">
+    Seleziona una partita
+  </div>
 
-  <div class="footer">
+</div>
 
-    <button
-      class="back"
-      onclick="window.location.href='index.html'"
-    >
-      ← Torna agli strumenti
+
+<div class="main-body">
+
+<div class="match-line">
+
+  <div class="team" id="homeTeam">—</div>
+
+  <div class="score-center">
+    <div class="score" id="mainScore">— - —</div>
+    <div class="minute" id="mainStatus">LIVE</div>
+  </div>
+
+  <div class="team away" id="awayTeam">—</div>
+
+</div>
+
+
+<div class="rtg-grid">
+
+  <div class="metric">
+    <div class="metric-label">RTG Match</div>
+    <div class="metric-value total-rtg" id="rtgTotal">0.0</div>
+  </div>
+
+  <div class="metric">
+    <div class="metric-label">RTG Casa</div>
+    <div class="metric-value home-rtg" id="rtgHome">0.0</div>
+  </div>
+
+  <div class="metric">
+    <div class="metric-label">RTG Trasferta</div>
+    <div class="metric-value away-rtg" id="rtgAway">0.0</div>
+  </div>
+
+</div>
+
+
+<div class="history-box">
+
+  <div class="history-head">
+    <strong>📊 RTG HISTORY</strong>
+    <div class="history-trend" id="historyTrend">→</div>
+  </div>
+
+  <div class="history-bars" id="historyBars"></div>
+
+</div>
+
+
+<div class="stats-grid">
+
+  <div class="stat">
+    <strong id="totalShots">—</strong>
+    <span>Tiri</span>
+    <div class="stat-detail" id="totalShotsSplit">—</div>
+  </div>
+
+  <div class="stat">
+    <strong id="shotsTarget">—</strong>
+    <span>In porta</span>
+    <div class="stat-detail" id="shotsTargetSplit">—</div>
+  </div>
+
+  <div class="stat">
+    <strong id="corners">—</strong>
+    <span>Corner</span>
+    <div class="stat-detail" id="cornersSplit">—</div>
+  </div>
+
+  <div class="stat">
+    <strong id="touchesBox">—</strong>
+    <span>Tocchi area</span>
+    <div class="stat-detail" id="touchesBoxSplit">—</div>
+  </div>
+
+  <div class="stat">
+    <strong id="bigChances">—</strong>
+    <span>Big chances</span>
+    <div class="stat-detail" id="bigChancesSplit">—</div>
+  </div>
+
+</div>
+
+
+<div class="goal-grid">
+
+  <div class="goal-box">
+    <div class="goal-label">RTG / MIN</div>
+    <div class="goal-value" id="rtgPerMinute">0.00</div>
+  </div>
+
+  <div class="goal-box">
+    <div class="goal-label">Δ RTG</div>
+    <div class="goal-value" id="rtgDelta">0.0</div>
+  </div>
+
+  <div class="goal-box">
+    <div class="goal-label">Goal Signal</div>
+    <div class="goal-value" id="goalSignal">—</div>
+  </div>
+
+</div>
+
+
+<div class="signal signal-cold" id="signal">
+  SELEZIONA UNA PARTITA
+</div>
+
+</div>
+</div>
+
+
+<div class="side-card card">
+
+<h3>Match Pressure</h3>
+
+<div class="gauge" id="gauge">
+
+  <div class="gauge-inner">
+    <div class="gauge-value" id="gaugeValue">0</div>
+    <div class="gauge-label">RTG INDEX</div>
+  </div>
+
+</div>
+
+
+<div class="side-row">
+  <span>Possesso</span>
+  <strong id="possession">—</strong>
+</div>
+
+<div class="side-row">
+  <span>Minuto partita</span>
+  <strong id="sideMinute">—</strong>
+</div>
+
+<div class="side-row">
+  <span>Soglia RTG/min</span>
+  <strong id="thresholdDisplay">—</strong>
+</div>
+
+<div class="side-row">
+  <span>Ultimo aggiornamento</span>
+  <strong id="detailUpdate">—</strong>
+</div>
+
+</div>
+
+</div>
+
+
+<div class="filters">
+
+<div class="field">
+<label>Cerca squadra</label>
+<input id="search" placeholder="es. Inter">
+</div>
+
+<div class="field">
+<label>Risultato</label>
+<select id="scoreFilter">
+<option value="all">Tutti</option>
+<option value="00">Solo 0-0</option>
+<option value="draw">Pareggio</option>
+<option value="oneGoal">Max 1 gol</option>
+</select>
+</div>
+
+<div class="field">
+<label>Stato Goal</label>
+<select id="goalFilter">
+<option value="all">Tutti</option>
+<option value="HOT">🔥 Over corrente</option>
+<option value="READY">🟢 Vicine</option>
+<option value="WATCH">🟡 Watch</option>
+<option value="EARLY">❄️ Troppo presto</option>
+</select>
+</div>
+
+<div class="field">
+<label>Ordina</label>
+<select id="sortFilter">
+<option value="signal">Più interessanti</option>
+<option value="minute">Minuto più alto</option>
+<option value="league">Competizione</option>
+</select>
+</div>
+
+</div>
+
+
+<div class="summary">
+
+<div class="summary-card">
+<div class="summary-label">Live</div>
+<div class="summary-value" id="liveCount">0</div>
+</div>
+
+<div class="summary-card">
+<div class="summary-label">🔥 Over</div>
+<div class="summary-value" id="hotCount">0</div>
+</div>
+
+<div class="summary-card">
+<div class="summary-label">🟢 Vicine</div>
+<div class="summary-value" id="readyCount">0</div>
+</div>
+
+<div class="summary-card">
+<div class="summary-label">Scanner</div>
+<div class="summary-value" id="scanStatus" style="font-size:15px;">Non eseguito</div>
+</div>
+
+</div>
+
+
+<div class="scanner">
+
+<div class="scanner-head">
+
+  <h2>📡 Partite Live</h2>
+
+  <div class="scanner-actions">
+
+    <div class="updated" id="listUpdate">
+      Caricamento...
+    </div>
+
+    <button class="scan-button" id="scanButton">
+      🔎 SCANSIONA LIVE
     </button>
 
   </div>
@@ -1372,374 +1025,237 @@
 </div>
 
 
+<div class="table-wrap">
+
+<table>
+
+<thead>
+<tr>
+<th>Min</th>
+<th>Partita</th>
+<th>Ris.</th>
+<th>RTG</th>
+<th>RTG/min</th>
+<th>Stato Goal</th>
+<th>Analizza</th>
+</tr>
+</thead>
+
+<tbody id="matches"></tbody>
+
+</table>
+
+</div>
+
+</div>
+
+
+<div class="legend">
+
+<div class="legend-title">
+🎯 LEGENDA GOAL SCANNER
+</div>
+
+<div class="legend-grid">
+
+<div class="legend-item">
+<span class="status-badge badge-early">
+❄️ TROPPO PRESTO
+</span>
+<p>
+Prima del 25°. Aspettiamo che si accumulino abbastanza dati.
+</p>
+</div>
+
+<div class="legend-item">
+<span class="status-badge badge-watch">
+🟡 WATCH
+</span>
+<p>
+La partita mostra attività interessante ma non è ancora vicina alla soglia.
+</p>
+</div>
+
+<div class="legend-item">
+<span class="status-badge badge-ready">
+🟢 VICINA AL GOAL
+</span>
+<p>
+RTG/min e statistiche sono interessanti. È una delle partite da aprire e analizzare.
+</p>
+</div>
+
+<div class="legend-item">
+<span class="status-badge badge-hot">
+🔥 OVER CORRENTE
+</span>
+<p>
+Pressione elevata più accelerazione RTG. Segnale sperimentale più forte.
+</p>
+</div>
+
+</div>
+
+</div>
+
+
+<div class="footer">
+
+<button class="back" onclick="window.location.href='index.html'">
+← Torna agli strumenti
+</button>
+
+</div>
+
+</div>
+
+
 <script>
 
 let liveMatches = [];
-
 let selectedMatchId = null;
-
 let selectedMatch = null;
-
 let seconds = 120;
 
 const rtgHistory = {};
+const scanResults = {};
 
 
-/*
-==========================================
+/* ==============================
 HELPERS
-==========================================
-*/
+============================== */
 
 function n(value){
-
-  const num =
-    Number(value);
-
-  return Number.isFinite(num)
-    ? num
-    : 0;
-
-}
-
-
-function cleanMinute(value){
-
-  if(
-    value === null ||
-    value === undefined ||
-    value === ""
-  ){
-    return "";
-  }
-
-  const text =
-    String(value).trim();
-
-  if(
-    text.toLowerCase() ===
-    "live"
-  ){
-    return "";
-  }
-
-  return text;
-
+  const x = Number(value);
+  return Number.isFinite(x) ? x : 0;
 }
 
 
 function minuteNumber(value){
 
-  const text =
-    cleanMinute(value);
-
   const match =
-    text.match(/\d+/);
+    String(value || "")
+    .match(/\d+/);
 
-  if(!match){
-    return 0;
-  }
-
-  return Number(match[0]) || 0;
-
+  return match
+    ? Number(match[0])
+    : 0;
 }
 
 
 function displayMinute(match){
 
-  const minute =
-    cleanMinute(
-      match?.minute
-    );
+  if(match?.minute){
 
-  if(minute){
+    const text =
+      String(match.minute);
 
-    if(
-      minute.includes("'")
-    ){
-      return minute;
-    }
-
-    return `${minute}'`;
+    return text.includes("'")
+      ? text
+      : `${text}'`;
 
   }
 
-
-  const reason =
-    String(
-      match?.reason || ""
-    ).trim();
-
-
-  if(reason){
-
-    const lower =
-      reason.toLowerCase();
-
-    if(
-      lower === "half time" ||
-      lower === "ht"
-    ){
-      return "HT";
-    }
-
-    if(
-      lower === "extra time"
-    ){
-      return "ET";
-    }
-
-    if(
-      reason.includes("'")
-    ){
-      return reason;
-    }
-
+  if(
+    String(match?.reason)
+      .toLowerCase()
+      .includes("half")
+  ){
+    return "HT";
   }
 
   return "LIVE";
-
 }
 
 
-/*
-==========================================
-RTG
-==========================================
-*/
-
-function calculateTeamRtg(
-  stats,
-  side
-){
-
-  const shotsOnTarget =
-    n(
-      stats?.shotsOnTarget?.[side]
-    );
-
-  const totalShots =
-    n(
-      stats?.totalShots?.[side]
-    );
-
-  const corners =
-    n(
-      stats?.corners?.[side]
-    );
-
-  const touchesBox =
-    n(
-      stats?.touchesBox?.[side]
-    );
-
-  const bigChances =
-    n(
-      stats?.bigChances?.[side]
-    );
-
+function calculateTeamRtg(stats,side){
 
   const value =
-      (shotsOnTarget * 4)
-    + (totalShots * 1)
-    + (corners * 1.5)
-    + (touchesBox * .6)
-    + (bigChances * 5);
+      n(stats?.shotsOnTarget?.[side]) * 4
+    + n(stats?.totalShots?.[side]) * 1
+    + n(stats?.corners?.[side]) * 1.5
+    + n(stats?.touchesBox?.[side]) * .6
+    + n(stats?.bigChances?.[side]) * 5;
+
+  return Math.round(value * 10) / 10;
+}
 
 
-  return Math.round(
-    value * 10
-  ) / 10;
+function threshold(minute){
 
+  if(minute < 25) return 999;
+  if(minute <= 44) return .40;
+  if(minute <= 64) return .45;
+  if(minute <= 79) return .50;
+
+  return .55;
 }
 
 
 /*
-==========================================
-GOAL THRESHOLD
-==========================================
+==============================
+SCANNER STATUS
+
+Per la scansione generale non
+abbiamo ancora abbastanza storico
+per usare Delta RTG.
+
+Per questo distinguiamo:
+- READY = partita VICINA
+- HOT viene confermato quando,
+  analizzandola sopra, vediamo
+  anche accelerazione RTG.
+==============================
 */
 
-function getGoalThreshold(minute){
-
-  if(minute < 25){
-    return 999;
-  }
-
-  if(minute <= 44){
-    return 0.40;
-  }
-
-  if(minute <= 64){
-    return 0.45;
-  }
-
-  if(minute <= 79){
-    return 0.50;
-  }
-
-  return 0.55;
-
-}
-
-
-/*
-==========================================
-RTG DELTA
-==========================================
-*/
-
-function calculateRtgDelta(
-  matchId
-){
-
-  const history =
-    rtgHistory[
-      matchId
-    ] || [];
-
-
-  if(
-    history.length < 2
-  ){
-    return 0;
-  }
-
-
-  const latest =
-    history[
-      history.length - 1
-    ].rtg;
-
-
-  const compareIndex =
-    Math.max(
-      0,
-      history.length - 4
-    );
-
-
-  const previous =
-    history[
-      compareIndex
-    ].rtg;
-
-
-  return Math.round(
-    (
-      latest -
-      previous
-    ) * 10
-  ) / 10;
-
-}
-
-
-/*
-==========================================
-GOAL SIGNAL
-==========================================
-*/
-
-function calculateGoalSignal({
+function scannerSignal(
   minute,
   rtg,
-  rtgPerMinute,
-  delta,
   stats
-}){
+){
 
   if(minute < 25){
 
     return {
-      level:"COLD",
+      level:"EARLY",
       text:"❄️ TROPPO PRESTO"
     };
 
   }
 
 
-  const threshold =
-    getGoalThreshold(
-      minute
-    );
+  const rate =
+    minute > 0
+      ? rtg / minute
+      : 0;
 
 
-  const shotsOnTarget =
-    n(
-      stats?.shotsOnTarget?.total
-    );
+  const target =
+    threshold(minute);
 
 
-  const touchesBox =
-    n(
-      stats?.touchesBox?.total
-    );
+  const confirmation =
+       n(stats?.shotsOnTarget?.total) >= 3
+    || n(stats?.touchesBox?.total) >= 12
+    || n(stats?.bigChances?.total) >= 2
+    || n(stats?.corners?.total) >= 5;
 
-
-  const bigChances =
-    n(
-      stats?.bigChances?.total
-    );
-
-
-  const corners =
-    n(
-      stats?.corners?.total
-    );
-
-
-  const attackingConfirmation =
-       shotsOnTarget >= 3
-    || touchesBox >= 12
-    || bigChances >= 2
-    || corners >= 5;
-
-
-  /*
-    SEGNALE FORTE
-  */
 
   if(
-    rtgPerMinute >= threshold &&
-    delta >= 3 &&
-    attackingConfirmation
-  ){
-
-    return {
-      level:"HOT",
-      text:"🔥 OVER CORRENTE"
-    };
-
-  }
-
-
-  /*
-    PRONTO
-  */
-
-  if(
-    rtgPerMinute >= threshold &&
-    delta > 0
+    rate >= target &&
+    confirmation
   ){
 
     return {
       level:"READY",
-      text:"🟢 PREPARA INGRESSO"
+      text:"🟢 VICINA AL GOAL"
     };
 
   }
 
 
-  /*
-    WATCH
-  */
-
   if(
-    rtgPerMinute >=
-      threshold * .80
-    ||
-    delta >= 3
+    rate >= target * .80
   ){
 
     return {
@@ -1752,210 +1268,125 @@ function calculateGoalSignal({
 
   return {
     level:"COLD",
-    text:"❄️ NO SIGNAL"
+    text:"⚪ LONTANA"
   };
 
 }
 
 
-/*
-==========================================
-OLD PRESSURE LABEL
-==========================================
-*/
+function selectedDelta(){
 
-function signalForRtg(rtg){
-
-  if(rtg >= 25){
-
-    return {
-      text:"🔥 RTG MOLTO ALTO",
-      className:"signal-hot"
-    };
-
-  }
-
-  if(rtg >= 14){
-
-    return {
-      text:"🟢 PRESSIONE INTERESSANTE",
-      className:"signal-hot"
-    };
-
-  }
-
-  if(rtg >= 8){
-
-    return {
-      text:"🟡 WATCH",
-      className:"signal-watch"
-    };
-
-  }
-
-  return {
-    text:"❄️ PRESSIONE BASSA",
-    className:"signal-cold"
-  };
-
-}
-
-
-/*
-==========================================
-TREND
-==========================================
-*/
-
-function trendArrow(history){
+  const history =
+    rtgHistory[selectedMatchId] || [];
 
   if(history.length < 2){
-    return "→";
+    return 0;
   }
 
   const last =
-    history[
-      history.length - 1
-    ].rtg;
+    history[history.length - 1].rtg;
 
-  const previous =
-    history[
-      history.length - 2
-    ].rtg;
+  const index =
+    Math.max(
+      0,
+      history.length - 4
+    );
 
-  const diff =
-    last - previous;
-
-
-  if(diff >= 3){
-    return "↑↑";
-  }
-
-  if(diff > .5){
-    return "↑";
-  }
-
-  if(diff <= -3){
-    return "↓↓";
-  }
-
-  if(diff < -.5){
-    return "↓";
-  }
-
-  return "→";
-
+  return Math.round(
+    (last - history[index].rtg) * 10
+  ) / 10;
 }
 
 
-/*
-==========================================
-LOAD LIVE MATCHES
-==========================================
-*/
+function badgeClass(level){
+
+  if(level === "HOT") return "badge-hot";
+  if(level === "READY") return "badge-ready";
+  if(level === "WATCH") return "badge-watch";
+  if(level === "EARLY") return "badge-early";
+
+  return "badge-none";
+}
+
+
+function signalPriority(level){
+
+  if(level === "HOT") return 5;
+  if(level === "READY") return 4;
+  if(level === "WATCH") return 3;
+  if(level === "COLD") return 2;
+  if(level === "EARLY") return 1;
+
+  return 0;
+}
+
+
+/* ==============================
+LOAD MATCHES
+============================== */
 
 async function loadMatches(){
 
   try{
 
-    document
-      .getElementById(
-        "listUpdate"
-      )
-      .textContent =
-        "Aggiornamento...";
-
-
     const response =
       await fetch(
         "/api/footballfree",
-        {
-          cache:"no-store"
-        }
+        {cache:"no-store"}
       );
-
 
     const data =
       await response.json();
 
-
     if(!data.success){
-
-      document
-        .getElementById(
-          "listUpdate"
-        )
-        .textContent =
-          "Errore FotMob";
-
       return;
     }
-
 
     liveMatches =
       data.liveMatches || [];
 
-
-    buildLeagueFilter();
-
-    renderMatches();
-
-
     document
-      .getElementById(
-        "liveCount"
-      )
+      .getElementById("liveCount")
       .textContent =
         liveMatches.length;
 
-
     document
-      .getElementById(
-        "listUpdate"
-      )
+      .getElementById("listUpdate")
       .textContent =
         "Aggiornato: " +
         new Date()
-          .toLocaleTimeString(
-            "it-IT"
-          );
-
+          .toLocaleTimeString("it-IT");
 
     if(
       !selectedMatchId &&
       liveMatches.length
     ){
-
       selectMatch(
         liveMatches[0].matchId
       );
-
     }
 
+    if(selectedMatchId){
 
-    if(
-      selectedMatchId
-    ){
-
-      const updated =
+      const current =
         liveMatches.find(
-          match =>
-            String(match.matchId) ===
+          m =>
+            String(m.matchId) ===
             String(selectedMatchId)
         );
 
-
-      if(updated){
+      if(current){
 
         selectedMatch =
-          updated;
+          current;
 
-        renderSelectedBasic();
+        renderBasic();
 
       }
 
     }
 
+    renderMatches();
 
   }catch(error){
 
@@ -1966,100 +1397,256 @@ async function loadMatches(){
 }
 
 
-/*
-==========================================
-LEAGUE FILTER
-==========================================
-*/
+/* ==============================
+SCAN ALL INTERESTING LIVE
+============================== */
 
-function buildLeagueFilter(){
+async function scanLive(){
 
-  const select =
-    document
-      .getElementById(
-        "leagueFilter"
-      );
+  const button =
+    document.getElementById(
+      "scanButton"
+    );
 
+  button.disabled = true;
 
-  const current =
-    select.value;
+  button.textContent =
+    "⏳ SCANSIONE...";
 
 
-  const leagues =
-    [
-      ...new Set(
-        liveMatches
-          .map(
-            match =>
-              match.league
-          )
-          .filter(Boolean)
-      )
-    ]
-    .sort();
+  /*
+    Solo partite utili:
+    25° - 85°
+    massimo 2 gol
+    max 12 fixture
+  */
+
+  const candidates =
+    liveMatches
+      .filter(match => {
+
+        const minute =
+          minuteNumber(match.minute);
+
+        const goals =
+          n(match.homeGoals) +
+          n(match.awayGoals);
+
+        return (
+          minute >= 25 &&
+          minute <= 85 &&
+          goals <= 2
+        );
+
+      })
+      .slice(0,12);
 
 
-  select.innerHTML =
-    `
-      <option value="all">
-        Tutte
-      </option>
-    `;
+  /*
+    Assegniamo subito EARLY
+    senza fare chiamate.
+  */
 
+  liveMatches.forEach(match => {
 
-  leagues.forEach(
-    league => {
+    const minute =
+      minuteNumber(match.minute);
 
-      const option =
-        document
-          .createElement(
-            "option"
-          );
+    if(minute < 25){
 
+      scanResults[
+        match.matchId
+      ] = {
 
-      option.value =
-        league;
+        rtg:0,
+        rtgRate:0,
 
+        level:"EARLY",
+        text:"❄️ TROPPO PRESTO"
 
-      option.textContent =
-        league;
-
-
-      select.appendChild(
-        option
-      );
+      };
 
     }
-  );
+
+  });
 
 
-  if(
-    leagues.includes(
-      current
-    )
+  let completed = 0;
+
+
+  /*
+    Li facciamo a gruppi di 3,
+    per non bombardare FotMob.
+  */
+
+  for(
+    let i = 0;
+    i < candidates.length;
+    i += 3
   ){
 
-    select.value =
-      current;
+    const batch =
+      candidates.slice(
+        i,
+        i + 3
+      );
+
+
+    await Promise.all(
+      batch.map(
+        async match => {
+
+          try{
+
+            const response =
+              await fetch(
+                `/api/footballfree?matchId=${encodeURIComponent(match.matchId)}`,
+                {
+                  cache:"no-store"
+                }
+              );
+
+
+            const data =
+              await response.json();
+
+
+            if(!data.success){
+              return;
+            }
+
+
+            const home =
+              calculateTeamRtg(
+                data.stats,
+                "home"
+              );
+
+
+            const away =
+              calculateTeamRtg(
+                data.stats,
+                "away"
+              );
+
+
+            const rtg =
+              Math.round(
+                (home + away) * 10
+              ) / 10;
+
+
+            const minute =
+              minuteNumber(
+                match.minute
+              );
+
+
+            const rate =
+              minute > 0
+                ? rtg / minute
+                : 0;
+
+
+            const signal =
+              scannerSignal(
+                minute,
+                rtg,
+                data.stats
+              );
+
+
+            scanResults[
+              match.matchId
+            ] = {
+
+              rtg,
+
+              rtgRate:
+                rate,
+
+              level:
+                signal.level,
+
+              text:
+                signal.text
+
+            };
+
+
+          }catch(error){
+
+            console.error(
+              "Scan error",
+              match.matchId,
+              error
+            );
+
+          }finally{
+
+            completed++;
+
+            document
+              .getElementById(
+                "scanStatus"
+              )
+              .textContent =
+                `${completed}/${candidates.length}`;
+
+          }
+
+        }
+      )
+    );
+
+
+    /*
+      Piccola pausa tra gruppi.
+    */
+
+    await new Promise(
+      resolve =>
+        setTimeout(
+          resolve,
+          500
+        )
+    );
 
   }
+
+
+  document
+    .getElementById(
+      "scanStatus"
+    )
+    .textContent =
+      "Completata";
+
+
+  button.disabled =
+    false;
+
+
+  button.textContent =
+    "🔎 SCANSIONA LIVE";
+
+
+  updateCounters();
+
+  renderMatches();
 
 }
 
 
-/*
-==========================================
-FILTER MATCHES
-==========================================
-*/
+/* ==============================
+FILTER / SORT
+============================== */
 
-function filteredMatches(){
+function visibleMatches(){
 
   const search =
     document
-      .getElementById(
-        "search"
-      )
+      .getElementById("search")
       .value
       .toLowerCase()
       .trim();
@@ -2073,15 +1660,15 @@ function filteredMatches(){
       .value;
 
 
-  const leagueFilter =
+  const goalFilter =
     document
       .getElementById(
-        "leagueFilter"
+        "goalFilter"
       )
       .value;
 
 
-  const sortFilter =
+  const sort =
     document
       .getElementById(
         "sortFilter"
@@ -2090,98 +1677,117 @@ function filteredMatches(){
 
 
   let data =
-    liveMatches.filter(
-      match => {
+    liveMatches.filter(match => {
 
-
-        if(
-          search &&
-          !String(match.home)
-            .toLowerCase()
-            .includes(search) &&
-          !String(match.away)
-            .toLowerCase()
-            .includes(search)
-        ){
-          return false;
-        }
-
-
-        if(
-          leagueFilter !== "all" &&
-          match.league !==
-          leagueFilter
-        ){
-          return false;
-        }
-
-
-        const home =
-          n(
-            match.homeGoals
-          );
-
-
-        const away =
-          n(
-            match.awayGoals
-          );
-
-
-        if(
-          scoreFilter === "00" &&
-          !(
-            home === 0 &&
-            away === 0
-          )
-        ){
-          return false;
-        }
-
-
-        if(
-          scoreFilter === "draw" &&
-          home !== away
-        ){
-          return false;
-        }
-
-
-        if(
-          scoreFilter === "oneGoal" &&
-          home + away > 1
-        ){
-          return false;
-        }
-
-
-        return true;
-
+      if(
+        search &&
+        !match.home
+          .toLowerCase()
+          .includes(search) &&
+        !match.away
+          .toLowerCase()
+          .includes(search)
+      ){
+        return false;
       }
-    );
 
 
-  if(
-    sortFilter === "score"
-  ){
+      const goals =
+        n(match.homeGoals) +
+        n(match.awayGoals);
 
-    data.sort(
-      (a,b) =>
-        (
-          n(a.homeGoals) +
-          n(a.awayGoals)
+
+      if(
+        scoreFilter === "00" &&
+        goals !== 0
+      ){
+        return false;
+      }
+
+
+      if(
+        scoreFilter === "draw" &&
+        n(match.homeGoals) !==
+        n(match.awayGoals)
+      ){
+        return false;
+      }
+
+
+      if(
+        scoreFilter === "oneGoal" &&
+        goals > 1
+      ){
+        return false;
+      }
+
+
+      const result =
+        scanResults[
+          match.matchId
+        ];
+
+
+      if(
+        goalFilter !== "all" &&
+        result?.level !==
+        goalFilter
+      ){
+        return false;
+      }
+
+
+      return true;
+
+    });
+
+
+  if(sort === "signal"){
+
+    data.sort((a,b) => {
+
+      const pa =
+        signalPriority(
+          scanResults[
+            a.matchId
+          ]?.level
+        );
+
+
+      const pb =
+        signalPriority(
+          scanResults[
+            b.matchId
+          ]?.level
+        );
+
+
+      if(pb !== pa){
+        return pb - pa;
+      }
+
+
+      return (
+        n(
+          scanResults[
+            b.matchId
+          ]?.rtgRate
         )
         -
-        (
-          n(b.homeGoals) +
-          n(b.awayGoals)
+        n(
+          scanResults[
+            a.matchId
+          ]?.rtgRate
         )
-    );
+      );
+
+    });
 
   }
 
+
   else if(
-    sortFilter === "minute"
+    sort === "minute"
   ){
 
     data.sort(
@@ -2196,6 +1802,7 @@ function filteredMatches(){
     );
 
   }
+
 
   else{
 
@@ -2219,276 +1826,217 @@ function filteredMatches(){
 }
 
 
-/*
-==========================================
-RENDER MATCH LIST
-==========================================
-*/
+/* ==============================
+RENDER TABLE
+============================== */
 
 function renderMatches(){
 
-  const data =
-    filteredMatches();
-
-
   const tbody =
-    document
-      .getElementById(
-        "matches"
+    document.getElementById(
+      "matches"
+    );
+
+
+  tbody.innerHTML = "";
+
+
+  const data =
+    visibleMatches();
+
+
+  data.forEach(match => {
+
+    const result =
+      scanResults[
+        match.matchId
+      ];
+
+
+    const tr =
+      document.createElement(
+        "tr"
       );
 
 
-  tbody.innerHTML =
-    "";
-
-
-  if(!data.length){
-
-    tbody.innerHTML =
-      `
-        <tr>
-          <td
-            colspan="5"
-            class="empty"
-          >
-            Nessuna partita trovata.
-          </td>
-        </tr>
-      `;
-
-    return;
-
-  }
-
-
-  data.forEach(
-    match => {
-
-      const tr =
-        document
-          .createElement(
-            "tr"
-          );
-
-
-      if(
-        String(
-          match.matchId
-        ) ===
-        String(
-          selectedMatchId
-        )
-      ){
-
-        tr.classList.add(
-          "selected"
-        );
-
-      }
-
-
-      tr.innerHTML =
-        `
-
-          <td class="table-minute">
-            ${displayMinute(match)}
-          </td>
-
-
-          <td class="match-cell">
-
-            <div class="teams">
-              ${match.home}
-              -
-              ${match.away}
-            </div>
-
-            <div class="league-small">
-              ${match.country || ""}
-              •
-              ${match.league || ""}
-            </div>
-
-          </td>
-
-
-          <td class="table-score">
-            ${match.homeGoals ?? 0}
-            -
-            ${match.awayGoals ?? 0}
-          </td>
-
-
-          <td>
-            ${match.league || "—"}
-          </td>
-
-
-          <td class="select-text">
-            ANALIZZA →
-          </td>
-
-        `;
-
-
-      tr.addEventListener(
-        "click",
-        () =>
-          selectMatch(
-            match.matchId
-          )
+    if(
+      String(match.matchId) ===
+      String(selectedMatchId)
+    ){
+      tr.classList.add(
+        "selected"
       );
-
-
-      tbody.appendChild(
-        tr
-      );
-
     }
-  );
+
+
+    if(
+      result?.level ===
+      "HOT"
+    ){
+      tr.classList.add(
+        "row-hot"
+      );
+    }
+
+
+    tr.innerHTML = `
+
+      <td class="table-minute">
+        ${displayMinute(match)}
+      </td>
+
+      <td class="match-cell">
+
+        <div class="teams">
+          ${match.home}
+          -
+          ${match.away}
+        </div>
+
+        <div class="league-small">
+          ${match.league}
+        </div>
+
+      </td>
+
+      <td class="table-score">
+        ${match.homeGoals ?? 0}
+        -
+        ${match.awayGoals ?? 0}
+      </td>
+
+      <td>
+        ${
+          result
+            ? result.rtg.toFixed(1)
+            : "—"
+        }
+      </td>
+
+      <td>
+        ${
+          result
+            ? result.rtgRate.toFixed(2)
+            : "—"
+        }
+      </td>
+
+      <td>
+
+        ${
+          result
+            ?
+            `
+              <span
+                class="status-badge ${badgeClass(result.level)}"
+              >
+                ${result.text}
+              </span>
+            `
+            :
+            `
+              <span
+                class="status-badge badge-none"
+              >
+                NON SCANSIONATA
+              </span>
+            `
+        }
+
+      </td>
+
+      <td>
+        ANALIZZA →
+      </td>
+
+    `;
+
+
+    tr.addEventListener(
+      "click",
+      () =>
+        selectMatch(
+          match.matchId
+        )
+    );
+
+
+    tbody.appendChild(
+      tr
+    );
+
+  });
 
 }
 
 
-/*
-==========================================
-SELECT MATCH
-==========================================
-*/
+/* ==============================
+SELECTED MATCH
+============================== */
 
-async function selectMatch(
-  matchId
-){
+async function selectMatch(id){
 
   selectedMatchId =
-    matchId;
+    id;
 
 
   selectedMatch =
     liveMatches.find(
-      match =>
-        String(
-          match.matchId
-        ) ===
-        String(
-          matchId
-        )
+      m =>
+        String(m.matchId) ===
+        String(id)
     );
 
+
+  renderBasic();
 
   renderMatches();
 
-  renderSelectedBasic();
-
-  await loadMatchDetail();
+  await loadDetail();
 
 }
 
 
-/*
-==========================================
-BASIC SELECTED DATA
-==========================================
-*/
+function renderBasic(){
 
-function renderSelectedBasic(){
-
-  if(
-    !selectedMatch
-  ){
+  if(!selectedMatch){
     return;
   }
 
 
-  document
-    .getElementById(
-      "homeTeam"
-    )
-    .textContent =
-      selectedMatch.home;
+  homeTeam.textContent =
+    selectedMatch.home;
 
+  awayTeam.textContent =
+    selectedMatch.away;
 
-  document
-    .getElementById(
-      "awayTeam"
-    )
-    .textContent =
-      selectedMatch.away;
+  mainScore.textContent =
+    `${selectedMatch.homeGoals ?? 0} - ${selectedMatch.awayGoals ?? 0}`;
 
+  selectedLeague.textContent =
+    selectedMatch.league;
 
-  document
-    .getElementById(
-      "mainScore"
-    )
-    .textContent =
-      `${selectedMatch.homeGoals ?? 0} - ${selectedMatch.awayGoals ?? 0}`;
+  mainStatus.textContent =
+    `LIVE • ${displayMinute(selectedMatch)}`;
 
-
-  document
-    .getElementById(
-      "selectedLeague"
-    )
-    .textContent =
-      `${selectedMatch.country || ""} • ${selectedMatch.league || ""}`;
-
-
-  document
-    .getElementById(
-      "selectedName"
-    )
-    .textContent =
-      `${selectedMatch.home} - ${selectedMatch.away}`;
-
-
-  const minute =
-    displayMinute(
-      selectedMatch
-    );
-
-
-  document
-    .getElementById(
-      "mainStatus"
-    )
-    .textContent =
-      minute === "LIVE"
-        ? "LIVE"
-        : `LIVE • ${minute}`;
-
-
-  document
-    .getElementById(
-      "sideMinute"
-    )
-    .textContent =
-      minute;
+  sideMinute.textContent =
+    displayMinute(selectedMatch);
 
 }
 
 
-/*
-==========================================
-LOAD DETAIL
-==========================================
-*/
+/* ==============================
+DETAIL
+============================== */
 
-async function loadMatchDetail(){
+async function loadDetail(){
 
-  if(
-    !selectedMatchId
-  ){
+  if(!selectedMatchId){
     return;
   }
 
 
-  const card =
-    document
-      .getElementById(
-        "mainCard"
-      );
-
-
-  card.classList.add(
+  mainCard.classList.add(
     "loading"
   );
 
@@ -2508,27 +2056,17 @@ async function loadMatchDetail(){
       await response.json();
 
 
-    if(
-      !data.success
-    ){
+    if(!data.success){
       return;
     }
 
 
-    renderDetail(
-      data
-    );
+    renderDetail(data);
 
-
-  }catch(error){
-
-    console.error(
-      error
-    );
 
   }finally{
 
-    card.classList.remove(
+    mainCard.classList.remove(
       "loading"
     );
 
@@ -2537,71 +2075,40 @@ async function loadMatchDetail(){
 }
 
 
-/*
-==========================================
-DETAIL RENDER
-==========================================
-*/
-
 function renderDetail(data){
 
   const stats =
     data.stats || {};
 
 
-  const rtgHome =
+  const home =
     calculateTeamRtg(
       stats,
       "home"
     );
 
 
-  const rtgAway =
+  const away =
     calculateTeamRtg(
       stats,
       "away"
     );
 
 
-  const rtgTotal =
+  const total =
     Math.round(
-      (
-        rtgHome +
-        rtgAway
-      ) * 10
+      (home + away) * 10
     ) / 10;
 
 
-  document
-    .getElementById(
-      "rtgHome"
-    )
-    .textContent =
-      rtgHome.toFixed(1);
+  rtgHome.textContent =
+    home.toFixed(1);
 
+  rtgAway.textContent =
+    away.toFixed(1);
 
-  document
-    .getElementById(
-      "rtgAway"
-    )
-    .textContent =
-      rtgAway.toFixed(1);
-
-
-  document
-    .getElementById(
-      "rtgTotal"
-    )
-    .textContent =
-      rtgTotal.toFixed(1);
-
-
-  document
-    .getElementById(
-      "summaryRtg"
-    )
-    .textContent =
-      rtgTotal.toFixed(1);
+  rtgTotal.textContent =
+    total.toFixed(1);
 
 
   setStat(
@@ -2610,13 +2117,11 @@ function renderDetail(data){
     stats.totalShots
   );
 
-
   setStat(
     "shotsTarget",
     "shotsTargetSplit",
     stats.shotsOnTarget
   );
-
 
   setStat(
     "corners",
@@ -2624,13 +2129,11 @@ function renderDetail(data){
     stats.corners
   );
 
-
   setStat(
     "touchesBox",
     "touchesBoxSplit",
     stats.touchesBox
   );
-
 
   setStat(
     "bigChances",
@@ -2639,314 +2142,314 @@ function renderDetail(data){
   );
 
 
-  document
-    .getElementById(
-      "possession"
-    )
-    .textContent =
-      `${stats.possession?.home ?? 0}% - ${stats.possession?.away ?? 0}%`;
+  possession.textContent =
+    `${stats.possession?.home ?? 0}% - ${stats.possession?.away ?? 0}%`;
 
 
-  document
-    .getElementById(
-      "shotmapStatus"
-    )
-    .textContent =
-      data.hasShotmap
-        ? "✅ disponibile"
-        : "—";
-
-
-  document
-    .getElementById(
-      "momentumStatus"
-    )
-    .textContent =
-      data.momentum?.history?.length
-        ? "✅ disponibile"
-        : "nostro RTG";
-
-
-  document
-    .getElementById(
-      "detailUpdate"
-    )
-    .textContent =
-      new Date()
-        .toLocaleTimeString(
-          "it-IT"
-        );
-
-
-  const oldSignal =
-    signalForRtg(
-      rtgTotal
-    );
-
-
-  const signalBox =
-    document
-      .getElementById(
-        "signal"
-      );
-
-
-  signalBox.className =
-    `signal ${oldSignal.className}`;
-
-
-  signalBox.textContent =
-    oldSignal.text;
-
-
-  const gaugeScore =
-    Math.min(
-      100,
-      Math.round(
-        rtgTotal /
-        40 *
-        100
-      )
-    );
-
-
-  const angle =
-    gaugeScore * 3.6;
-
-
-  document
-    .getElementById(
-      "gauge"
-    )
-    .style.background =
-      `conic-gradient(
-        var(--green) 0deg ${angle}deg,
-        #172537 ${angle}deg 360deg
-      )`;
-
-
-  document
-    .getElementById(
-      "gaugeValue"
-    )
-    .textContent =
-      gaugeScore;
-
-
-  const detailMinute =
-    cleanMinute(
-      data.minute
-    );
-
-
-  if(
-    detailMinute
-  ){
-
-    document
-      .getElementById(
-        "mainStatus"
-      )
-      .textContent =
-        detailMinute.includes("'")
-          ? `LIVE • ${detailMinute}`
-          : `LIVE • ${detailMinute}'`;
-
-
-    document
-      .getElementById(
-        "sideMinute"
-      )
-      .textContent =
-        detailMinute.includes("'")
-          ? detailMinute
-          : `${detailMinute}'`;
-
-  }
-
-
-  const effectiveMinute =
+  const minute =
     minuteNumber(
-      detailMinute ||
-      selectedMatch?.minute ||
-      0
+      selectedMatch?.minute
     );
+
+
+  const rate =
+    minute > 0
+      ? total / minute
+      : 0;
 
 
   saveHistory(
-    selectedMatchId,
-    rtgTotal,
-    detailMinute ||
+    total,
     displayMinute(
       selectedMatch
     )
   );
 
 
-  renderHistory(
-    selectedMatchId
-  );
-
-
-  /*
-  ==========================================
-  RTG / MIN
-  ==========================================
-  */
-
-  const rtgPerMinute =
-    effectiveMinute > 0
-      ? rtgTotal /
-        effectiveMinute
-      : 0;
-
-
-  /*
-  ==========================================
-  DELTA RTG
-  ==========================================
-  */
-
   const delta =
-    calculateRtgDelta(
-      selectedMatchId
+    selectedDelta();
+
+
+  rtgPerMinute.textContent =
+    rate.toFixed(2);
+
+
+  rtgDelta.textContent =
+    delta > 0
+      ? `+${delta.toFixed(1)}`
+      : delta.toFixed(1);
+
+
+  thresholdDisplay.textContent =
+    minute >= 25
+      ? threshold(minute)
+          .toFixed(2)
+      : "—";
+
+
+  /*
+    Goal signal selezionata
+  */
+
+  const base =
+    scannerSignal(
+      minute,
+      total,
+      stats
     );
 
 
-  /*
-  ==========================================
-  GOAL SIGNAL
-  ==========================================
-  */
-
-  const goal =
-    calculateGoalSignal({
-
-      minute:
-        effectiveMinute,
-
-      rtg:
-        rtgTotal,
-
-      rtgPerMinute,
-
-      delta,
-
-      stats
-
-    });
-
-
-  document
-    .getElementById(
-      "rtgPerMinute"
-    )
-    .textContent =
-      rtgPerMinute.toFixed(2);
-
-
-  document
-    .getElementById(
-      "rtgDelta"
-    )
-    .textContent =
-      delta > 0
-        ? `+${delta.toFixed(1)}`
-        : delta.toFixed(1);
-
-
-  document
-    .getElementById(
-      "thresholdDisplay"
-    )
-    .textContent =
-      effectiveMinute >= 25
-        ? getGoalThreshold(
-            effectiveMinute
-          ).toFixed(2)
-        : "—";
-
-
-  const goalBox =
-    document
-      .getElementById(
-        "goalSignal"
-      );
-
-
-  goalBox.textContent =
-    goal.text;
+  let finalSignal =
+    base;
 
 
   if(
-    goal.level ===
-    "HOT"
+    base.level === "READY" &&
+    delta >= 3
   ){
 
-    goalBox.style.color =
-      "#35e59b";
-
-    signalBox.className =
-      "signal signal-hot";
-
-    signalBox.textContent =
-      "🔥 OVER CORRENTE";
+    finalSignal = {
+      level:"HOT",
+      text:"🔥 OVER CORRENTE"
+    };
 
   }
 
-  else if(
-    goal.level ===
-    "READY"
+
+  goalSignal.textContent =
+    finalSignal.text;
+
+
+  signal.className =
+    "signal";
+
+
+  if(
+    finalSignal.level === "HOT"
   ){
-
-    goalBox.style.color =
-      "#22d3ee";
-
-    signalBox.className =
-      "signal signal-ready";
-
-    signalBox.textContent =
-      "🟢 PREPARA INGRESSO";
-
+    signal.classList.add(
+      "signal-hot"
+    );
   }
 
   else if(
-    goal.level ===
-    "WATCH"
+    finalSignal.level === "READY"
   ){
+    signal.classList.add(
+      "signal-ready"
+    );
+  }
 
-    goalBox.style.color =
-      "#facc15";
-
-    signalBox.className =
-      "signal signal-watch";
-
-    signalBox.textContent =
-      "🟡 WATCH";
-
+  else if(
+    finalSignal.level === "WATCH"
+  ){
+    signal.classList.add(
+      "signal-watch"
+    );
   }
 
   else{
+    signal.classList.add(
+      "signal-cold"
+    );
+  }
 
-    goalBox.style.color =
-      "#94a3b8";
 
-    signalBox.className =
-      "signal signal-cold";
+  signal.textContent =
+    finalSignal.text;
 
-    signalBox.textContent =
-      goal.text;
 
+  /*
+    Aggiorniamo anche lo scanner
+    con la valutazione più recente.
+  */
+
+  scanResults[
+    selectedMatchId
+  ] = {
+
+    rtg:
+      total,
+
+    rtgRate:
+      rate,
+
+    level:
+      finalSignal.level,
+
+    text:
+      finalSignal.text
+
+  };
+
+
+  const gaugeScore =
+    Math.min(
+      100,
+      Math.round(
+        total / 40 * 100
+      )
+    );
+
+
+  gaugeValue.textContent =
+    gaugeScore;
+
+
+  const angle =
+    gaugeScore * 3.6;
+
+
+  gauge.style.background =
+    `conic-gradient(
+      var(--green) 0deg ${angle}deg,
+      #172537 ${angle}deg 360deg
+    )`;
+
+
+  detailUpdate.textContent =
+    new Date()
+      .toLocaleTimeString(
+        "it-IT"
+      );
+
+
+  renderHistory();
+
+  updateCounters();
+
+  renderMatches();
+
+}
+
+
+/* ==============================
+HISTORY
+============================== */
+
+function saveHistory(rtg,minute){
+
+  if(
+    !rtgHistory[
+      selectedMatchId
+    ]
+  ){
+
+    rtgHistory[
+      selectedMatchId
+    ] = [];
+
+  }
+
+
+  const history =
+    rtgHistory[
+      selectedMatchId
+    ];
+
+
+  const previous =
+    history[
+      history.length - 1
+    ];
+
+
+  if(
+    previous &&
+    previous.minute ===
+    minute
+  ){
+
+    previous.rtg =
+      rtg;
+
+    return;
+
+  }
+
+
+  history.push({
+    minute,
+    rtg
+  });
+
+
+  if(history.length > 30){
+    history.shift();
   }
 
 }
 
 
-/*
-==========================================
-SET STAT
-==========================================
-*/
+function renderHistory(){
+
+  const history =
+    rtgHistory[
+      selectedMatchId
+    ] || [];
+
+
+  historyBars.innerHTML =
+    "";
+
+
+  const max =
+    Math.max(
+      20,
+      ...history.map(
+        x => x.rtg
+      )
+    );
+
+
+  history.forEach(item => {
+
+    const div =
+      document.createElement(
+        "div"
+      );
+
+
+    div.className =
+      "history-column";
+
+
+    div.innerHTML = `
+
+      <div class="history-value">
+        ${item.rtg.toFixed(1)}
+      </div>
+
+      <div
+        class="history-bar"
+        style="
+          height:
+          ${Math.max(
+            3,
+            item.rtg / max * 80
+          )}px
+        "
+      ></div>
+
+      <div class="history-minute">
+        ${item.minute}
+      </div>
+
+    `;
+
+
+    historyBars.appendChild(
+      div
+    );
+
+  });
+
+}
+
+
+/* ==============================
+STAT
+============================== */
 
 function setStat(
   valueId,
@@ -2972,305 +2475,87 @@ function setStat(
 }
 
 
-/*
-==========================================
-SAVE HISTORY
-==========================================
-*/
+/* ==============================
+COUNTERS
+============================== */
 
-function saveHistory(
-  matchId,
-  rtg,
-  matchMinute
-){
+function updateCounters(){
 
-  if(
-    !rtgHistory[
-      matchId
-    ]
-  ){
-
-    rtgHistory[
-      matchId
-    ] = [];
-
-  }
-
-
-  const history =
-    rtgHistory[
-      matchId
-    ];
-
-
-  let label =
-    cleanMinute(
-      matchMinute
+  const results =
+    Object.values(
+      scanResults
     );
 
 
-  if(
-    !label
-  ){
-
-    label =
-      new Date()
-        .toLocaleTimeString(
-          "it-IT",
-          {
-            hour:"2-digit",
-            minute:"2-digit"
-          }
-        );
-
-  }
+  hotCount.textContent =
+    results.filter(
+      x =>
+        x.level === "HOT"
+    ).length;
 
 
-  if(
-    /^\d+$/.test(
-      label
-    )
-  ){
+  readyCount.textContent =
+    results.filter(
+      x =>
+        x.level === "READY"
+    ).length;
 
-    label =
-      `${label}'`;
-
-  }
+}
 
 
-  const previous =
-    history[
-      history.length - 1
-    ];
+/* ==============================
+EVENTS
+============================== */
+
+scanButton.addEventListener(
+  "click",
+  scanLive
+);
 
 
-  if(
-    previous &&
-    previous.minute ===
-    label
-  ){
+document
+  .querySelectorAll(
+    "#search,#scoreFilter,#goalFilter,#sortFilter"
+  )
+  .forEach(element => {
 
-    previous.rtg =
-      rtg;
-
-    return;
-
-  }
-
-
-  history.push({
-
-    minute:
-      label,
-
-    rtg
+    element.addEventListener(
+      "input",
+      renderMatches
+    );
 
   });
 
 
-  if(
-    history.length >
-    30
-  ){
+/* ==============================
+REFRESH SELECTED MATCH
+============================== */
 
-    history.shift();
+setInterval(() => {
 
-  }
-
-}
+  seconds--;
 
 
-/*
-==========================================
-RENDER HISTORY
-==========================================
-*/
-
-function renderHistory(
-  matchId
-){
-
-  const history =
-    rtgHistory[
-      matchId
-    ] || [];
+  countdown.textContent =
+    `${seconds}s`;
 
 
-  const container =
-    document
-      .getElementById(
-        "historyBars"
-      );
+  if(seconds <= 0){
 
+    seconds = 120;
 
-  container.innerHTML =
-    "";
+    loadMatches();
 
-
-  if(
-    !history.length
-  ){
-
-    container.innerHTML =
-      `
-        <div class="empty">
-          Nessun dato ancora
-        </div>
-      `;
-
-    return;
+    loadDetail();
 
   }
 
-
-  const max =
-    Math.max(
-      20,
-      ...history.map(
-        item =>
-          item.rtg
-      )
-    );
+},1000);
 
 
-  history.forEach(
-    item => {
-
-      const column =
-        document
-          .createElement(
-            "div"
-          );
-
-
-      column.className =
-        "history-column";
-
-
-      const height =
-        Math.max(
-          3,
-          Math.round(
-            item.rtg /
-            max *
-            80
-          )
-        );
-
-
-      column.innerHTML =
-        `
-
-          <div class="history-value">
-            ${item.rtg.toFixed(1)}
-          </div>
-
-          <div
-            class="history-bar"
-            style="height:${height}px"
-          ></div>
-
-          <div class="history-minute">
-            ${item.minute}
-          </div>
-
-        `;
-
-
-      container.appendChild(
-        column
-      );
-
-    }
-  );
-
-
-  document
-    .getElementById(
-      "historyTrend"
-    )
-    .textContent =
-      trendArrow(
-        history
-      );
-
-}
-
-
-/*
-==========================================
-FILTER EVENTS
-==========================================
-*/
-
-document
-  .querySelectorAll(
-    "#search,#scoreFilter,#leagueFilter,#sortFilter"
-  )
-  .forEach(
-    element => {
-
-      element.addEventListener(
-        "input",
-        renderMatches
-      );
-
-    }
-  );
-
-
-/*
-==========================================
-2 MIN REFRESH
-==========================================
-*/
-
-setInterval(
-  () => {
-
-    seconds--;
-
-
-    document
-      .getElementById(
-        "countdown"
-      )
-      .textContent =
-        `${seconds}s`;
-
-
-    document
-      .getElementById(
-        "summaryCountdown"
-      )
-      .textContent =
-        `${seconds}s`;
-
-
-    if(
-      seconds <= 0
-    ){
-
-      seconds =
-        120;
-
-
-      loadMatches();
-
-      loadMatchDetail();
-
-    }
-
-  },
-  1000
-);
-
-
-/*
-==========================================
+/* ==============================
 START
-==========================================
-*/
+============================== */
 
 loadMatches();
 
