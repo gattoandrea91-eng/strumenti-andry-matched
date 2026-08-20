@@ -3,79 +3,164 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
   <title>SoccerTrend - Andry Matched</title>
 
   <style>
+
     :root{
-      --bg:#050b12;
-      --bg2:#08121f;
-      --panel:rgba(10,21,35,.88);
-      --panel2:#0f1c2d;
-      --line:rgba(148,163,184,.14);
+      --bg:#030810;
+      --bg2:#07111d;
+      --panel:rgba(9,20,34,.90);
+      --panel2:#0c1928;
+      --panel3:#101f31;
+
+      --line:rgba(148,163,184,.13);
+      --lineStrong:rgba(148,163,184,.22);
+
       --text:#f8fafc;
-      --muted:#94a3b8;
-      --green:#34d399;
-      --green2:#10b981;
+      --muted:#8999ad;
+
+      --green:#35e59b;
+      --green2:#0dbb78;
+
+      --cyan:#22d3ee;
+      --blue:#60a5fa;
+
       --yellow:#facc15;
       --orange:#fb923c;
-      --red:#f87171;
-      --blue:#60a5fa;
-      --cyan:#22d3ee;
-      --shadow:0 18px 50px rgba(0,0,0,.35);
+      --red:#fb7185;
+
+      --shadow:0 20px 60px rgba(0,0,0,.38);
+
+      --radius:20px;
     }
 
-    *{box-sizing:border-box}
+    *{
+      box-sizing:border-box;
+    }
+
+    html{
+      scroll-behavior:smooth;
+    }
 
     body{
       margin:0;
       min-height:100vh;
+
+      font-family:
+        Inter,
+        ui-sans-serif,
+        system-ui,
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        sans-serif;
+
       color:var(--text);
-      font-family:Inter,Arial,Helvetica,sans-serif;
+
       background:
-        radial-gradient(circle at 15% 0%,rgba(34,211,238,.11),transparent 28%),
-        radial-gradient(circle at 85% 10%,rgba(52,211,153,.10),transparent 26%),
-        linear-gradient(180deg,var(--bg2),var(--bg));
+        radial-gradient(
+          circle at 12% 0%,
+          rgba(34,211,238,.11),
+          transparent 25%
+        ),
+        radial-gradient(
+          circle at 85% 5%,
+          rgba(53,229,155,.10),
+          transparent 25%
+        ),
+        linear-gradient(
+          180deg,
+          var(--bg2),
+          var(--bg)
+        );
+
+      background-attachment:fixed;
     }
 
+
+    /* =============================
+       APP
+    ============================= */
+
     .app{
-      max-width:1450px;
+      width:min(1500px,100%);
       margin:auto;
-      padding:28px 18px 60px;
+      padding:26px 18px 65px;
     }
+
+
+    /* =============================
+       HEADER
+    ============================= */
 
     .topbar{
       display:flex;
       align-items:center;
       justify-content:space-between;
-      gap:18px;
+      gap:20px;
       flex-wrap:wrap;
-      margin-bottom:22px;
+      margin-bottom:20px;
     }
 
     .brand{
       display:flex;
-      gap:14px;
       align-items:center;
+      gap:15px;
     }
 
     .logo{
-      width:54px;
-      height:54px;
-      border-radius:17px;
+      position:relative;
+
+      width:58px;
+      height:58px;
+
       display:flex;
       align-items:center;
       justify-content:center;
-      font-size:26px;
+
+      border-radius:18px;
+
+      font-size:28px;
+
       background:
-        linear-gradient(135deg,rgba(52,211,153,.23),rgba(34,211,238,.12));
-      border:1px solid rgba(52,211,153,.3);
-      box-shadow:0 0 28px rgba(52,211,153,.08);
+        linear-gradient(
+          145deg,
+          rgba(53,229,155,.23),
+          rgba(34,211,238,.10)
+        );
+
+      border:1px solid rgba(53,229,155,.30);
+
+      box-shadow:
+        0 12px 35px rgba(0,0,0,.28),
+        inset 0 1px 0 rgba(255,255,255,.06);
+    }
+
+    .logo::after{
+      content:"";
+      position:absolute;
+      inset:-1px;
+      border-radius:18px;
+
+      background:
+        linear-gradient(
+          135deg,
+          rgba(53,229,155,.15),
+          transparent 45%
+        );
+
+      pointer-events:none;
     }
 
     .brand h1{
       margin:0;
-      font-size:34px;
-      letter-spacing:-.03em;
+
+      font-size:35px;
+      font-weight:900;
+
+      letter-spacing:-1.3px;
     }
 
     .brand h1 span{
@@ -83,110 +168,262 @@
     }
 
     .brand p{
-      margin:5px 0 0;
+      margin:4px 0 0;
+
       color:var(--muted);
-      font-size:13px;
+
+      font-size:12px;
+      letter-spacing:.03em;
+    }
+
+
+    /* =============================
+       LIVE STATUS
+    ============================= */
+
+    .header-right{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+
+    .live-box,
+    .api-box{
+      display:flex;
+      align-items:center;
+      gap:9px;
+
+      padding:9px 13px;
+
+      border-radius:999px;
+
+      font-size:11px;
+      font-weight:850;
+
+      letter-spacing:.04em;
     }
 
     .live-box{
-      display:flex;
-      align-items:center;
-      gap:11px;
-      background:rgba(52,211,153,.08);
-      border:1px solid rgba(52,211,153,.25);
-      padding:10px 14px;
-      border-radius:999px;
       color:#a7f3d0;
-      font-size:13px;
-      font-weight:800;
+
+      background:
+        rgba(53,229,155,.075);
+
+      border:
+        1px solid rgba(53,229,155,.22);
+    }
+
+    .api-box{
+      color:#bfdbfe;
+
+      background:
+        rgba(96,165,250,.07);
+
+      border:
+        1px solid rgba(96,165,250,.20);
     }
 
     .live-dot{
-      width:9px;
-      height:9px;
+      width:8px;
+      height:8px;
+
       border-radius:50%;
+
       background:var(--green);
-      box-shadow:0 0 14px var(--green);
+
+      box-shadow:
+        0 0 13px var(--green);
+
       animation:pulse 1.4s infinite;
     }
 
     @keyframes pulse{
-      0%,100%{opacity:1;transform:scale(1)}
-      50%{opacity:.45;transform:scale(.8)}
+      0%,100%{
+        opacity:1;
+        transform:scale(1);
+      }
+
+      50%{
+        opacity:.45;
+        transform:scale(.78);
+      }
     }
 
-    .notice{
+
+    /* =============================
+       INFO BANNER
+    ============================= */
+
+    .info-banner{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:15px;
+      flex-wrap:wrap;
+
       margin-bottom:18px;
+
       padding:12px 15px;
-      border-radius:13px;
-      color:#bfdbfe;
-      background:rgba(59,130,246,.08);
-      border:1px solid rgba(96,165,250,.18);
-      font-size:13px;
+
+      border-radius:14px;
+
+      color:#c7d2fe;
+
+      background:
+        linear-gradient(
+          90deg,
+          rgba(59,130,246,.075),
+          rgba(34,211,238,.035)
+        );
+
+      border:
+        1px solid rgba(96,165,250,.15);
+
+      font-size:12px;
     }
+
+    .info-banner strong{
+      color:white;
+    }
+
+    .refresh-small{
+      color:#94a3b8;
+      white-space:nowrap;
+    }
+
+
+    /* =============================
+       HERO GRID
+    ============================= */
 
     .hero{
       display:grid;
-      grid-template-columns:1.25fr .75fr;
-      gap:18px;
-      margin-bottom:20px;
+
+      grid-template-columns:
+        minmax(0,1.35fr)
+        minmax(300px,.65fr);
+
+      gap:17px;
+
+      margin-bottom:17px;
     }
 
-    .top-card,
-    .insight-card,
-    .filters,
-    .stats-card,
-    .scanner{
-      background:var(--panel);
+    .glass{
+      background:
+        linear-gradient(
+          180deg,
+          rgba(12,26,43,.93),
+          rgba(7,17,30,.93)
+        );
+
       border:1px solid var(--line);
+
       box-shadow:var(--shadow);
-      backdrop-filter:blur(12px);
+
+      backdrop-filter:blur(14px);
     }
+
+
+    /* =============================
+       TOP OPPORTUNITY
+    ============================= */
 
     .top-card{
-      border-radius:22px;
-      overflow:hidden;
       position:relative;
+
+      overflow:hidden;
+
+      border-radius:23px;
+    }
+
+    .top-card::before{
+      content:"";
+
+      position:absolute;
+
+      width:330px;
+      height:330px;
+
+      right:-120px;
+      top:-160px;
+
+      border-radius:50%;
+
+      background:
+        rgba(53,229,155,.09);
+
+      filter:blur(15px);
+
+      pointer-events:none;
     }
 
     .top-head{
-      padding:18px 20px;
-      border-bottom:1px solid var(--line);
+      position:relative;
+      z-index:2;
+
       display:flex;
-      justify-content:space-between;
       align-items:center;
-      gap:10px;
+      justify-content:space-between;
+
+      gap:12px;
+
+      padding:17px 20px;
+
+      border-bottom:1px solid var(--line);
     }
 
     .top-label{
       display:flex;
       align-items:center;
-      gap:9px;
-      font-size:13px;
-      font-weight:900;
+      gap:8px;
+
       color:#fde68a;
-      letter-spacing:.04em;
+
+      font-size:11px;
+      font-weight:900;
+
+      letter-spacing:.09em;
     }
 
-    .top-score{
+    .top-league{
       color:var(--muted);
-      font-size:12px;
+
+      font-size:11px;
     }
 
     .top-body{
+      position:relative;
+      z-index:2;
+
       padding:25px;
     }
 
+
+    /* =============================
+       MATCH SCORE
+    ============================= */
+
     .match-line{
       display:grid;
-      grid-template-columns:1fr auto 1fr;
+
+      grid-template-columns:
+        minmax(0,1fr)
+        auto
+        minmax(0,1fr);
+
       align-items:center;
-      gap:18px;
+
+      gap:20px;
     }
 
     .team{
       font-size:25px;
       font-weight:900;
+
+      letter-spacing:-.45px;
+
+      overflow-wrap:anywhere;
     }
 
     .team.away{
@@ -194,261 +431,634 @@
     }
 
     .score-center{
+      min-width:130px;
       text-align:center;
     }
 
     .score-big{
-      font-size:36px;
-      font-weight:900;
+      font-size:39px;
+      font-weight:950;
+
+      letter-spacing:-1px;
     }
 
     .minute-pill{
-      display:inline-block;
-      margin-top:7px;
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+
+      margin-top:6px;
+
       padding:5px 9px;
+
       border-radius:999px;
-      background:rgba(96,165,250,.12);
-      border:1px solid rgba(96,165,250,.22);
+
       color:#bfdbfe;
-      font-size:11px;
-      font-weight:800;
+
+      background:
+        rgba(96,165,250,.085);
+
+      border:
+        1px solid rgba(96,165,250,.18);
+
+      font-size:10px;
+      font-weight:850;
     }
+
+
+    /* =============================
+       MAIN METRICS
+    ============================= */
 
     .metrics{
       display:grid;
       grid-template-columns:repeat(3,1fr);
-      gap:12px;
-      margin-top:24px;
+
+      gap:11px;
+
+      margin-top:23px;
     }
 
     .metric{
-      background:rgba(2,8,18,.46);
-      border:1px solid var(--line);
-      border-radius:16px;
+      position:relative;
+
+      overflow:hidden;
+
       padding:15px;
+
       text-align:center;
+
+      border-radius:16px;
+
+      background:
+        rgba(1,7,15,.40);
+
+      border:
+        1px solid var(--line);
     }
 
     .metric-label{
-      font-size:11px;
       color:var(--muted);
-      text-transform:uppercase;
+
+      font-size:10px;
       font-weight:800;
-      letter-spacing:.06em;
+
+      text-transform:uppercase;
+      letter-spacing:.09em;
     }
 
     .metric-value{
-      margin-top:7px;
-      font-size:25px;
-      font-weight:900;
+      margin-top:6px;
+
+      font-size:26px;
+      font-weight:950;
     }
 
-    .metric-value.green{color:var(--green)}
-    .metric-value.cyan{color:var(--cyan)}
-    .metric-value.yellow{color:var(--yellow)}
+    .value-green{
+      color:var(--green);
+    }
 
-    .momentum-block{
+    .value-cyan{
+      color:var(--cyan);
+    }
+
+    .value-yellow{
+      color:var(--yellow);
+    }
+
+
+    /* =============================
+       TREND BAR
+    ============================= */
+
+    .trend-section{
       margin-top:20px;
     }
 
-    .momentum-top{
+    .trend-top{
       display:flex;
+      align-items:center;
       justify-content:space-between;
-      gap:12px;
-      color:var(--muted);
-      font-size:12px;
+
       margin-bottom:8px;
+
+      color:var(--muted);
+
+      font-size:11px;
     }
 
-    .momentum-track{
-      height:11px;
-      background:#162437;
-      border-radius:999px;
+    .trend-track{
+      position:relative;
+
+      height:10px;
+
       overflow:hidden;
-    }
 
-    .momentum-fill{
-      height:100%;
       border-radius:999px;
-      background:linear-gradient(90deg,var(--green2),var(--cyan));
-      transition:width .4s ease;
+
+      background:#182639;
     }
 
-    .mini-stats{
+    .trend-fill{
+      height:100%;
+
+      width:0;
+
+      border-radius:999px;
+
+      background:
+        linear-gradient(
+          90deg,
+          var(--green2),
+          var(--cyan)
+        );
+
+      box-shadow:
+        0 0 18px rgba(34,211,238,.16);
+
+      transition:
+        width .5s ease,
+        background .35s ease;
+    }
+
+
+    /* =============================
+       TOP EVENT BOXES
+    ============================= */
+
+    .top-mini-grid{
       display:grid;
-      grid-template-columns:repeat(4,1fr);
+      grid-template-columns:repeat(3,1fr);
+
       gap:10px;
-      margin-top:18px;
+
+      margin-top:17px;
     }
 
     .mini-stat{
       padding:12px;
+
       text-align:center;
-      border-radius:13px;
-      background:rgba(2,8,18,.40);
-      border:1px solid var(--line);
+
+      border-radius:14px;
+
+      background:
+        rgba(2,8,18,.40);
+
+      border:
+        1px solid var(--line);
     }
 
     .mini-stat strong{
       display:block;
-      font-size:18px;
-      margin-bottom:3px;
+
+      margin-bottom:4px;
+
+      font-size:19px;
+      font-weight:900;
     }
 
     .mini-stat span{
       color:var(--muted);
-      font-size:11px;
+
+      font-size:10px;
     }
+
+
+    /* =============================
+       SIGNAL
+    ============================= */
 
     .signal-big{
-      margin-top:18px;
-      text-align:center;
+      margin-top:17px;
+
       padding:13px;
+
+      text-align:center;
+
       border-radius:14px;
-      background:rgba(148,163,184,.08);
-      border:1px solid var(--line);
-      color:#cbd5e1;
-      font-weight:900;
+
+      font-size:12px;
+      font-weight:950;
+
+      letter-spacing:.065em;
+
+      transition:.3s ease;
     }
+
+    .state-hot{
+      color:#d1fae5 !important;
+
+      background:
+        rgba(53,229,155,.11) !important;
+
+      border:
+        1px solid rgba(53,229,155,.29) !important;
+
+      box-shadow:
+        0 0 26px rgba(53,229,155,.07);
+    }
+
+    .state-active{
+      color:#fed7aa !important;
+
+      background:
+        rgba(251,146,60,.10) !important;
+
+      border:
+        1px solid rgba(251,146,60,.25) !important;
+    }
+
+    .state-watch{
+      color:#fef08a !important;
+
+      background:
+        rgba(250,204,21,.08) !important;
+
+      border:
+        1px solid rgba(250,204,21,.22) !important;
+    }
+
+    .state-cold{
+      color:#cbd5e1 !important;
+
+      background:
+        rgba(148,163,184,.055) !important;
+
+      border:
+        1px solid rgba(148,163,184,.13) !important;
+    }
+
+
+    /* =============================
+       INSIGHT CARD
+    ============================= */
 
     .insight-card{
-      border-radius:22px;
       padding:20px;
+
+      border-radius:23px;
     }
 
-    .insight-card h3{
-      margin:0 0 16px;
-      font-size:18px;
+    .insight-head{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+
+      margin-bottom:15px;
     }
+
+    .insight-head h3{
+      margin:0;
+
+      font-size:16px;
+    }
+
+    .insight-head span{
+      color:var(--muted);
+
+      font-size:10px;
+    }
+
+
+    /* =============================
+       GAUGE
+    ============================= */
 
     .gauge{
+      position:relative;
+
       width:180px;
       height:180px;
-      border-radius:50%;
-      margin:12px auto 18px;
+
+      margin:13px auto 20px;
+
       display:flex;
       align-items:center;
       justify-content:center;
-      background:conic-gradient(var(--green) 0deg 0deg,#1a293a 0deg 360deg);
-      position:relative;
+
+      border-radius:50%;
+
+      background:
+        conic-gradient(
+          var(--green) 0deg 0deg,
+          #172537 0deg 360deg
+        );
+
+      box-shadow:
+        0 0 35px rgba(53,229,155,.05);
     }
 
     .gauge::after{
       content:"";
+
       position:absolute;
-      width:142px;
-      height:142px;
+
+      width:143px;
+      height:143px;
+
       border-radius:50%;
-      background:#0b1624;
-      border:1px solid var(--line);
+
+      background:
+        radial-gradient(
+          circle at top,
+          #112033,
+          #08131f
+        );
+
+      border:
+        1px solid var(--lineStrong);
     }
 
     .gauge-inner{
       position:relative;
-      z-index:1;
+      z-index:3;
+
       text-align:center;
     }
 
     .gauge-value{
-      font-size:38px;
-      font-weight:900;
+      font-size:41px;
+      font-weight:950;
+
       color:var(--green);
     }
 
     .gauge-label{
+      margin-top:1px;
+
       color:var(--muted);
-      font-size:11px;
+
+      font-size:9px;
+      font-weight:850;
+
       text-transform:uppercase;
-      font-weight:800;
+      letter-spacing:.12em;
     }
 
-    .pressure-state{
+
+    /* =============================
+       INSIGHT ROWS
+    ============================= */
+
+    .insight-row{
       display:flex;
-      justify-content:space-between;
       align-items:center;
-      padding:12px 13px;
-      border-radius:13px;
-      background:rgba(2,8,18,.42);
-      border:1px solid var(--line);
-      margin-top:10px;
-      font-size:13px;
+      justify-content:space-between;
+
+      gap:10px;
+
+      margin-top:9px;
+
+      padding:11px 12px;
+
+      border-radius:12px;
+
+      background:
+        rgba(1,7,15,.36);
+
+      border:
+        1px solid var(--line);
+
+      font-size:11px;
     }
+
+    .insight-row span:first-child{
+      color:var(--muted);
+    }
+
+    .insight-row strong{
+      font-size:11px;
+
+      text-align:right;
+    }
+
+
+    /* =============================
+       RECENT EVENTS
+    ============================= */
+
+    .recent-card{
+      margin-top:13px;
+
+      padding:13px;
+
+      border-radius:14px;
+
+      background:
+        rgba(1,7,15,.36);
+
+      border:
+        1px solid var(--line);
+    }
+
+    .recent-title{
+      margin-bottom:8px;
+
+      color:var(--muted);
+
+      font-size:9px;
+      font-weight:850;
+
+      text-transform:uppercase;
+      letter-spacing:.09em;
+    }
+
+    .event-list{
+      display:flex;
+      flex-direction:column;
+
+      gap:7px;
+    }
+
+    .event-item{
+      display:flex;
+      align-items:flex-start;
+
+      gap:8px;
+
+      padding:7px 8px;
+
+      border-radius:9px;
+
+      background:
+        rgba(255,255,255,.025);
+
+      font-size:10px;
+    }
+
+    .event-minute{
+      min-width:31px;
+
+      color:#93c5fd;
+
+      font-weight:900;
+    }
+
+    .event-text{
+      color:#d8e1ed;
+
+      line-height:1.35;
+    }
+
+    .no-events{
+      color:#64748b;
+
+      font-size:10px;
+    }
+
+
+    /* =============================
+       FILTERS
+    ============================= */
 
     .filters{
-      border-radius:18px;
-      padding:16px;
       display:grid;
-      grid-template-columns:repeat(5,1fr);
+
+      grid-template-columns:
+        repeat(5,minmax(0,1fr));
+
       gap:11px;
-      margin-bottom:16px;
+
+      margin-bottom:15px;
+
+      padding:15px;
+
+      border-radius:18px;
     }
 
     .field label{
       display:block;
-      margin-bottom:6px;
+
+      margin:0 0 6px;
+
       color:var(--muted);
-      font-size:10px;
-      font-weight:800;
+
+      font-size:9px;
+      font-weight:850;
+
       text-transform:uppercase;
+      letter-spacing:.08em;
     }
 
-    select,input{
+    select,
+    input{
       width:100%;
+
       padding:11px 12px;
+
       border-radius:10px;
-      background:#07111c;
-      border:1px solid var(--line);
-      color:white;
+
+      border:1px solid var(--lineStrong);
+
       outline:none;
+
+      color:#f8fafc;
+
+      background:#06111d;
+
+      font-size:12px;
     }
+
+    select:focus,
+    input:focus{
+      border-color:
+        rgba(34,211,238,.45);
+
+      box-shadow:
+        0 0 0 3px rgba(34,211,238,.06);
+    }
+
+
+    /* =============================
+       SUMMARY CARDS
+    ============================= */
 
     .summary{
       display:grid;
-      grid-template-columns:repeat(4,1fr);
-      gap:12px;
-      margin-bottom:16px;
+
+      grid-template-columns:
+        repeat(5,minmax(0,1fr));
+
+      gap:11px;
+
+      margin-bottom:15px;
     }
 
     .stats-card{
       border-radius:16px;
-      padding:16px;
+
+      padding:15px;
     }
 
     .stats-label{
       color:var(--muted);
-      font-size:10px;
+
+      font-size:9px;
+      font-weight:850;
+
       text-transform:uppercase;
-      font-weight:800;
+      letter-spacing:.08em;
     }
 
     .stats-value{
-      margin-top:7px;
-      font-size:27px;
-      font-weight:900;
+      margin-top:6px;
+
+      font-size:25px;
+      font-weight:950;
     }
 
+    .stats-sub{
+      margin-top:3px;
+
+      color:#64748b;
+
+      font-size:9px;
+    }
+
+
+    /* =============================
+       TABLE
+    ============================= */
+
     .scanner{
-      border-radius:19px;
       overflow:hidden;
+
+      border-radius:20px;
     }
 
     .scanner-head{
       display:flex;
       align-items:center;
       justify-content:space-between;
-      gap:14px;
-      padding:17px 18px;
+
+      gap:15px;
+
+      padding:16px 18px;
+
       border-bottom:1px solid var(--line);
+    }
+
+    .scanner-title{
+      display:flex;
+      align-items:center;
+      gap:8px;
     }
 
     .scanner-head h2{
       margin:0;
-      font-size:18px;
+
+      font-size:17px;
+    }
+
+    .scanner-icon{
+      font-size:15px;
     }
 
     .updated{
       color:var(--muted);
-      font-size:11px;
+
+      font-size:10px;
     }
 
     .table-wrap{
@@ -457,485 +1067,1498 @@
 
     table{
       width:100%;
+
+      min-width:1030px;
+
       border-collapse:collapse;
-      min-width:1100px;
     }
 
     th{
+      position:sticky;
+      top:0;
+      z-index:3;
+
       padding:12px 10px;
-      background:#0a1522;
-      color:#94a3b8;
-      font-size:10px;
+
+      color:#8798ae;
+
+      background:#081421;
+
+      font-size:9px;
+      font-weight:850;
+
+      text-align:center;
+
       text-transform:uppercase;
+      letter-spacing:.06em;
+
       white-space:nowrap;
     }
 
     td{
-      padding:14px 10px;
-      border-top:1px solid rgba(255,255,255,.05);
+      padding:13px 10px;
+
+      border-top:
+        1px solid rgba(255,255,255,.045);
+
       text-align:center;
-      font-size:13px;
+
+      font-size:11px;
+    }
+
+    tbody tr{
+      transition:
+        background .18s ease,
+        transform .18s ease;
+    }
+
+    tbody tr:hover{
+      background:
+        rgba(255,255,255,.025);
+    }
+
+    tbody tr.row-hot{
+      background:
+        linear-gradient(
+          90deg,
+          rgba(53,229,155,.055),
+          transparent 55%
+        );
+    }
+
+    tbody tr.row-active{
+      background:
+        linear-gradient(
+          90deg,
+          rgba(251,146,60,.04),
+          transparent 55%
+        );
     }
 
     .match-cell{
+      min-width:240px;
+
       text-align:left;
-      min-width:210px;
     }
 
     .teams{
-      font-weight:800;
-      font-size:14px;
+      font-size:13px;
+      font-weight:850;
     }
 
     .league{
-      margin-top:4px;
-      color:var(--muted);
-      font-size:10px;
+      margin-top:3px;
+
+      color:#718096;
+
+      font-size:9px;
     }
 
     .minute{
-      font-weight:900;
       color:#bfdbfe;
+
+      font-weight:900;
     }
 
     .score{
-      font-weight:900;
-      font-size:16px;
+      font-size:15px;
+      font-weight:950;
     }
 
-    .rtg{
-      font-size:18px;
-      font-weight:900;
-      color:#64748b;
-    }
 
-    .momentum-small{
-      width:105px;
+    /* =============================
+       TREND CELL
+    ============================= */
+
+    .trend-cell{
+      width:115px;
+
       margin:auto;
     }
 
-    .momentum-number{
-      font-weight:900;
-      margin-bottom:5px;
+    .trend-number{
+      margin-bottom:4px;
+
+      font-size:15px;
+      font-weight:950;
     }
 
-    .small-track{
-      height:6px;
-      border-radius:999px;
+    .trend-mini-track{
+      height:5px;
+
       overflow:hidden;
-      background:#1b2a3c;
-    }
 
-    .small-fill{
-      height:100%;
       border-radius:999px;
-      background:#334155;
+
+      background:#1b2a3b;
     }
 
-    .signal{
+    .trend-mini-fill{
+      height:100%;
+
+      border-radius:999px;
+
+      transition:.35s ease;
+    }
+
+    .fill-hot{
+      background:var(--green);
+    }
+
+    .fill-active{
+      background:var(--orange);
+    }
+
+    .fill-watch{
+      background:var(--yellow);
+    }
+
+    .fill-cold{
+      background:#64748b;
+    }
+
+
+    /* =============================
+       BADGES
+    ============================= */
+
+    .badge{
       display:inline-flex;
       align-items:center;
-      gap:6px;
-      padding:7px 9px;
+      gap:5px;
+
+      padding:6px 9px;
+
       border-radius:999px;
-      font-size:10px;
+
+      font-size:9px;
+      font-weight:950;
+
+      letter-spacing:.035em;
+
+      white-space:nowrap;
+    }
+
+    .badge-hot{
+      color:#a7f3d0;
+
+      background:
+        rgba(53,229,155,.10);
+
+      border:
+        1px solid rgba(53,229,155,.26);
+    }
+
+    .badge-active{
+      color:#fed7aa;
+
+      background:
+        rgba(251,146,60,.09);
+
+      border:
+        1px solid rgba(251,146,60,.23);
+    }
+
+    .badge-watch{
+      color:#fef08a;
+
+      background:
+        rgba(250,204,21,.075);
+
+      border:
+        1px solid rgba(250,204,21,.20);
+    }
+
+    .badge-cold{
+      color:#94a3b8;
+
+      background:
+        rgba(148,163,184,.05);
+
+      border:
+        1px solid rgba(148,163,184,.12);
+    }
+
+    .event-count{
       font-weight:900;
-      color:#cbd5e1;
-      border:1px solid var(--line);
-      background:rgba(148,163,184,.07);
     }
 
     .empty{
-      padding:30px;
-      color:var(--muted);
+      padding:35px;
+
+      color:#64748b;
+
       text-align:center;
     }
+
+
+    /* =============================
+       FOOTER
+    ============================= */
 
     .footer{
       display:flex;
       justify-content:center;
+
       margin-top:22px;
     }
 
     .back{
-      border:none;
-      background:#1e293b;
-      color:white;
-      padding:12px 18px;
+      padding:11px 18px;
+
+      border:1px solid var(--lineStrong);
+
       border-radius:11px;
-      font-weight:800;
+
+      color:#e2e8f0;
+
+      background:#122034;
+
+      font-size:11px;
+      font-weight:850;
+
       cursor:pointer;
+
+      transition:.18s ease;
     }
 
-    @media(max-width:1000px){
-      .hero{grid-template-columns:1fr}
-      .filters{grid-template-columns:1fr 1fr}
-      .summary{grid-template-columns:1fr 1fr}
+    .back:hover{
+      transform:translateY(-1px);
+
+      background:#18283d;
     }
 
-    @media(max-width:620px){
-      .filters,.summary{grid-template-columns:1fr}
-      .metrics{grid-template-columns:1fr}
-      .mini-stats{grid-template-columns:1fr 1fr}
-      .team{font-size:19px}
-      .score-big{font-size:29px}
+
+    /* =============================
+       RESPONSIVE
+    ============================= */
+
+    @media(max-width:1100px){
+
+      .hero{
+        grid-template-columns:1fr;
+      }
+
+      .summary{
+        grid-template-columns:
+          repeat(3,1fr);
+      }
+
+      .filters{
+        grid-template-columns:
+          repeat(3,1fr);
+      }
+
     }
+
+    @media(max-width:750px){
+
+      .summary{
+        grid-template-columns:
+          repeat(2,1fr);
+      }
+
+      .filters{
+        grid-template-columns:
+          repeat(2,1fr);
+      }
+
+      .metrics{
+        grid-template-columns:1fr;
+      }
+
+      .team{
+        font-size:19px;
+      }
+
+      .score-big{
+        font-size:31px;
+      }
+
+      .match-line{
+        gap:10px;
+      }
+
+    }
+
+    @media(max-width:520px){
+
+      .app{
+        padding-left:12px;
+        padding-right:12px;
+      }
+
+      .brand h1{
+        font-size:29px;
+      }
+
+      .logo{
+        width:49px;
+        height:49px;
+      }
+
+      .summary,
+      .filters{
+        grid-template-columns:1fr;
+      }
+
+      .top-mini-grid{
+        grid-template-columns:1fr;
+      }
+
+      .match-line{
+        grid-template-columns:1fr;
+      }
+
+      .team,
+      .team.away{
+        text-align:center;
+      }
+
+      .score-center{
+        order:-1;
+      }
+
+    }
+
   </style>
 </head>
+
 
 <body>
 
 <div class="app">
 
+
+  <!-- HEADER -->
+
   <div class="topbar">
 
     <div class="brand">
-      <div class="logo">⚽</div>
+
+      <div class="logo">
+        ⚽
+      </div>
 
       <div>
-        <h1>Soccer<span>Trend</span></h1>
-        <p>Live Football Pressure Intelligence</p>
+
+        <h1>
+          Soccer<span>Trend</span>
+        </h1>
+
+        <p>
+          Live Football Trend Intelligence
+        </p>
+
       </div>
+
     </div>
 
-    <div class="live-box">
-      <span class="live-dot"></span>
-      LIVE SCANNER
+
+    <div class="header-right">
+
+      <div class="api-box">
+        API:
+        <span id="apiRemaining">
+          —
+        </span>
+      </div>
+
+      <div class="live-box">
+
+        <span class="live-dot"></span>
+
+        LIVE SCANNER
+
+      </div>
+
     </div>
 
   </div>
 
-  <div class="notice">
-    ✅ Dati partite LIVE collegati. RTG, Momentum e statistiche avanzate saranno attivati nel prossimo passaggio.
+
+  <!-- INFO -->
+
+  <div class="info-banner">
+
+    <div>
+      <strong>SoccerTrend Free Mode</strong>
+      • Trend calcolato tramite eventi live e fase della partita.
+      Il Trend Free non equivale al futuro RTG basato su tiri e statistiche avanzate.
+    </div>
+
+    <div class="refresh-small">
+      Refresh tra
+      <strong id="headerCountdown">120s</strong>
+    </div>
+
   </div>
+
+
+  <!-- HERO -->
 
   <div class="hero">
 
-    <div class="top-card">
+
+    <!-- TOP OPPORTUNITY -->
+
+    <div class="top-card glass">
 
       <div class="top-head">
 
         <div class="top-label">
-          🔥 TOP OPPORTUNITY
+          🔥 TOP LIVE TREND
         </div>
 
-        <div class="top-score" id="topLeague">
+        <div
+          class="top-league"
+          id="topLeague"
+        >
           —
         </div>
 
       </div>
 
+
       <div class="top-body">
+
 
         <div class="match-line">
 
-          <div class="team" id="topHome">—</div>
+          <div
+            class="team"
+            id="topHome"
+          >
+            —
+          </div>
+
 
           <div class="score-center">
 
-            <div class="score-big" id="topScore">
+            <div
+              class="score-big"
+              id="topScore"
+            >
               — - —
             </div>
 
-            <div class="minute-pill" id="topMinute">
-              LIVE
+            <div
+              class="minute-pill"
+              id="topMinute"
+            >
+              ● LIVE
             </div>
 
           </div>
 
-          <div class="team away" id="topAway">—</div>
+
+          <div
+            class="team away"
+            id="topAway"
+          >
+            —
+          </div>
 
         </div>
+
 
         <div class="metrics">
 
-          <div class="metric">
-            <div class="metric-label">RTG</div>
-            <div class="metric-value green" id="topRtg">0.0</div>
-          </div>
 
           <div class="metric">
-            <div class="metric-label">Momentum</div>
-            <div class="metric-value cyan" id="topMomentum">0</div>
+
+            <div class="metric-label">
+              Trend Free
+            </div>
+
+            <div
+              class="metric-value value-green"
+              id="topTrend"
+            >
+              0
+            </div>
+
           </div>
+
 
           <div class="metric">
-            <div class="metric-label">Pressione</div>
-            <div class="metric-value yellow" id="topPressure">—</div>
+
+            <div class="metric-label">
+              Stato
+            </div>
+
+            <div
+              class="metric-value value-cyan"
+              id="topLabel"
+            >
+              COLD
+            </div>
+
+          </div>
+
+
+          <div class="metric">
+
+            <div class="metric-label">
+              Eventi 10'
+            </div>
+
+            <div
+              class="metric-value value-yellow"
+              id="topEvents"
+            >
+              0
+            </div>
+
+          </div>
+
+
+        </div>
+
+
+        <div class="trend-section">
+
+          <div class="trend-top">
+
+            <span>
+              Live activity trend
+            </span>
+
+            <span id="topTrendPercent">
+              0 / 100
+            </span>
+
+          </div>
+
+          <div class="trend-track">
+
+            <div
+              class="trend-fill"
+              id="topTrendBar"
+            ></div>
+
           </div>
 
         </div>
 
-        <div class="momentum-block">
 
-          <div class="momentum-top">
-            <span>Momentum Live</span>
-            <span id="topMomentumPercent">0%</span>
+        <div class="top-mini-grid">
+
+          <div class="mini-stat">
+
+            <strong id="topMinuteValue">
+              —
+            </strong>
+
+            <span>
+              Minuto
+            </span>
+
           </div>
 
-          <div class="momentum-track">
-            <div class="momentum-fill" id="topMomentumBar" style="width:0%"></div>
+
+          <div class="mini-stat">
+
+            <strong id="topRecentEvents">
+              0
+            </strong>
+
+            <span>
+              Eventi recenti
+            </span>
+
+          </div>
+
+
+          <div class="mini-stat">
+
+            <strong id="topScoreMini">
+              —
+            </strong>
+
+            <span>
+              Risultato
+            </span>
+
           </div>
 
         </div>
 
-        <div class="mini-stats">
 
-          <div class="mini-stat">
-            <strong id="topShots">—</strong>
-            <span>Tiri</span>
-          </div>
-
-          <div class="mini-stat">
-            <strong id="topTarget">—</strong>
-            <span>In porta</span>
-          </div>
-
-          <div class="mini-stat">
-            <strong id="topBox">—</strong>
-            <span>In area</span>
-          </div>
-
-          <div class="mini-stat">
-            <strong id="topCorners">—</strong>
-            <span>Corner</span>
-          </div>
-
+        <div
+          class="signal-big state-cold"
+          id="topSignal"
+        >
+          ❄️ COLD
         </div>
 
-        <div class="signal-big" id="topSignal">
-          IN ATTESA STATISTICHE
-        </div>
 
       </div>
 
     </div>
 
-    <div class="insight-card">
 
-      <h3>Match Pressure Index</h3>
+    <!-- INSIGHT -->
 
-      <div class="gauge" id="gauge">
+    <div class="insight-card glass">
+
+      <div class="insight-head">
+
+        <h3>
+          SoccerTrend Index
+        </h3>
+
+        <span>
+          FREE
+        </span>
+
+      </div>
+
+
+      <div
+        class="gauge"
+        id="gauge"
+      >
 
         <div class="gauge-inner">
 
-          <div class="gauge-value" id="gaugeValue">
+          <div
+            class="gauge-value"
+            id="gaugeValue"
+          >
             0
           </div>
 
           <div class="gauge-label">
-            Pressure
+            TREND
           </div>
 
         </div>
 
       </div>
 
-      <div class="pressure-state">
-        <span>Trend</span>
-        <span id="pressureTrend">—</span>
+
+      <div class="insight-row">
+
+        <span>
+          Stato
+        </span>
+
+        <strong id="insightStatus">
+          COLD
+        </strong>
+
       </div>
 
-      <div class="pressure-state">
-        <span>RTG Status</span>
-        <span id="rtgStatus">—</span>
+
+      <div class="insight-row">
+
+        <span>
+          Eventi ultimi 10'
+        </span>
+
+        <strong id="insightEvents">
+          0
+        </strong>
+
       </div>
 
-      <div class="pressure-state">
-        <span>Signal</span>
-        <span id="signalStatus">—</span>
+
+      <div class="insight-row">
+
+        <span>
+          Fase partita
+        </span>
+
+        <strong id="insightPhase">
+          —
+        </strong>
+
+      </div>
+
+
+      <div class="recent-card">
+
+        <div class="recent-title">
+          Ultimi eventi
+        </div>
+
+        <div
+          class="event-list"
+          id="topEventList"
+        >
+
+          <div class="no-events">
+            Nessun evento recente
+          </div>
+
+        </div>
+
       </div>
 
     </div>
 
+
   </div>
 
-  <div class="filters">
+
+  <!-- FILTERS -->
+
+  <div class="filters glass">
+
 
     <div class="field">
-      <label>Minuto minimo</label>
+
+      <label>
+        Minuto minimo
+      </label>
+
       <select id="minMinute">
-        <option value="0">Tutti</option>
-        <option value="20">20+</option>
-        <option value="30">30+</option>
-        <option value="45">45+</option>
-        <option value="55">55+</option>
-        <option value="65">65+</option>
-        <option value="75">75+</option>
+
+        <option value="0">
+          Tutti
+        </option>
+
+        <option value="20">
+          20+
+        </option>
+
+        <option value="30">
+          30+
+        </option>
+
+        <option value="45">
+          45+
+        </option>
+
+        <option value="55">
+          55+
+        </option>
+
+        <option value="65">
+          65+
+        </option>
+
+        <option value="75">
+          75+
+        </option>
+
       </select>
+
     </div>
 
-    <div class="field">
-      <label>RTG minimo</label>
-      <select id="minRtg">
-        <option value="0">Tutti</option>
-        <option value="8">8+</option>
-        <option value="10">10+</option>
-        <option value="12">12+</option>
-        <option value="14">14+</option>
-        <option value="16">16+</option>
-      </select>
-    </div>
 
     <div class="field">
-      <label>Momentum minimo</label>
-      <select id="minMomentum">
-        <option value="0">Tutti</option>
-        <option value="40">40+</option>
-        <option value="50">50+</option>
-        <option value="60">60+</option>
-        <option value="70">70+</option>
-        <option value="80">80+</option>
+
+      <label>
+        Trend minimo
+      </label>
+
+      <select id="minTrend">
+
+        <option value="0">
+          Tutti
+        </option>
+
+        <option value="10">
+          10+
+        </option>
+
+        <option value="20">
+          20+
+        </option>
+
+        <option value="30">
+          30+
+        </option>
+
+        <option value="40">
+          40+
+        </option>
+
+        <option value="60">
+          60+
+        </option>
+
       </select>
+
     </div>
 
+
     <div class="field">
-      <label>Risultato</label>
+
+      <label>
+        Stato
+      </label>
+
+      <select id="statusFilter">
+
+        <option value="all">
+          Tutti
+        </option>
+
+        <option value="HOT">
+          🔥 HOT
+        </option>
+
+        <option value="ACTIVE">
+          🟠 ACTIVE
+        </option>
+
+        <option value="WATCH">
+          🟡 WATCH
+        </option>
+
+        <option value="COLD">
+          ❄️ COLD
+        </option>
+
+      </select>
+
+    </div>
+
+
+    <div class="field">
+
+      <label>
+        Risultato
+      </label>
+
       <select id="scoreFilter">
-        <option value="all">Tutti</option>
-        <option value="00">Solo 0-0</option>
-        <option value="draw">Pareggio</option>
+
+        <option value="all">
+          Tutti
+        </option>
+
+        <option value="00">
+          Solo 0-0
+        </option>
+
+        <option value="draw">
+          Pareggio
+        </option>
+
+        <option value="oneGoal">
+          Max 1 gol
+        </option>
+
       </select>
+
     </div>
 
+
     <div class="field">
-      <label>Cerca squadra</label>
-      <input id="teamSearch" placeholder="es. Inter">
+
+      <label>
+        Cerca squadra
+      </label>
+
+      <input
+        id="teamSearch"
+        placeholder="es. Inter"
+      >
+
     </div>
+
 
   </div>
+
+
+  <!-- SUMMARY -->
 
   <div class="summary">
 
-    <div class="stats-card">
-      <div class="stats-label">Partite Live</div>
-      <div class="stats-value" id="liveCount">0</div>
+
+    <div class="stats-card glass">
+
+      <div class="stats-label">
+        Partite Live
+      </div>
+
+      <div
+        class="stats-value"
+        id="liveCount"
+      >
+        0
+      </div>
+
+      <div class="stats-sub">
+        Dopo i filtri
+      </div>
+
     </div>
 
-    <div class="stats-card">
-      <div class="stats-label">Segnali Forti</div>
-      <div class="stats-value" id="strongCount">0</div>
+
+    <div class="stats-card glass">
+
+      <div class="stats-label">
+        Hot
+      </div>
+
+      <div
+        class="stats-value"
+        id="hotCount"
+      >
+        0
+      </div>
+
+      <div class="stats-sub">
+        Trend ≥ 65
+      </div>
+
     </div>
 
-    <div class="stats-card">
-      <div class="stats-label">RTG Medio</div>
-      <div class="stats-value" id="avgRtg">0.0</div>
+
+    <div class="stats-card glass">
+
+      <div class="stats-label">
+        Active
+      </div>
+
+      <div
+        class="stats-value"
+        id="activeCount"
+      >
+        0
+      </div>
+
+      <div class="stats-sub">
+        Trend ≥ 40
+      </div>
+
     </div>
 
-    <div class="stats-card">
-      <div class="stats-label">Refresh</div>
-      <div class="stats-value" id="countdown">60s</div>
+
+    <div class="stats-card glass">
+
+      <div class="stats-label">
+        Trend Medio
+      </div>
+
+      <div
+        class="stats-value"
+        id="avgTrend"
+      >
+        0
+      </div>
+
+      <div class="stats-sub">
+        Delle live visibili
+      </div>
+
     </div>
+
+
+    <div class="stats-card glass">
+
+      <div class="stats-label">
+        Refresh
+      </div>
+
+      <div
+        class="stats-value"
+        id="countdown"
+      >
+        120s
+      </div>
+
+      <div class="stats-sub">
+        Modalità Free
+      </div>
+
+    </div>
+
 
   </div>
 
-  <div class="scanner">
+
+  <!-- TABLE -->
+
+  <div class="scanner glass">
+
 
     <div class="scanner-head">
-      <h2>Live Match Scanner</h2>
-      <div class="updated" id="lastUpdate">Caricamento...</div>
+
+      <div class="scanner-title">
+
+        <span class="scanner-icon">
+          📡
+        </span>
+
+        <h2>
+          Live Match Scanner
+        </h2>
+
+      </div>
+
+      <div
+        class="updated"
+        id="lastUpdate"
+      >
+        Caricamento...
+      </div>
+
     </div>
+
 
     <div class="table-wrap">
 
+
       <table>
 
+
         <thead>
+
           <tr>
-            <th>Min</th>
-            <th>Partita</th>
-            <th>Ris.</th>
-            <th>RTG</th>
-            <th>Momentum</th>
-            <th>Tiri</th>
-            <th>In porta</th>
-            <th>In area</th>
-            <th>Corner</th>
-            <th>Segnale</th>
+
+            <th>
+              Min
+            </th>
+
+            <th>
+              Partita
+            </th>
+
+            <th>
+              Ris.
+            </th>
+
+            <th>
+              Trend
+            </th>
+
+            <th>
+              Stato
+            </th>
+
+            <th>
+              Eventi 10'
+            </th>
+
+            <th>
+              Ultimo evento
+            </th>
+
           </tr>
+
         </thead>
+
 
         <tbody id="matches"></tbody>
 
+
       </table>
+
 
     </div>
 
+
   </div>
 
+
+  <!-- FOOTER -->
+
   <div class="footer">
-    <button class="back" onclick="window.location.href='index.html'">
+
+    <button
+      class="back"
+      onclick="window.location.href='index.html'"
+    >
       ← Torna agli strumenti
     </button>
+
   </div>
+
 
 </div>
 
+
 <script>
 
+
+/* ==========================================
+   DATA
+========================================== */
+
 let matches = [];
+
+let apiRemaining = null;
+
+
+/* ==========================================
+   HELPERS
+========================================== */
+
+function safeNumber(value){
+
+  const n = Number(value);
+
+  return Number.isFinite(n)
+    ? n
+    : 0;
+
+}
+
+
+function trendLabel(match){
+
+  return String(
+    match.trendLabel || "COLD"
+  ).toUpperCase();
+
+}
+
+
+function badgeClass(label){
+
+  if(label === "HOT"){
+    return "badge-hot";
+  }
+
+  if(label === "ACTIVE"){
+    return "badge-active";
+  }
+
+  if(label === "WATCH"){
+    return "badge-watch";
+  }
+
+  return "badge-cold";
+
+}
+
+
+function stateClass(label){
+
+  if(label === "HOT"){
+    return "state-hot";
+  }
+
+  if(label === "ACTIVE"){
+    return "state-active";
+  }
+
+  if(label === "WATCH"){
+    return "state-watch";
+  }
+
+  return "state-cold";
+
+}
+
+
+function fillClass(label){
+
+  if(label === "HOT"){
+    return "fill-hot";
+  }
+
+  if(label === "ACTIVE"){
+    return "fill-active";
+  }
+
+  if(label === "WATCH"){
+    return "fill-watch";
+  }
+
+  return "fill-cold";
+
+}
+
+
+function stateIcon(label){
+
+  if(label === "HOT"){
+    return "🔥";
+  }
+
+  if(label === "ACTIVE"){
+    return "🟠";
+  }
+
+  if(label === "WATCH"){
+    return "🟡";
+  }
+
+  return "❄️";
+
+}
+
+
+function phaseLabel(minute){
+
+  const m = safeNumber(minute);
+
+  if(m < 20){
+    return "INIZIO";
+  }
+
+  if(m < 45){
+    return "1° TEMPO";
+  }
+
+  if(m < 55){
+    return "RIPRESA";
+  }
+
+  if(m < 70){
+    return "FASE CENTRALE";
+  }
+
+  if(m <= 85){
+    return "FASE CALDA";
+  }
+
+  return "FINALE";
+}
+
+
+function eventIcon(event){
+
+  const type =
+    String(event?.type || "")
+      .toLowerCase();
+
+  const detail =
+    String(event?.detail || "")
+      .toLowerCase();
+
+  if(type === "goal"){
+
+    if(detail.includes("missed")){
+      return "❌";
+    }
+
+    return "⚽";
+  }
+
+  if(type === "card"){
+
+    if(detail.includes("red")){
+      return "🟥";
+    }
+
+    return "🟨";
+  }
+
+  if(type.includes("subst")){
+    return "🔄";
+  }
+
+  return "•";
+}
+
+
+function formatEvent(event){
+
+  if(!event){
+    return "—";
+  }
+
+  const icon =
+    eventIcon(event);
+
+  const team =
+    event.team || "";
+
+  const player =
+    event.player || "";
+
+  const detail =
+    event.detail || event.type || "Evento";
+
+  let text =
+    `${icon} ${detail}`;
+
+  if(player){
+    text += ` • ${player}`;
+  }
+
+  if(team){
+    text += ` (${team})`;
+  }
+
+  return text;
+}
+
+
+function recentEventsFor(match){
+
+  const minute =
+    safeNumber(match.minute);
+
+  return (match.events || [])
+    .filter(event => {
+
+      const eventMinute =
+        safeNumber(event.minute);
+
+      const diff =
+        minute - eventMinute;
+
+      return (
+        diff >= 0 &&
+        diff <= 10
+      );
+
+    })
+    .sort(
+      (a,b) =>
+        safeNumber(b.minute) -
+        safeNumber(a.minute)
+    );
+
+}
+
+
+function lastEvent(match){
+
+  const events =
+    [...(match.events || [])]
+      .sort(
+        (a,b) =>
+          safeNumber(b.minute) -
+          safeNumber(a.minute)
+      );
+
+  return events[0] || null;
+
+}
+
+
+/* ==========================================
+   API
+========================================== */
 
 async function loadLiveMatches(){
 
   try{
 
-    document.getElementById("lastUpdate").textContent =
-      "Aggiornamento dati...";
+    document
+      .getElementById("lastUpdate")
+      .textContent =
+        "Aggiornamento dati...";
 
-    const response = await fetch("/api/soccertrend");
 
-    const data = await response.json();
+    const response =
+      await fetch(
+        "/api/soccertrend",
+        {
+          cache:"no-store"
+        }
+      );
 
-    if(!response.ok){
 
-      console.error("Errore API:", data);
+    const data =
+      await response.json();
 
-      document.getElementById("lastUpdate").textContent =
-        "Errore caricamento";
+
+    if(
+      !response.ok ||
+      data.success === false
+    ){
+
+      console.error(
+        "Errore API:",
+        data
+      );
+
+      document
+        .getElementById("lastUpdate")
+        .textContent =
+          "Errore caricamento";
 
       return;
     }
 
-    matches = (data.matches || []).map(match => ({
-      ...match,
 
-      rtg:0,
-      momentum:0,
+    apiRemaining =
+      data.api?.remaining ?? null;
 
-      shots:"—",
-      target:"—",
-      box:"—",
-      corners:"—",
 
-      signal:"IN ATTESA"
-    }));
+    matches =
+      (data.matches || [])
+        .map(match => ({
+
+          ...match,
+
+          trendFree:
+            safeNumber(
+              match.trendFree
+            ),
+
+          momentum:
+            safeNumber(
+              match.momentum ??
+              match.trendFree
+            ),
+
+          recentEvents:
+            safeNumber(
+              match.recentEvents
+            ),
+
+          events:
+            Array.isArray(match.events)
+              ? match.events
+              : []
+
+        }));
+
 
     render();
 
+
   }catch(error){
 
-    console.error("Errore SoccerTrend:", error);
+    console.error(
+      "Errore SoccerTrend:",
+      error
+    );
 
-    document.getElementById("lastUpdate").textContent =
-      "Errore connessione";
+    document
+      .getElementById("lastUpdate")
+      .textContent =
+        "Errore connessione";
 
   }
 
 }
 
+
+/* ==========================================
+   FILTER
+========================================== */
+
 function filteredMatches(){
 
   const minMinute =
-    Number(document.getElementById("minMinute").value);
+    safeNumber(
+      document
+        .getElementById("minMinute")
+        .value
+    );
 
-  const minRtg =
-    Number(document.getElementById("minRtg").value);
 
-  const minMomentum =
-    Number(document.getElementById("minMomentum").value);
+  const minTrend =
+    safeNumber(
+      document
+        .getElementById("minTrend")
+        .value
+    );
+
+
+  const statusFilter =
+    document
+      .getElementById("statusFilter")
+      .value;
+
 
   const scoreFilter =
-    document.getElementById("scoreFilter").value;
+    document
+      .getElementById("scoreFilter")
+      .value;
+
 
   const search =
     document
@@ -944,255 +2567,709 @@ function filteredMatches(){
       .toLowerCase()
       .trim();
 
-  return matches.filter(match => {
 
-    if(match.minute < minMinute) return false;
+  return matches
 
-    if(match.rtg < minRtg) return false;
+    .filter(match => {
 
-    if(match.momentum < minMomentum) return false;
 
-    if(
-      search &&
-      !match.home.toLowerCase().includes(search) &&
-      !match.away.toLowerCase().includes(search)
-    ){
-      return false;
-    }
+      if(
+        safeNumber(match.minute) <
+        minMinute
+      ){
+        return false;
+      }
 
-    if(
-      scoreFilter === "00" &&
-      !(match.homeGoals === 0 && match.awayGoals === 0)
-    ){
-      return false;
-    }
 
-    if(
-      scoreFilter === "draw" &&
-      match.homeGoals !== match.awayGoals
-    ){
-      return false;
-    }
+      if(
+        safeNumber(match.trendFree) <
+        minTrend
+      ){
+        return false;
+      }
 
-    return true;
 
-  }).sort((a,b) => b.minute - a.minute);
+      const label =
+        trendLabel(match);
+
+
+      if(
+        statusFilter !== "all" &&
+        label !== statusFilter
+      ){
+        return false;
+      }
+
+
+      if(
+        search &&
+        !String(match.home)
+          .toLowerCase()
+          .includes(search) &&
+        !String(match.away)
+          .toLowerCase()
+          .includes(search)
+      ){
+        return false;
+      }
+
+
+      const homeGoals =
+        safeNumber(
+          match.homeGoals
+        );
+
+      const awayGoals =
+        safeNumber(
+          match.awayGoals
+        );
+
+
+      if(
+        scoreFilter === "00" &&
+        !(
+          homeGoals === 0 &&
+          awayGoals === 0
+        )
+      ){
+        return false;
+      }
+
+
+      if(
+        scoreFilter === "draw" &&
+        homeGoals !== awayGoals
+      ){
+        return false;
+      }
+
+
+      if(
+        scoreFilter === "oneGoal" &&
+        homeGoals + awayGoals > 1
+      ){
+        return false;
+      }
+
+
+      return true;
+
+    })
+
+    .sort((a,b) => {
+
+      const trendDiff =
+        safeNumber(b.trendFree) -
+        safeNumber(a.trendFree);
+
+      if(trendDiff !== 0){
+        return trendDiff;
+      }
+
+      return (
+        safeNumber(b.minute) -
+        safeNumber(a.minute)
+      );
+
+    });
 
 }
+
+
+/* ==========================================
+   TOP MATCH
+========================================== */
 
 function renderTop(match){
 
   if(!match){
 
-    document.getElementById("topHome").textContent = "—";
-    document.getElementById("topAway").textContent = "—";
-    document.getElementById("topScore").textContent = "— - —";
-    document.getElementById("topMinute").textContent = "LIVE";
+    document
+      .getElementById("topHome")
+      .textContent = "—";
+
+    document
+      .getElementById("topAway")
+      .textContent = "—";
+
+    document
+      .getElementById("topScore")
+      .textContent = "— - —";
+
+    document
+      .getElementById("topLeague")
+      .textContent = "—";
+
+    document
+      .getElementById("topTrend")
+      .textContent = "0";
 
     return;
   }
 
-  document.getElementById("topHome").textContent =
-    match.home;
 
-  document.getElementById("topAway").textContent =
-    match.away;
+  const trend =
+    Math.min(
+      100,
+      safeNumber(
+        match.trendFree
+      )
+    );
 
-  document.getElementById("topLeague").textContent =
-    `${match.country || ""} • ${match.league}`;
 
-  document.getElementById("topScore").textContent =
-    `${match.homeGoals} - ${match.awayGoals}`;
+  const label =
+    trendLabel(match);
 
-  document.getElementById("topMinute").textContent =
-    `${match.status} • ${match.minute}'`;
 
-  document.getElementById("topRtg").textContent =
-    "0.0";
+  const icon =
+    stateIcon(label);
 
-  document.getElementById("topMomentum").textContent =
-    "0";
 
-  document.getElementById("topPressure").textContent =
-    "—";
+  const recent =
+    recentEventsFor(match);
 
-  document.getElementById("topMomentumPercent").textContent =
-    "0%";
 
-  document.getElementById("topMomentumBar").style.width =
-    "0%";
+  document
+    .getElementById("topHome")
+    .textContent =
+      match.home;
 
-  document.getElementById("topShots").textContent =
-    "—";
 
-  document.getElementById("topTarget").textContent =
-    "—";
+  document
+    .getElementById("topAway")
+    .textContent =
+      match.away;
 
-  document.getElementById("topBox").textContent =
-    "—";
 
-  document.getElementById("topCorners").textContent =
-    "—";
+  document
+    .getElementById("topScore")
+    .textContent =
+      `${match.homeGoals} - ${match.awayGoals}`;
 
-  document.getElementById("topSignal").textContent =
-    "IN ATTESA STATISTICHE";
 
-  document.getElementById("gaugeValue").textContent =
-    "0";
+  document
+    .getElementById("topLeague")
+    .textContent =
+      `${match.country || ""} • ${match.league || ""}`;
 
-  document.getElementById("gauge").style.background =
-    "conic-gradient(var(--green) 0deg 0deg,#1a293a 0deg 360deg)";
 
-  document.getElementById("pressureTrend").textContent =
-    "—";
+  document
+    .getElementById("topMinute")
+    .textContent =
+      `● ${match.status || "LIVE"} • ${match.minute}'`;
 
-  document.getElementById("rtgStatus").textContent =
-    "—";
 
-  document.getElementById("signalStatus").textContent =
-    "—";
+  document
+    .getElementById("topTrend")
+    .textContent =
+      trend;
+
+
+  document
+    .getElementById("topLabel")
+    .textContent =
+      label;
+
+
+  document
+    .getElementById("topEvents")
+    .textContent =
+      match.recentEvents || recent.length;
+
+
+  document
+    .getElementById("topTrendPercent")
+    .textContent =
+      `${trend} / 100`;
+
+
+  document
+    .getElementById("topTrendBar")
+    .style.width =
+      `${trend}%`;
+
+
+  document
+    .getElementById("topMinuteValue")
+    .textContent =
+      `${match.minute}'`;
+
+
+  document
+    .getElementById("topRecentEvents")
+    .textContent =
+      recent.length;
+
+
+  document
+    .getElementById("topScoreMini")
+    .textContent =
+      `${match.homeGoals}-${match.awayGoals}`;
+
+
+  const signal =
+    document
+      .getElementById("topSignal");
+
+
+  signal.className =
+    `signal-big ${stateClass(label)}`;
+
+
+  signal.textContent =
+    `${icon} ${label}`;
+
+
+  /* GAUGE */
+
+  const angle =
+    trend * 3.6;
+
+
+  let gaugeColor =
+    "var(--green)";
+
+
+  if(label === "ACTIVE"){
+    gaugeColor =
+      "var(--orange)";
+  }
+
+  if(label === "WATCH"){
+    gaugeColor =
+      "var(--yellow)";
+  }
+
+  if(label === "COLD"){
+    gaugeColor =
+      "#64748b";
+  }
+
+
+  document
+    .getElementById("gauge")
+    .style.background =
+      `conic-gradient(
+        ${gaugeColor} 0deg ${angle}deg,
+        #172537 ${angle}deg 360deg
+      )`;
+
+
+  document
+    .getElementById("gaugeValue")
+    .textContent =
+      trend;
+
+
+  document
+    .getElementById("gaugeValue")
+    .style.color =
+      gaugeColor;
+
+
+  document
+    .getElementById("insightStatus")
+    .textContent =
+      `${icon} ${label}`;
+
+
+  document
+    .getElementById("insightEvents")
+    .textContent =
+      recent.length;
+
+
+  document
+    .getElementById("insightPhase")
+    .textContent =
+      phaseLabel(
+        match.minute
+      );
+
+
+  renderTopEvents(
+    recent
+  );
 
 }
 
+
+/* ==========================================
+   TOP EVENTS
+========================================== */
+
+function renderTopEvents(events){
+
+  const container =
+    document
+      .getElementById("topEventList");
+
+
+  container.innerHTML = "";
+
+
+  if(
+    !events ||
+    events.length === 0
+  ){
+
+    container.innerHTML =
+      `
+        <div class="no-events">
+          Nessun evento negli ultimi 10 minuti
+        </div>
+      `;
+
+    return;
+  }
+
+
+  events
+    .slice(0,5)
+    .forEach(event => {
+
+      const item =
+        document
+          .createElement("div");
+
+
+      item.className =
+        "event-item";
+
+
+      item.innerHTML =
+        `
+          <div class="event-minute">
+            ${event.minute}'
+          </div>
+
+          <div class="event-text">
+            ${formatEvent(event)}
+          </div>
+        `;
+
+
+      container
+        .appendChild(item);
+
+    });
+
+}
+
+
+/* ==========================================
+   TABLE
+========================================== */
+
 function render(){
 
-  const data = filteredMatches();
+  const data =
+    filteredMatches();
+
 
   const tbody =
-    document.getElementById("matches");
+    document
+      .getElementById("matches");
 
-  tbody.innerHTML = "";
+
+  tbody.innerHTML =
+    "";
+
 
   if(data.length === 0){
 
-    tbody.innerHTML = `
-      <tr>
-        <td colspan="10" class="empty">
-          Nessuna partita trovata con questi filtri.
-        </td>
-      </tr>
-    `;
+    tbody.innerHTML =
+      `
+        <tr>
+          <td
+            colspan="7"
+            class="empty"
+          >
+            Nessuna partita trovata con questi filtri.
+          </td>
+        </tr>
+      `;
 
   }else{
 
+
     data.forEach(match => {
 
+
+      const label =
+        trendLabel(match);
+
+
+      const trend =
+        Math.min(
+          100,
+          safeNumber(
+            match.trendFree
+          )
+        );
+
+
+      const recent =
+        recentEventsFor(match);
+
+
+      const latest =
+        lastEvent(match);
+
+
       const tr =
-        document.createElement("tr");
+        document
+          .createElement("tr");
 
-      tr.innerHTML = `
 
-        <td class="minute">
-          ${match.minute}'
-        </td>
+      if(label === "HOT"){
+        tr.classList.add(
+          "row-hot"
+        );
+      }
 
-        <td class="match-cell">
 
-          <div class="teams">
-            ${match.home} - ${match.away}
-          </div>
+      if(label === "ACTIVE"){
+        tr.classList.add(
+          "row-active"
+        );
+      }
 
-          <div class="league">
-            ${match.country || ""} • ${match.league}
-          </div>
 
-        </td>
+      tr.innerHTML =
+        `
 
-        <td class="score">
-          ${match.homeGoals}-${match.awayGoals}
-        </td>
+          <td class="minute">
+            ${match.minute}'
+          </td>
 
-        <td>
-          <span class="rtg">
-            ${match.rtg.toFixed(1)}
-          </span>
-        </td>
 
-        <td>
+          <td class="match-cell">
 
-          <div class="momentum-small">
-
-            <div class="momentum-number">
-              ${match.momentum}
+            <div class="teams">
+              ${match.home}
+              -
+              ${match.away}
             </div>
 
-            <div class="small-track">
-              <div
-                class="small-fill"
-                style="width:${match.momentum}%">
+            <div class="league">
+              ${match.country || ""}
+              •
+              ${match.league || ""}
+            </div>
+
+          </td>
+
+
+          <td class="score">
+            ${match.homeGoals}-${match.awayGoals}
+          </td>
+
+
+          <td>
+
+            <div class="trend-cell">
+
+              <div class="trend-number">
+                ${trend}
               </div>
+
+              <div class="trend-mini-track">
+
+                <div
+                  class="trend-mini-fill ${fillClass(label)}"
+                  style="width:${trend}%"
+                ></div>
+
+              </div>
+
             </div>
 
-          </div>
+          </td>
 
-        </td>
 
-        <td>${match.shots}</td>
-        <td>${match.target}</td>
-        <td>${match.box}</td>
-        <td>${match.corners}</td>
+          <td>
 
-        <td>
-          <span class="signal">
-            ${match.signal}
-          </span>
-        </td>
+            <span
+              class="badge ${badgeClass(label)}"
+            >
+              ${stateIcon(label)}
+              ${label}
+            </span>
 
-      `;
+          </td>
 
-      tbody.appendChild(tr);
+
+          <td class="event-count">
+            ${recent.length}
+          </td>
+
+
+          <td>
+            ${
+              latest
+                ? `${latest.minute}' ${formatEvent(latest)}`
+                : "—"
+            }
+          </td>
+
+        `;
+
+
+      tbody
+        .appendChild(tr);
 
     });
 
   }
 
-  document.getElementById("liveCount").textContent =
-    data.length;
 
-  document.getElementById("strongCount").textContent =
-    0;
+  /* COUNTERS */
 
-  document.getElementById("avgRtg").textContent =
-    "0.0";
+  document
+    .getElementById("liveCount")
+    .textContent =
+      data.length;
 
-  document.getElementById("lastUpdate").textContent =
-    "Aggiornato: " +
-    new Date().toLocaleTimeString("it-IT");
 
-  renderTop(data[0]);
+  const hot =
+    data.filter(
+      match =>
+        trendLabel(match) ===
+        "HOT"
+    ).length;
+
+
+  const active =
+    data.filter(
+      match =>
+        trendLabel(match) ===
+        "ACTIVE"
+    ).length;
+
+
+  document
+    .getElementById("hotCount")
+    .textContent =
+      hot;
+
+
+  document
+    .getElementById("activeCount")
+    .textContent =
+      active;
+
+
+  const avg =
+    data.length
+      ? (
+          data.reduce(
+            (sum,match) =>
+              sum +
+              safeNumber(
+                match.trendFree
+              ),
+            0
+          ) /
+          data.length
+        )
+      : 0;
+
+
+  document
+    .getElementById("avgTrend")
+    .textContent =
+      avg.toFixed(1);
+
+
+  document
+    .getElementById("apiRemaining")
+    .textContent =
+      apiRemaining !== null
+        ? `${apiRemaining}/100`
+        : "—";
+
+
+  document
+    .getElementById("lastUpdate")
+    .textContent =
+      "Aggiornato: " +
+      new Date()
+        .toLocaleTimeString(
+          "it-IT"
+        );
+
+
+  renderTop(
+    data[0]
+  );
 
 }
 
+
+/* ==========================================
+   FILTER EVENTS
+========================================== */
+
 document
-  .querySelectorAll("select,input")
+  .querySelectorAll(
+    "select,input"
+  )
   .forEach(element => {
 
-    element.addEventListener("input",render);
+    element
+      .addEventListener(
+        "input",
+        render
+      );
 
   });
 
-let seconds = 60;
+
+/* ==========================================
+   REFRESH - 2 MINUTI
+========================================== */
+
+let seconds = 120;
+
 
 setInterval(() => {
 
   seconds--;
 
+
   if(seconds <= 0){
 
-    seconds = 60;
+    seconds = 120;
 
     loadLiveMatches();
 
   }
 
-  document.getElementById("countdown").textContent =
-    seconds + "s";
+
+  document
+    .getElementById("countdown")
+    .textContent =
+      `${seconds}s`;
+
+
+  document
+    .getElementById("headerCountdown")
+    .textContent =
+      `${seconds}s`;
+
 
 },1000);
+
+
+/* ==========================================
+   START
+========================================== */
 
 loadLiveMatches();
 
 </script>
+
 
 </body>
 </html>
