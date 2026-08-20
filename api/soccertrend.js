@@ -111,8 +111,97 @@ module.exports = async (req, res) => {
 
     /*
     ==================================================
+    MODALITÀ COVERAGE
+
+    Esempio:
+    /api/soccertrend?coverage=135&season=2026
+
+    Serve per capire se una lega supporta
+    le statistiche fixture.
+    ==================================================
+    */
+
+    const coverageLeague =
+      String(req.query.coverage || "").trim();
+
+    const coverageSeason =
+      String(req.query.season || "").trim();
+
+    if (coverageLeague && coverageSeason) {
+
+      const { response, data } =
+        await apiRequest(
+          `/leagues?id=${encodeURIComponent(coverageLeague)}&season=${encodeURIComponent(coverageSeason)}`,
+          apiKey
+        );
+
+      if (
+        data.errors &&
+        Object.keys(data.errors).length > 0
+      ) {
+
+        return res.status(200).json({
+          success: false,
+          mode: "COVERAGE",
+          errors: data.errors,
+          api: getQuota(response)
+        });
+
+      }
+
+      const item =
+        data.response?.[0];
+
+      const seasonData =
+        item?.seasons?.find(
+          s =>
+            Number(s.year) ===
+            Number(coverageSeason)
+        );
+
+      return res.status(200).json({
+
+        success: true,
+
+        mode: "COVERAGE",
+
+        leagueId:
+          Number(coverageLeague),
+
+        season:
+          Number(coverageSeason),
+
+        league:
+          item?.league?.name || "",
+
+        country:
+          item?.country?.name || "",
+
+        statisticsFixtures:
+          seasonData?.coverage?.fixtures?.statistics_fixtures === true,
+
+        events:
+          seasonData?.coverage?.fixtures?.events === true,
+
+        lineups:
+          seasonData?.coverage?.fixtures?.lineups === true,
+
+        playerStatistics:
+          seasonData?.coverage?.fixtures?.statistics_players === true,
+
+        api:
+          getQuota(response)
+
+      });
+
+    }
+
+
+    /*
+    ==================================================
     MODALITÀ STATISTICHE SINGOLA PARTITA
 
+    Esempio:
     /api/soccertrend?stats=1563650
     ==================================================
     */
@@ -142,13 +231,20 @@ module.exports = async (req, res) => {
 
       }
 
-      const blocks = data.response || [];
+      const blocks =
+        data.response || [];
 
-      const homeBlock = blocks[0] || null;
-      const awayBlock = blocks[1] || null;
+      const homeBlock =
+        blocks[0] || null;
 
-      const home = parseStats(homeBlock);
-      const away = parseStats(awayBlock);
+      const awayBlock =
+        blocks[1] || null;
+
+      const home =
+        parseStats(homeBlock);
+
+      const away =
+        parseStats(awayBlock);
 
       const hasStats =
         blocks.length >= 2;
@@ -164,21 +260,30 @@ module.exports = async (req, res) => {
 
         mode: "STATS",
 
-        fixture: Number(statsFixture),
+        fixture:
+          Number(statsFixture),
 
         hasStats,
 
         teams: {
 
           home: {
-            name: homeBlock?.team?.name || "",
-            logo: homeBlock?.team?.logo || "",
+            name:
+              homeBlock?.team?.name || "",
+
+            logo:
+              homeBlock?.team?.logo || "",
+
             ...home
           },
 
           away: {
-            name: awayBlock?.team?.name || "",
-            logo: awayBlock?.team?.logo || "",
+            name:
+              awayBlock?.team?.name || "",
+
+            logo:
+              awayBlock?.team?.logo || "",
+
             ...away
           }
 
@@ -218,7 +323,8 @@ module.exports = async (req, res) => {
 
         rtg,
 
-        api: getQuota(response)
+        api:
+          getQuota(response)
 
       });
 
@@ -231,9 +337,7 @@ module.exports = async (req, res) => {
 
     /api/soccertrend
 
-    Ora aggiunge:
-    - leagueId
-    - season
+    Recupera tutte le partite attualmente live.
     ==================================================
     */
 
@@ -309,17 +413,23 @@ module.exports = async (req, res) => {
 
 
     /*
-      Elenco unico dei campionati attualmente live.
+      Creiamo anche l'elenco unico delle leghe LIVE.
 
-      Ci servirà dopo per controllare la coverage
-      senza analizzare la stessa lega più volte.
+      Così dopo possiamo controllare la coverage
+      senza controllare la stessa lega più volte.
     */
 
-    const leaguesMap = new Map();
+    const leaguesMap =
+      new Map();
 
     matches.forEach(match => {
 
-      if (!match.leagueId) return;
+      if (
+        !match.leagueId ||
+        !match.season
+      ) {
+        return;
+      }
 
       const key =
         `${match.leagueId}-${match.season}`;
@@ -347,7 +457,9 @@ module.exports = async (req, res) => {
     });
 
     const liveLeagues =
-      Array.from(leaguesMap.values());
+      Array.from(
+        leaguesMap.values()
+      );
 
 
     return res.status(200).json({
@@ -379,7 +491,10 @@ module.exports = async (req, res) => {
         "Errore interno SoccerTrend",
 
       details:
-        String(error?.message || error)
+        String(
+          error?.message ||
+          error
+        )
 
     });
 
