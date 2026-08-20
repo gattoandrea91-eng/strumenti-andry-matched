@@ -1,4 +1,4 @@
-const FOTMOB_BASE = "https://www.fotmob.com/api";
+const FOTMOB_BASE = "https://www.fotmob.com/api/data";
 
 function todayYYYYMMDD() {
   const d = new Date();
