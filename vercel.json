@@ -2,9 +2,11 @@
   "redirects": [
     { "source": "/", "destination": "/home.html", "permanent": false },
     { "source": "/index.html", "destination": "/home.html", "permanent": false },
-    { "source": "/trackergatto.html", "destination": "/trackergatto-clean.html", "permanent": false }
+    { "source": "/trackergatto.html", "destination": "/trackergatto-clean.html", "permanent": false },
+    { "source": "/trackergatto-v2.html", "destination": "/trackergatto-clean.html", "permanent": false }
   ],
   "rewrites": [
-    { "source": "/legacy-tools", "destination": "/index.html" }
+    { "source": "/legacy-tools", "destination": "/index.html" },
+    { "source": "/internal-tracker", "destination": "/trackergatto-v2.html" }
   ]
 }
