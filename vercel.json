@@ -3,6 +3,6 @@
     { "source": "/", "destination": "/home.html", "permanent": false }
   ],
   "rewrites": [
-    { "source": "/trackergatto.html", "destination": "/trackergatto-v2.html" }
+    { "source": "/trackergatto.html", "destination": "/trackergatto-shell.html" }
   ]
 }
