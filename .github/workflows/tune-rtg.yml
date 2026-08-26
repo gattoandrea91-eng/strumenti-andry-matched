@@ -1,0 +1,38 @@
+name: Tune SoccerTrend RTG
+on:
+  push:
+    paths:
+      - '.github/workflows/tune-rtg.yml'
+permissions:
+  contents: write
+jobs:
+  tune:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Tune thresholds
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('soccertrend.html')
+          s=p.read_text()
+          s=s.replace('function threshold(minute){if(minute<25)return 999;if(minute<=44)return .40;if(minute<=64)return .45;if(minute<=79)return .50;return .55}', 'function threshold(minute){if(minute<25)return 999;if(minute<=44)return .32;if(minute<=64)return .36;if(minute<=79)return .40;return .44}')
+          s=s.replace('const strongConfirmation=n(stats?.shotsOnTarget?.total)>=3||n(stats?.touchesBox?.total)>=12||n(stats?.bigChances?.total)>=2||n(stats?.corners?.total)>=5;', 'const strongConfirmation=n(stats?.shotsOnTarget?.total)>=2||n(stats?.touchesBox?.total)>=9||n(stats?.bigChances?.total)>=1||n(stats?.corners?.total)>=4;')
+          s=s.replace('const watchConfirmation=n(stats?.shotsOnTarget?.total)>=2||n(stats?.touchesBox?.total)>=8||n(stats?.corners?.total)>=4;if(rate>=target*.92&&watchConfirmation)', 'const watchConfirmation=n(stats?.shotsOnTarget?.total)>=1||n(stats?.totalShots?.total)>=5||n(stats?.touchesBox?.total)>=5||n(stats?.corners?.total)>=2;if(rate>=target*.80&&watchConfirmation)')
+          s=s.replace('if(base.level==="READY"&&delta>=3)', 'if(base.level==="READY"&&delta>=2)')
+          p.write_text(s)
+
+          p=Path('api/telegram-signals.js')
+          s=p.read_text()
+          s=s.replace('if(minute <= 44) return .40;\n  if(minute <= 64) return .45;\n  if(minute <= 79) return .50;\n  return .55;', 'if(minute <= 44) return .32;\n  if(minute <= 64) return .36;\n  if(minute <= 79) return .40;\n  return .44;')
+          s=s.replace('n(stats?.shotsOnTarget?.total) >= 3\n    || n(stats?.touchesBox?.total) >= 12\n    || n(stats?.bigChances?.total) >= 2\n    || n(stats?.corners?.total) >= 5;', 'n(stats?.shotsOnTarget?.total) >= 2\n    || n(stats?.touchesBox?.total) >= 9\n    || n(stats?.bigChances?.total) >= 1\n    || n(stats?.corners?.total) >= 4;')
+          s=s.replace('const hot = ready && delta >= 3;', 'const hot = ready && delta >= 2;')
+          p.write_text(s)
+          PY
+      - name: Commit changes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add soccertrend.html api/telegram-signals.js
+          git diff --cached --quiet || git commit -m "Rebalance SoccerTrend RTG sensitivity"
+          git push
