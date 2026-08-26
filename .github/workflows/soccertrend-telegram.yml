@@ -1,0 +1,14 @@
+name: SoccerTrend Telegram Scanner
+
+on:
+  schedule:
+    - cron: '*/5 * * * *'
+  workflow_dispatch:
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger SoccerTrend scanner
+        run: |
+          curl --fail --silent --show-error "https://strumenti-andry-matched.vercel.app/api/telegram-signals"
