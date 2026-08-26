@@ -14,14 +14,6 @@ function minuteNumber(value){
   return m ? Number(m[0]) : 0;
 }
 
-function threshold(minute){
-  if(minute < 25) return 999;
-  if(minute <= 44) return .40;
-  if(minute <= 64) return .45;
-  if(minute <= 79) return .50;
-  return .55;
-}
-
 function calculateTeamRtg(stats, side){
   const shotsOnTarget = n(stats?.shotsOnTarget?.[side]);
   const totalShots = n(stats?.totalShots?.[side]);
@@ -32,7 +24,7 @@ function calculateTeamRtg(stats, side){
 
   let rtg =
       shotsOnTarget * 4
-    + totalShots * 1
+    + totalShots
     + corners * 1.5
     + touchesBox * .6
     + bigChances * 5;
@@ -49,38 +41,208 @@ function calculateTeamRtg(stats, side){
   return Math.round(rtg * 10) / 10;
 }
 
-function isReady(minute, rtg, stats){
-  if(minute < 25) return false;
-  const rate = minute > 0 ? rtg / minute : 0;
-  const strongConfirmation =
-       n(stats?.shotsOnTarget?.total) >= 3
-    || n(stats?.touchesBox?.total) >= 12
-    || n(stats?.bigChances?.total) >= 2
-    || n(stats?.corners?.total) >= 5;
-  return rate >= threshold(minute) && strongConfirmation;
+function getShotArray(shotmap){
+  if(Array.isArray(shotmap)) return shotmap;
+  if(Array.isArray(shotmap?.shots)) return shotmap.shots;
+  if(Array.isArray(shotmap?.Periods?.All)) return shotmap.Periods.All;
+  return [];
 }
 
-function pushHistory(matchId, minute, rtg){
-  const key = String(matchId);
-  const history = state.history.get(key) || [];
-  const last = history[history.length - 1];
+function getShotMinute(shot){
+  return minuteNumber(
+    shot?.min ??
+    shot?.minute ??
+    shot?.time ??
+    shot?.eventTime ??
+    shot?.matchTime
+  );
+}
 
-  if(last && last.minute === minute){
-    last.rtg = rtg;
-  } else {
-    history.push({ minute, rtg, at: Date.now() });
+function shotSide(shot){
+  const raw = String(
+    shot?.teamSide ??
+    shot?.side ??
+    shot?.team ??
+    shot?.teamType ??
+    ""
+  ).toLowerCase();
+
+  if(raw.includes("home")) return "home";
+  if(raw.includes("away")) return "away";
+
+  // FotMob spesso usa teamId, ma senza mappa certa non forziamo il lato.
+  return "unknown";
+}
+
+function isShotOnTarget(shot){
+  if(shot?.isOnTarget === true) return true;
+  if(shot?.onTarget === true) return true;
+  const type = String(
+    shot?.eventType ??
+    shot?.type ??
+    shot?.shotType ??
+    shot?.result ??
+    ""
+  ).toLowerCase();
+
+  return (
+    type.includes("goal") ||
+    type.includes("saved") ||
+    type.includes("save") ||
+    type.includes("on target") ||
+    type.includes("ontarget")
+  );
+}
+
+function recentShotPressure(shotmap, minute, windowMinutes = 15){
+  const fromMinute = Math.max(0, minute - windowMinutes);
+  const shots = getShotArray(shotmap).filter(shot => {
+    const sm = getShotMinute(shot);
+    return sm > 0 && sm >= fromMinute && sm <= minute;
+  });
+
+  const result = {
+    total: shots.length,
+    onTarget: 0,
+    home: 0,
+    away: 0,
+    homeOnTarget: 0,
+    awayOnTarget: 0
+  };
+
+  for(const shot of shots){
+    const side = shotSide(shot);
+    const onTarget = isShotOnTarget(shot);
+    if(onTarget) result.onTarget++;
+    if(side === "home"){
+      result.home++;
+      if(onTarget) result.homeOnTarget++;
+    } else if(side === "away"){
+      result.away++;
+      if(onTarget) result.awayOnTarget++;
+    }
   }
 
-  while(history.length > 6) history.shift();
+  return result;
+}
+
+function choosePressureSide(recent, stats){
+  if(recent.homeOnTarget !== recent.awayOnTarget){
+    return recent.homeOnTarget > recent.awayOnTarget ? "home" : "away";
+  }
+  if(recent.home !== recent.away){
+    return recent.home > recent.away ? "home" : "away";
+  }
+
+  const homeRtg = calculateTeamRtg(stats, "home");
+  const awayRtg = calculateTeamRtg(stats, "away");
+  return homeRtg >= awayRtg ? "home" : "away";
+}
+
+function pushSnapshot(matchId, minute, rtg, stats){
+  const key = String(matchId);
+  const history = state.history.get(key) || [];
+  const snapshot = {
+    minute,
+    rtg,
+    cornersHome: n(stats?.corners?.home),
+    cornersAway: n(stats?.corners?.away),
+    touchesHome: n(stats?.touchesBox?.home),
+    touchesAway: n(stats?.touchesBox?.away),
+    at: Date.now()
+  };
+
+  const last = history[history.length - 1];
+  if(last && last.minute === minute){
+    history[history.length - 1] = snapshot;
+  } else {
+    history.push(snapshot);
+  }
+
+  while(history.length > 10) history.shift();
   state.history.set(key, history);
   return history;
 }
 
-function recentDelta(history){
-  if(history.length < 2) return 0;
-  const last = history[history.length - 1].rtg;
-  const base = history[Math.max(0, history.length - 4)].rtg;
-  return Math.round((last - base) * 10) / 10;
+function deltaFromWindow(history, minute, windowMinutes = 15){
+  if(history.length < 2){
+    return { rtg:0, cornersHome:0, cornersAway:0, touchesHome:0, touchesAway:0, hasBase:false };
+  }
+
+  const targetMinute = minute - windowMinutes;
+  let base = history[0];
+  for(const item of history){
+    if(item.minute <= targetMinute) base = item;
+  }
+
+  const last = history[history.length - 1];
+  return {
+    rtg: Math.round((last.rtg - base.rtg) * 10) / 10,
+    cornersHome: Math.max(0, last.cornersHome - base.cornersHome),
+    cornersAway: Math.max(0, last.cornersAway - base.cornersAway),
+    touchesHome: Math.max(0, last.touchesHome - base.touchesHome),
+    touchesAway: Math.max(0, last.touchesAway - base.touchesAway),
+    hasBase: true
+  };
+}
+
+function evaluateRecentPressure(minute, stats, shotmap, history){
+  if(minute < 30 || minute > 88){
+    return { hot:false, reason:"minute_outside" };
+  }
+
+  const recent = recentShotPressure(shotmap, minute, 15);
+  const side = choosePressureSide(recent, stats);
+  const other = side === "home" ? "away" : "home";
+  const possession = n(stats?.possession?.[side]);
+  const totalCorners = n(stats?.corners?.total);
+  const sideCorners = n(stats?.corners?.[side]);
+  const delta = deltaFromWindow(history, minute, 15);
+  const recentCorners = side === "home" ? delta.cornersHome : delta.cornersAway;
+  const recentTouches = side === "home" ? delta.touchesHome : delta.touchesAway;
+  const sideRecentShots = side === "home" ? recent.home : recent.away;
+  const sideRecentOnTarget = side === "home" ? recent.homeOnTarget : recent.awayOnTarget;
+
+  // Se la shotmap non espone il lato, usiamo comunque i totali recenti.
+  const sideUnknown = recent.home === 0 && recent.away === 0 && recent.total > 0;
+  const effectiveShots = sideUnknown ? recent.total : sideRecentShots;
+  const effectiveOnTarget = sideUnknown ? recent.onTarget : sideRecentOnTarget;
+
+  const lotsOfRecentShots = effectiveShots >= 4 || recent.total >= 6;
+  const strongRecentOnTarget = effectiveOnTarget >= 2 || recent.onTarget >= 3;
+  const cornerSupport = recentCorners >= 1 || sideCorners >= 3 || totalCorners >= 5;
+  const possessionGood = possession >= 53;
+  const boxPressure = recentTouches >= 3 || n(stats?.touchesBox?.[side]) >= 10;
+  const rtgGrowing = !delta.hasBase || delta.rtg >= 2;
+
+  // Deve superare tutte le colonne principali: tiri, in porta, possesso.
+  // Corner / tocchi area / crescita RTG fungono da ulteriore conferma.
+  const confirmations = [cornerSupport, boxPressure, rtgGrowing].filter(Boolean).length;
+  const hot =
+    lotsOfRecentShots &&
+    strongRecentOnTarget &&
+    possessionGood &&
+    confirmations >= 2;
+
+  return {
+    hot,
+    side,
+    other,
+    possession,
+    recent,
+    recentCorners,
+    recentTouches,
+    deltaRtg: delta.rtg,
+    checks: {
+      lotsOfRecentShots,
+      strongRecentOnTarget,
+      cornerSupport,
+      possessionGood,
+      boxPressure,
+      rtgGrowing,
+      confirmations
+    }
+  };
 }
 
 async function telegramSend(text){
@@ -119,7 +281,7 @@ module.exports = async (req, res) => {
   try {
     if(req.query?.test === "1"){
       await telegramSend(
-        "✅ <b>SoccerTrend Telegram collegato</b>\n\nIl bot è online e può pubblicare i segnali nel canale."
+        "✅ <b>SoccerTrend Telegram collegato</b>\n\nScanner pressione recente 15' attivo."
       );
       return res.status(200).json({ success:true, mode:"TEST", sent:true });
     }
@@ -135,9 +297,9 @@ module.exports = async (req, res) => {
       .filter(match => {
         const minute = minuteNumber(match.minute);
         const goals = n(match.homeGoals) + n(match.awayGoals);
-        return minute >= 25 && minute <= 85 && goals <= 2;
+        return minute >= 30 && minute <= 88 && goals <= 3;
       })
-      .slice(0, 12);
+      .slice(0, 14);
 
     const alerts = [];
     const checked = [];
@@ -147,64 +309,80 @@ module.exports = async (req, res) => {
         const detail = await getJson(
           `${base}/api/footballfree?matchId=${encodeURIComponent(match.matchId)}`
         );
+
         const stats = detail.stats || {};
+        const minute = minuteNumber(match.minute || detail.minute);
         const homeRtg = calculateTeamRtg(stats, "home");
         const awayRtg = calculateTeamRtg(stats, "away");
         const rtg = Math.round((homeRtg + awayRtg) * 10) / 10;
-        const minute = minuteNumber(match.minute || detail.minute);
-        const rate = minute > 0 ? rtg / minute : 0;
-        const history = pushHistory(match.matchId, minute, rtg);
-        const delta = recentDelta(history);
-        const ready = isReady(minute, rtg, stats);
-        const hot = ready && delta >= 3;
+        const history = pushSnapshot(match.matchId, minute, rtg, stats);
+        const pressure = evaluateRecentPressure(minute, stats, detail.shotmap, history);
 
         checked.push({
           id: match.matchId,
           minute,
           rtg,
-          rate: Math.round(rate * 100) / 100,
-          delta,
-          ready,
-          hot
+          hot: pressure.hot,
+          side: pressure.side,
+          possession: pressure.possession,
+          recentShots: pressure.recent?.total || 0,
+          recentOnTarget: pressure.recent?.onTarget || 0,
+          recentCorners: pressure.recentCorners || 0,
+          deltaRtg: pressure.deltaRtg || 0,
+          checks: pressure.checks || null
         });
 
-        if(!hot) continue;
+        if(!pressure.hot) continue;
 
         const signalKey = String(match.matchId);
         if(state.sent.has(signalKey)) continue;
 
+        const sideName = pressure.side === "home" ? match.home : match.away;
+        const sideRecentShots = pressure.side === "home" ? pressure.recent.home : pressure.recent.away;
+        const sideRecentOnTarget = pressure.side === "home" ? pressure.recent.homeOnTarget : pressure.recent.awayOnTarget;
+        const sideUnknown = pressure.recent.home === 0 && pressure.recent.away === 0 && pressure.recent.total > 0;
+        const shownShots = sideUnknown ? pressure.recent.total : sideRecentShots;
+        const shownOnTarget = sideUnknown ? pressure.recent.onTarget : sideRecentOnTarget;
+
         const text =
-          `🔥 <b>SOCCERTREND — OVER CORRENTE</b>\n\n` +
+          `🔥 <b>SOCCERTREND — GOL NELL'ARIA</b>\n\n` +
           `⚽ <b>${match.home} - ${match.away}</b>\n` +
-          `⏱ ${minute}'   |   ${match.homeGoals ?? 0}-${match.awayGoals ?? 0}\n` +
-          `📈 RTG: <b>${rtg.toFixed(1)}</b>   |   RTG/min: <b>${rate.toFixed(2)}</b>\n` +
-          `🚀 Δ RTG recente: <b>+${delta.toFixed(1)}</b>\n\n` +
-          `🎯 Tiri: ${n(stats?.totalShots?.home)}-${n(stats?.totalShots?.away)}\n` +
-          `🥅 In porta: ${n(stats?.shotsOnTarget?.home)}-${n(stats?.shotsOnTarget?.away)}\n` +
-          `🚩 Corner: ${n(stats?.corners?.home)}-${n(stats?.corners?.away)}\n` +
-          `📦 Tocchi area: ${n(stats?.touchesBox?.home)}-${n(stats?.touchesBox?.away)}\n` +
-          `⭐ Big chances: ${n(stats?.bigChances?.home)}-${n(stats?.bigChances?.away)}\n` +
-          `📊 Possesso: ${n(stats?.possession?.home)}%-${n(stats?.possession?.away)}%\n\n` +
+          `⏱ ${minute}'   |   ${match.homeGoals ?? 0}-${match.awayGoals ?? 0}\n\n` +
+          `🚨 Pressione: <b>${sideName}</b>\n` +
+          `⏳ Ultimi 15': <b>${shownShots} tiri</b> • <b>${shownOnTarget} in porta</b>\n` +
+          `🚩 Corner recenti: <b>${pressure.recentCorners}</b> (totali ${n(stats?.corners?.home)}-${n(stats?.corners?.away)})\n` +
+          `📦 Tocchi area recenti: <b>${pressure.recentTouches}</b>\n` +
+          `📊 Possesso: <b>${n(stats?.possession?.home)}%-${n(stats?.possession?.away)}%</b>\n` +
+          `📈 RTG: <b>${rtg.toFixed(1)}</b> • Δ15': <b>${pressure.deltaRtg >= 0 ? "+" : ""}${pressure.deltaRtg.toFixed(1)}</b>\n\n` +
+          `✅ <b>Pressione recente confermata — valuta ingresso Over corrente.</b>\n` +
           `⚠️ Segnale statistico, non garanzia di gol.`;
 
         await telegramSend(text);
         state.sent.add(signalKey);
-        alerts.push({ id: match.matchId, match: `${match.home} - ${match.away}`, minute, rtg, delta });
+        alerts.push({
+          id: match.matchId,
+          match: `${match.home} - ${match.away}`,
+          minute,
+          side: sideName,
+          recentShots: shownShots,
+          recentOnTarget: shownOnTarget,
+          possession: pressure.possession
+        });
       } catch (error) {
         checked.push({ id: match.matchId, error: String(error?.message || error) });
       }
     }
 
-    // Pulizia semplice: rimuove storico/segnali di partite non più live.
     const liveIds = new Set(matches.map(m => String(m.matchId)));
     for(const key of state.history.keys()) if(!liveIds.has(key)) state.history.delete(key);
     for(const key of state.sent) if(!liveIds.has(key)) state.sent.delete(key);
 
     return res.status(200).json({
       success:true,
-      mode:"SCAN",
-      live: matches.length,
-      candidates: candidates.length,
+      mode:"RECENT_PRESSURE_SCAN",
+      windowMinutes:15,
+      live:matches.length,
+      candidates:candidates.length,
       alerts,
       checked
     });
