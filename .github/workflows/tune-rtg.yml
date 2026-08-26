@@ -36,3 +36,4 @@ jobs:
           git add soccertrend.html api/telegram-signals.js
           git diff --cached --quiet || git commit -m "Rebalance SoccerTrend RTG sensitivity"
           git push
+# trigger
