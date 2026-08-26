@@ -14,6 +14,10 @@ function minuteNumber(value){
   return m ? Number(m[0]) : 0;
 }
 
+function validSignalMinute(minute){
+  return (minute >= 30 && minute <= 40) || (minute >= 55 && minute <= 83);
+}
+
 function calculateTeamRtg(stats, side){
   const shotsOnTarget = n(stats?.shotsOnTarget?.[side]);
   const totalShots = n(stats?.totalShots?.[side]);
@@ -69,8 +73,6 @@ function shotSide(shot){
 
   if(raw.includes("home")) return "home";
   if(raw.includes("away")) return "away";
-
-  // FotMob spesso usa teamId, ma senza mappa certa non forziamo il lato.
   return "unknown";
 }
 
@@ -166,7 +168,15 @@ function pushSnapshot(matchId, minute, rtg, stats){
 
 function deltaFromWindow(history, minute, windowMinutes = 15){
   if(history.length < 2){
-    return { rtg:0, cornersHome:0, cornersAway:0, touchesHome:0, touchesAway:0, hasBase:false };
+    return {
+      rtg:0,
+      cornersHome:0,
+      cornersAway:0,
+      touchesHome:0,
+      touchesAway:0,
+      hasBase:false,
+      coverageMinutes:0
+    };
   }
 
   const targetMinute = minute - windowMinutes;
@@ -176,53 +186,54 @@ function deltaFromWindow(history, minute, windowMinutes = 15){
   }
 
   const last = history[history.length - 1];
+  const coverageMinutes = Math.max(0, last.minute - base.minute);
+
   return {
     rtg: Math.round((last.rtg - base.rtg) * 10) / 10,
     cornersHome: Math.max(0, last.cornersHome - base.cornersHome),
     cornersAway: Math.max(0, last.cornersAway - base.cornersAway),
     touchesHome: Math.max(0, last.touchesHome - base.touchesHome),
     touchesAway: Math.max(0, last.touchesAway - base.touchesAway),
-    hasBase: true
+    hasBase: coverageMinutes >= 8,
+    coverageMinutes
   };
 }
 
 function evaluateRecentPressure(minute, stats, shotmap, history){
-  if(minute < 30 || minute > 88){
-    return { hot:false, reason:"minute_outside" };
+  if(!validSignalMinute(minute)){
+    return { hot:false, reason:"minute_outside_value_window" };
   }
 
   const recent = recentShotPressure(shotmap, minute, 15);
   const side = choosePressureSide(recent, stats);
   const other = side === "home" ? "away" : "home";
   const possession = n(stats?.possession?.[side]);
-  const totalCorners = n(stats?.corners?.total);
-  const sideCorners = n(stats?.corners?.[side]);
   const delta = deltaFromWindow(history, minute, 15);
   const recentCorners = side === "home" ? delta.cornersHome : delta.cornersAway;
   const recentTouches = side === "home" ? delta.touchesHome : delta.touchesAway;
   const sideRecentShots = side === "home" ? recent.home : recent.away;
   const sideRecentOnTarget = side === "home" ? recent.homeOnTarget : recent.awayOnTarget;
 
-  // Se la shotmap non espone il lato, usiamo comunque i totali recenti.
   const sideUnknown = recent.home === 0 && recent.away === 0 && recent.total > 0;
   const effectiveShots = sideUnknown ? recent.total : sideRecentShots;
   const effectiveOnTarget = sideUnknown ? recent.onTarget : sideRecentOnTarget;
 
-  const lotsOfRecentShots = effectiveShots >= 4 || recent.total >= 6;
+  const lotsOfRecentShots = effectiveShots >= 5 || recent.total >= 7;
   const strongRecentOnTarget = effectiveOnTarget >= 2 || recent.onTarget >= 3;
-  const cornerSupport = recentCorners >= 1 || sideCorners >= 3 || totalCorners >= 5;
-  const possessionGood = possession >= 53;
-  const boxPressure = recentTouches >= 3 || n(stats?.touchesBox?.[side]) >= 10;
-  const rtgGrowing = !delta.hasBase || delta.rtg >= 2;
+  const possessionGood = possession >= 54;
+  const cornerSupport = recentCorners >= 1;
+  const boxPressure = recentTouches >= 4;
+  const enoughHistory = delta.hasBase;
+  const rtgGrowing = enoughHistory && delta.rtg >= 2.5;
+  const extraPressure = cornerSupport || boxPressure;
 
-  // Deve superare tutte le colonne principali: tiri, in porta, possesso.
-  // Corner / tocchi area / crescita RTG fungono da ulteriore conferma.
-  const confirmations = [cornerSupport, boxPressure, rtgGrowing].filter(Boolean).length;
   const hot =
     lotsOfRecentShots &&
     strongRecentOnTarget &&
     possessionGood &&
-    confirmations >= 2;
+    enoughHistory &&
+    rtgGrowing &&
+    extraPressure;
 
   return {
     hot,
@@ -233,14 +244,16 @@ function evaluateRecentPressure(minute, stats, shotmap, history){
     recentCorners,
     recentTouches,
     deltaRtg: delta.rtg,
+    coverageMinutes: delta.coverageMinutes,
     checks: {
       lotsOfRecentShots,
       strongRecentOnTarget,
-      cornerSupport,
       possessionGood,
+      cornerSupport,
       boxPressure,
+      enoughHistory,
       rtgGrowing,
-      confirmations
+      extraPressure
     }
   };
 }
@@ -281,7 +294,7 @@ module.exports = async (req, res) => {
   try {
     if(req.query?.test === "1"){
       await telegramSend(
-        "✅ <b>SoccerTrend Telegram collegato</b>\n\nScanner pressione recente 15' attivo."
+        "✅ <b>SoccerTrend Telegram collegato</b>\n\nScanner pressione recente 15' attivo. Finestre segnale: 30'-40' e 55'-83'."
       );
       return res.status(200).json({ success:true, mode:"TEST", sent:true });
     }
@@ -297,7 +310,7 @@ module.exports = async (req, res) => {
       .filter(match => {
         const minute = minuteNumber(match.minute);
         const goals = n(match.homeGoals) + n(match.awayGoals);
-        return minute >= 30 && minute <= 88 && goals <= 3;
+        return validSignalMinute(minute) && goals <= 3;
       })
       .slice(0, 14);
 
@@ -323,12 +336,15 @@ module.exports = async (req, res) => {
           minute,
           rtg,
           hot: pressure.hot,
+          reason: pressure.reason || null,
           side: pressure.side,
           possession: pressure.possession,
           recentShots: pressure.recent?.total || 0,
           recentOnTarget: pressure.recent?.onTarget || 0,
           recentCorners: pressure.recentCorners || 0,
+          recentTouches: pressure.recentTouches || 0,
           deltaRtg: pressure.deltaRtg || 0,
+          coverageMinutes: pressure.coverageMinutes || 0,
           checks: pressure.checks || null
         });
 
@@ -350,12 +366,14 @@ module.exports = async (req, res) => {
           `⏱ ${minute}'   |   ${match.homeGoals ?? 0}-${match.awayGoals ?? 0}\n\n` +
           `🚨 Pressione: <b>${sideName}</b>\n` +
           `⏳ Ultimi 15': <b>${shownShots} tiri</b> • <b>${shownOnTarget} in porta</b>\n` +
-          `🚩 Corner recenti: <b>${pressure.recentCorners}</b> (totali ${n(stats?.corners?.home)}-${n(stats?.corners?.away)})\n` +
+          `🚩 Corner recenti: <b>${pressure.recentCorners}</b>\n` +
           `📦 Tocchi area recenti: <b>${pressure.recentTouches}</b>\n` +
           `📊 Possesso: <b>${n(stats?.possession?.home)}%-${n(stats?.possession?.away)}%</b>\n` +
-          `📈 RTG: <b>${rtg.toFixed(1)}</b> • Δ15': <b>${pressure.deltaRtg >= 0 ? "+" : ""}${pressure.deltaRtg.toFixed(1)}</b>\n\n` +
-          `✅ <b>Pressione recente confermata — valuta ingresso Over corrente.</b>\n` +
-          `⚠️ Segnale statistico, non garanzia di gol.`;
+          `📈 RTG: <b>${rtg.toFixed(1)}</b> • Δ recente: <b>${pressure.deltaRtg >= 0 ? "+" : ""}${pressure.deltaRtg.toFixed(1)}</b>\n` +
+          `🕒 Storico reale: <b>${pressure.coverageMinutes} min</b>\n\n` +
+          `✅ <b>Pressione recente confermata.</b>\n` +
+          `💰 <b>Valuta ingresso solo con quota ≥ 1,50.</b>\n` +
+          `⚠️ La quota live non è ancora letta automaticamente dal feed.`;
 
         await telegramSend(text);
         state.sent.add(signalKey);
@@ -366,7 +384,8 @@ module.exports = async (req, res) => {
           side: sideName,
           recentShots: shownShots,
           recentOnTarget: shownOnTarget,
-          possession: pressure.possession
+          possession: pressure.possession,
+          coverageMinutes: pressure.coverageMinutes
         });
       } catch (error) {
         checked.push({ id: match.matchId, error: String(error?.message || error) });
@@ -379,8 +398,10 @@ module.exports = async (req, res) => {
 
     return res.status(200).json({
       success:true,
-      mode:"RECENT_PRESSURE_SCAN",
+      mode:"RECENT_PRESSURE_SCAN_STRICT",
       windowMinutes:15,
+      signalWindows:["30-40","55-83"],
+      minSuggestedOdds:1.50,
       live:matches.length,
       candidates:candidates.length,
       alerts,
