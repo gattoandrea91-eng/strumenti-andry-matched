@@ -2,7 +2,8 @@
   "redirects": [
     { "source": "/", "destination": "/home.html", "permanent": false },
     { "source": "/index.html", "destination": "/home.html", "permanent": false },
-    { "source": "/trackergatto.html", "destination": "/trackergatto-v2.html", "permanent": false }
+    { "source": "/trackergatto.html", "destination": "/api/tracker", "permanent": false },
+    { "source": "/trackergatto-v2.html", "destination": "/api/tracker", "permanent": false }
   ],
   "rewrites": [
     { "source": "/legacy-tools", "destination": "/index.html" }
