@@ -1,0 +1,126 @@
+name: Patch SoccerTrend RTG
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/patch-soccertrend-rtg.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Patch RTG formula
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import re
+
+          path = Path('soccertrend.html')
+          text = path.read_text(encoding='utf-8')
+
+          new_func = r'''function calculateTeamRtg(
+            stats,
+            side
+          ){
+
+            const shotsOnTarget =
+              n(stats?.shotsOnTarget?.[side]);
+
+            const totalShots =
+              n(stats?.totalShots?.[side]);
+
+            const corners =
+              n(stats?.corners?.[side]);
+
+            const touchesBox =
+              n(stats?.touchesBox?.[side]);
+
+            const bigChances =
+              n(stats?.bigChances?.[side]);
+
+            const possession =
+              n(stats?.possession?.[side]);
+
+
+            /*
+            RTG BASE
+            */
+
+            let rtg =
+                shotsOnTarget * 4
+              + totalShots * 1
+              + corners * 1.5
+              + touchesBox * 0.6
+              + bigChances * 5;
+
+
+            /*
+            POSSESSION / DOMINANCE BONUS
+
+            Il possesso conta soltanto quando
+            è accompagnato da attività offensiva.
+            Evitiamo quindi di premiare il
+            semplice possesso sterile.
+            */
+
+            const attackingActivity =
+                 shotsOnTarget >= 2
+              || totalShots >= 3
+              || touchesBox >= 6;
+
+
+            if(
+              possession >= 55 &&
+              attackingActivity
+            ){
+
+              const possessionBonus =
+                Math.min(
+                  4,
+                  (possession - 50) * 0.15
+                );
+
+              rtg += possessionBonus;
+
+            }
+
+
+            return Math.round(
+              rtg * 10
+            ) / 10;
+
+          }'''
+
+          pattern = re.compile(
+              r'function calculateTeamRtg\(\s*stats,\s*side\s*\)\s*\{.*?\n\}\n\n\n/\* ==============================\nTHRESHOLD',
+              re.S,
+          )
+
+          replacement = new_func + '\n\n\n/* ==============================\nTHRESHOLD'
+          updated, count = pattern.subn(replacement, text, count=1)
+
+          if count != 1:
+              raise SystemExit(f'RTG function not patched: matches={count}')
+
+          path.write_text(updated, encoding='utf-8')
+          PY
+
+      - name: Commit change
+        run: |
+          if git diff --quiet; then
+            echo "No changes needed"
+            exit 0
+          fi
+          git config user.name "SoccerTrend Bot"
+          git config user.email "actions@github.com"
+          git add soccertrend.html
+          git commit -m "Improve SoccerTrend RTG with possession dominance"
+          git push
