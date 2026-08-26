@@ -5,6 +5,7 @@
   ],
   "rewrites": [
     { "source": "/trackergatto.html", "destination": "/trackergatto-v2.html" },
+    { "source": "/soccertrend.html", "destination": "/soccertrend-pro.html" },
     { "source": "/legacy-tools", "destination": "/index.html" }
   ]
 }
