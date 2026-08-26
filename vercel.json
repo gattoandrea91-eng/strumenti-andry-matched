@@ -1,8 +1,6 @@
 {
   "redirects": [
-    { "source": "/", "destination": "/home.html", "permanent": false }
-  ],
-  "rewrites": [
-    { "source": "/trackergatto.html", "destination": "/trackergatto-shell.html" }
+    { "source": "/", "destination": "/home.html", "permanent": false },
+    { "source": "/trackergatto.html", "destination": "/trackergatto-shell.html", "permanent": false }
   ]
 }
