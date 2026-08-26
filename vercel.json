@@ -1,7 +1,7 @@
 {
   "redirects": [
-    { "source": "/", "destination": "/home.html", "permanent": false },
-    { "source": "/index.html", "destination": "/home.html", "permanent": false }
+    { "source": "/", "destination": "/home-odds.html", "permanent": false },
+    { "source": "/index.html", "destination": "/home-odds.html", "permanent": false }
   ],
   "rewrites": [
     { "source": "/trackergatto.html", "destination": "/trackergatto-v2.html" },
