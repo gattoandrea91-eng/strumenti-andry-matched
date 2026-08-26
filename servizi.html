@@ -6,501 +6,55 @@
   <title>Servizi</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
-    body{
-      font-family: Arial, sans-serif;
-      background:#0b1220;
-      color:white;
-      margin:0;
-      padding:20px;
-    }
-    .box{
-      background:#111827;
-      padding:20px;
-      border-radius:12px;
-      margin-bottom:20px;
-    }
-    input, select, button{
-      width:100%;
-      padding:12px;
-      margin-top:10px;
-      border-radius:8px;
-      font-size:16px;
-      box-sizing:border-box;
-    }
-    input, select{
-      background:#020617;
-      color:white;
-      border:1px solid #334155;
-    }
-    button{
-      border:none;
-      cursor:pointer;
-      font-weight:bold;
-    }
-    .green{ background:#22c55e; color:#052e16; }
-    .gray{ background:#334155; color:white; }
-    .red{ background:#b91c1c; color:white; }
-    .hidden{ display:none; }
-    .msg{ margin-top:10px; color:#cbd5e1; }
-    .service{
-      background:#1e293b;
-      padding:12px;
-      border-radius:10px;
-      margin-top:10px;
-    }
-    table{
-      width:100%;
-      border-collapse:collapse;
-      margin-top:15px;
-    }
-    th, td{
-      border-bottom:1px solid #334155;
-      padding:10px;
-      text-align:left;
-      font-size:14px;
-    }
-    .pos{ color:#4ade80; font-weight:bold; }
-    .neg{ color:#f87171; font-weight:bold; }
+    body{font-family:Arial,sans-serif;background:#0b1220;color:white;margin:0;padding:20px}
+    .box{background:#111827;padding:20px;border-radius:12px;margin-bottom:20px}
+    input,select,button{width:100%;padding:12px;margin-top:10px;border-radius:8px;font-size:16px;box-sizing:border-box}
+    input,select{background:#020617;color:white;border:1px solid #334155}
+    button{border:none;cursor:pointer;font-weight:bold}
+    .green{background:#22c55e;color:#052e16}.gray{background:#334155;color:white}.red{background:#b91c1c;color:white}.yellow{background:#facc15;color:#422006}.hidden{display:none}.msg{margin-top:10px;color:#cbd5e1}
+    .service{background:#1e293b;padding:12px;border-radius:10px;margin-top:10px}
+    table{width:100%;border-collapse:collapse;margin-top:15px}th,td{border-bottom:1px solid #334155;padding:10px;text-align:left;font-size:14px}.pos{color:#4ade80;font-weight:bold}.neg{color:#f87171;font-weight:bold}.pending{color:#facc15;font-weight:bold}.row-actions{display:flex;gap:5px;flex-wrap:wrap}.row-actions button{width:auto;margin:0;padding:7px 9px;font-size:12px}
   </style>
 </head>
 <body>
-
-  <h1>Servizi</h1>
-
-  <div id="loginBox" class="box">
-    <h2>Login</h2>
-    <input id="email" type="email" placeholder="Email">
-    <input id="password" type="password" placeholder="Password">
-    <button class="green" onclick="login()">Login</button>
-    <div id="loginMsg" class="msg">—</div>
+<h1>Servizi</h1>
+<div id="loginBox" class="box"><h2>Login</h2><input id="email" type="email" placeholder="Email"><input id="password" type="password" placeholder="Password"><button class="green" onclick="login()">Login</button><div id="loginMsg" class="msg">—</div></div>
+<div id="appBox" class="hidden">
+  <div class="box"><h2>Area Servizi</h2><div id="userInfo" class="msg"></div><button class="gray" onclick="window.location.href='index.html'">← Torna a index</button><button class="gray" onclick="logout()">Logout</button></div>
+  <div class="box"><h2>Totale servizi</h2><div id="totalProfit" style="font-size:30px;font-weight:bold;">€ 0,00</div></div>
+  <div class="box"><h2>Crea servizio</h2><input id="serviceName" placeholder="Nome servizio"><button class="green" onclick="createService()">Crea servizio</button><div id="serviceMsg" class="msg">—</div></div>
+  <div class="box"><h2>Lista servizi</h2><div id="servicesList">Nessun servizio</div></div>
+  <div id="servicePanel" class="box hidden">
+    <h2 id="serviceTitle">Servizio</h2><div id="serviceTotal" style="font-size:26px;font-weight:bold;">€ 0,00</div>
+    <input id="stake" type="number" step="0.01" placeholder="Stake"><input id="quota" type="number" step="0.01" placeholder="Quota">
+    <select id="result"><option value="pending">🟡 In corso</option><option value="win">✅ Win</option><option value="loss">❌ Loss</option></select>
+    <input id="note" placeholder="Nota facoltativa"><button class="green" onclick="addEntry()">Aggiungi puntata</button><button class="gray" onclick="closeService()">Chiudi servizio</button><div id="entryMsg" class="msg">—</div>
+    <table><thead><tr><th>Data</th><th>Stake</th><th>Quota</th><th>Esito</th><th>Profitto</th><th>Nota</th><th>Azione</th></tr></thead><tbody id="entriesBody"><tr><td colspan="7">Nessuna puntata</td></tr></tbody></table>
   </div>
-
-  <div id="appBox" class="hidden">
-    <div class="box">
-      <h2>Area Servizi</h2>
-      <div id="userInfo" class="msg"></div>
-      <button class="gray" onclick="window.location.href='index.html'">← Torna a index</button>
-      <button class="gray" onclick="logout()">Logout</button>
-    </div>
-
-    <div class="box">
-      <h2>Totale servizi</h2>
-      <div id="totalProfit" style="font-size:30px;font-weight:bold;">€ 0,00</div>
-    </div>
-
-    <div class="box">
-      <h2>Crea servizio</h2>
-      <input id="serviceName" placeholder="Nome servizio">
-      <button class="green" onclick="createService()">Crea servizio</button>
-      <div id="serviceMsg" class="msg">—</div>
-    </div>
-
-    <div class="box">
-      <h2>Lista servizi</h2>
-      <div id="servicesList">Nessun servizio</div>
-    </div>
-
-    <div id="servicePanel" class="box hidden">
-      <h2 id="serviceTitle">Servizio</h2>
-      <div id="serviceTotal" style="font-size:26px;font-weight:bold;">€ 0,00</div>
-
-      <input id="stake" type="number" step="0.01" placeholder="Stake">
-      <input id="quota" type="number" step="0.01" placeholder="Quota">
-
-      <select id="result">
-        <option value="win">Win</option>
-        <option value="loss">Loss</option>
-      </select>
-
-      <input id="note" placeholder="Nota facoltativa">
-
-      <button class="green" onclick="addEntry()">Aggiungi puntata</button>
-      <button class="gray" onclick="closeService()">Chiudi servizio</button>
-
-      <div id="entryMsg" class="msg">—</div>
-
-      <table>
-        <thead>
-          <tr>
-            <th>Data</th>
-            <th>Stake</th>
-            <th>Quota</th>
-            <th>Esito</th>
-            <th>Profitto</th>
-            <th>Nota</th>
-            <th>Azione</th>
-          </tr>
-        </thead>
-        <tbody id="entriesBody">
-          <tr><td colspan="7">Nessuna puntata</td></tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
-
+</div>
 <script>
-const supabaseClient = window.supabase.createClient(
-  "https://aihwrkqfzhwedqdbxbxh.supabase.co",
-  "sb_publishable_G_glT9ld2cqENlVSup38NQ_q8HWyZPd"
-);
-
-let currentUser = null;
-let currentServiceId = null;
-let currentServiceName = "";
-
-function euro(v){
-  return "€ " + Number(v || 0).toLocaleString("it-IT", {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2
-  });
-}
-
-function setLoginMsg(t){ document.getElementById("loginMsg").innerText = t; }
-function setServiceMsg(t){ document.getElementById("serviceMsg").innerText = t; }
-function setEntryMsg(t){ document.getElementById("entryMsg").innerText = t; }
-
-function showLogin(){
-  document.getElementById("loginBox").classList.remove("hidden");
-  document.getElementById("appBox").classList.add("hidden");
-}
-
-function showApp(){
-  document.getElementById("loginBox").classList.add("hidden");
-  document.getElementById("appBox").classList.remove("hidden");
-  document.getElementById("userInfo").innerText = currentUser ? currentUser.email : "";
-}
-
-async function login(){
-  const email = document.getElementById("email").value.trim();
-  const password = document.getElementById("password").value;
-
-  if(!email || !password){
-    setLoginMsg("Inserisci email e password.");
-    return;
-  }
-
-  setLoginMsg("Login in corso...");
-
-  const response = await supabaseClient.auth.signInWithPassword({
-    email: email,
-    password: password
-  });
-
-  if(response.error){
-    setLoginMsg(response.error.message);
-    return;
-  }
-
-  currentUser = response.data.user;
-  showApp();
-  setLoginMsg("Login effettuato.");
-  await loadServices();
-  await loadTotal();
-}
-
-async function logout(){
-  await supabaseClient.auth.signOut();
-  currentUser = null;
-  currentServiceId = null;
-  currentServiceName = "";
-  document.getElementById("servicePanel").classList.add("hidden");
-  showLogin();
-  setLoginMsg("Logout effettuato.");
-}
-
-async function createService(){
-  if(!currentUser){
-    setServiceMsg("Devi fare login.");
-    return;
-  }
-
-  const name = document.getElementById("serviceName").value.trim();
-
-  if(!name){
-    setServiceMsg("Inserisci il nome del servizio.");
-    return;
-  }
-
-  const response = await supabaseClient.from("services").insert([
-    {
-      user_id: currentUser.id,
-      name: name
-    }
-  ]);
-
-  if(response.error){
-    setServiceMsg(response.error.message);
-    return;
-  }
-
-  document.getElementById("serviceName").value = "";
-  setServiceMsg("Servizio creato.");
-  await loadServices();
-  await loadTotal();
-}
-
-async function loadServices(){
-  if(!currentUser) return;
-
-  const response = await supabaseClient
-    .from("services")
-    .select("*")
-    .eq("user_id", currentUser.id)
-    .order("created_at", { ascending: false });
-
-  const list = document.getElementById("servicesList");
-
-  if(response.error){
-    list.innerHTML = response.error.message;
-    return;
-  }
-
-  const services = response.data || [];
-
-  if(services.length === 0){
-    list.innerHTML = "Nessun servizio";
-    return;
-  }
-
-  let html = "";
-
-  for(let i=0; i<services.length; i++){
-    const s = services[i];
-
-    const entriesResp = await supabaseClient
-      .from("service_entries")
-      .select("profit")
-      .eq("service_id", s.id);
-
-    const entries = entriesResp.data || [];
-    let total = 0;
-
-    for(let j=0; j<entries.length; j++){
-      total += Number(entries[j].profit || 0);
-    }
-
-    html += `
-      <div class="service">
-        <div><b>${s.name}</b></div>
-        <div class="${total >= 0 ? 'pos' : 'neg'}">${euro(total)}</div>
-        <button class="gray" onclick="openService('${s.id}', '${s.name.replace(/'/g, "\\'")}')">Apri</button>
-        <button class="red" onclick="deleteService('${s.id}')">Elimina</button>
-      </div>
-    `;
-  }
-
-  list.innerHTML = html;
-}
-
-async function deleteService(id){
-  const yes = confirm("Vuoi eliminare questo servizio e tutte le sue puntate?");
-  if(!yes) return;
-
-  const response = await supabaseClient
-    .from("services")
-    .delete()
-    .eq("id", id);
-
-  if(response.error){
-    alert(response.error.message);
-    return;
-  }
-
-  if(currentServiceId === id){
-    closeService();
-  }
-
-  await loadServices();
-  await loadTotal();
-}
-
-async function openService(id, name){
-  currentServiceId = id;
-  currentServiceName = name;
-  document.getElementById("servicePanel").classList.remove("hidden");
-  document.getElementById("serviceTitle").innerText = name;
-  await loadEntries();
-}
-
-function closeService(){
-  currentServiceId = null;
-  currentServiceName = "";
-  document.getElementById("servicePanel").classList.add("hidden");
-}
-
-async function addEntry(){
-  if(!currentServiceId){
-    setEntryMsg("Apri prima un servizio.");
-    return;
-  }
-
-  const stake = Number(document.getElementById("stake").value || 0);
-  const quota = Number(document.getElementById("quota").value || 0);
-  const result = document.getElementById("result").value;
-  const note = document.getElementById("note").value.trim();
-
-  if(stake <= 0){
-    setEntryMsg("Inserisci uno stake valido.");
-    return;
-  }
-
-  if(result === "win" && quota <= 1){
-    setEntryMsg("Per Win inserisci una quota superiore a 1.");
-    return;
-  }
-
-  let profit = 0;
-  if(result === "win"){
-    profit = stake * quota - stake;
-  } else {
-    profit = -stake;
-  }
-
-  const response = await supabaseClient.from("service_entries").insert([
-    {
-      user_id: currentUser.id,
-      service_id: currentServiceId,
-      entry_date: new Date().toISOString().slice(0,10),
-      stake: stake,
-      quota: quota,
-      result: result,
-      profit: profit,
-      note: note
-    }
-  ]);
-
-  if(response.error){
-    setEntryMsg(response.error.message);
-    return;
-  }
-
-  document.getElementById("stake").value = "";
-  document.getElementById("quota").value = "";
-  document.getElementById("note").value = "";
-  document.getElementById("result").value = "win";
-
-  setEntryMsg("Puntata salvata.");
-  await loadEntries();
-  await loadServices();
-  await loadTotal();
-}
-
-async function loadEntries(){
-  const response = await supabaseClient
-    .from("service_entries")
-    .select("*")
-    .eq("service_id", currentServiceId)
-    .order("entry_date", { ascending: false })
-    .order("created_at", { ascending: false });
-
-  const tbody = document.getElementById("entriesBody");
-
-  if(response.error){
-    tbody.innerHTML = "<tr><td colspan='7'>" + response.error.message + "</td></tr>";
-    return;
-  }
-
-  const rows = response.data || [];
-  let total = 0;
-
-  for(let i=0; i<rows.length; i++){
-    total += Number(rows[i].profit || 0);
-  }
-
-  const totalEl = document.getElementById("serviceTotal");
-  totalEl.innerText = euro(total);
-  totalEl.className = total >= 0 ? "pos" : "neg";
-
-  if(rows.length === 0){
-    tbody.innerHTML = "<tr><td colspan='7'>Nessuna puntata</td></tr>";
-    return;
-  }
-
-  let html = "";
-
-  for(let i=0; i<rows.length; i++){
-    const e = rows[i];
-    html += `
-      <tr>
-        <td>${e.entry_date || "—"}</td>
-        <td>${euro(e.stake || 0)}</td>
-        <td>${Number(e.quota || 0).toLocaleString("it-IT", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
-        <td>${(e.result || "").toUpperCase()}</td>
-        <td class="${Number(e.profit || 0) >= 0 ? 'pos' : 'neg'}">${euro(e.profit || 0)}</td>
-        <td>${e.note || "—"}</td>
-        <td><button class="red" onclick="deleteEntry('${e.id}')">Elimina</button></td>
-      </tr>
-    `;
-  }
-
-  tbody.innerHTML = html;
-}
-
-async function deleteEntry(id){
-  const yes = confirm("Vuoi eliminare questa puntata?");
-  if(!yes) return;
-
-  const response = await supabaseClient
-    .from("service_entries")
-    .delete()
-    .eq("id", id);
-
-  if(response.error){
-    alert(response.error.message);
-    return;
-  }
-
-  await loadEntries();
-  await loadServices();
-  await loadTotal();
-}
-
-async function loadTotal(){
-  if(!currentUser) return;
-
-  const response = await supabaseClient
-    .from("service_entries")
-    .select("profit")
-    .eq("user_id", currentUser.id);
-
-  if(response.error){
-    document.getElementById("totalProfit").innerText = "Errore";
-    return;
-  }
-
-  const rows = response.data || [];
-  let total = 0;
-
-  for(let i=0; i<rows.length; i++){
-    total += Number(rows[i].profit || 0);
-  }
-
-  const el = document.getElementById("totalProfit");
-  el.innerText = euro(total);
-  el.className = total >= 0 ? "pos" : "neg";
-}
-
-async function boot(){
-  try{
-    const response = await supabaseClient.auth.getUser();
-
-    if(response.error || !response.data || !response.data.user){
-      showLogin();
-      setLoginMsg("Fai login per usare i Servizi.");
-      return;
-    }
-
-    currentUser = response.data.user;
-    showApp();
-    await loadServices();
-    await loadTotal();
-  } catch(err){
-    console.error(err);
-    showLogin();
-    setLoginMsg("Errore iniziale pagina.");
-  }
-}
-
+const supabaseClient=window.supabase.createClient("https://aihwrkqfzhwedqdbxbxh.supabase.co","sb_publishable_G_glT9ld2cqENlVSup38NQ_q8HWyZPd");
+let currentUser=null,currentServiceId=null,currentServiceName="";
+function euro(v){return "€ "+Number(v||0).toLocaleString("it-IT",{minimumFractionDigits:2,maximumFractionDigits:2})}
+function setLoginMsg(t){document.getElementById("loginMsg").innerText=t}function setServiceMsg(t){document.getElementById("serviceMsg").innerText=t}function setEntryMsg(t){document.getElementById("entryMsg").innerText=t}
+function showLogin(){document.getElementById("loginBox").classList.remove("hidden");document.getElementById("appBox").classList.add("hidden")}
+function showApp(){document.getElementById("loginBox").classList.add("hidden");document.getElementById("appBox").classList.remove("hidden");document.getElementById("userInfo").innerText=currentUser?currentUser.email:""}
+async function login(){const email=document.getElementById("email").value.trim(),password=document.getElementById("password").value;if(!email||!password){setLoginMsg("Inserisci email e password.");return}setLoginMsg("Login in corso...");const response=await supabaseClient.auth.signInWithPassword({email,password});if(response.error){setLoginMsg(response.error.message);return}currentUser=response.data.user;showApp();setLoginMsg("Login effettuato.");await loadServices();await loadTotal()}
+async function logout(){await supabaseClient.auth.signOut();currentUser=null;currentServiceId=null;currentServiceName="";document.getElementById("servicePanel").classList.add("hidden");showLogin();setLoginMsg("Logout effettuato.")}
+async function createService(){if(!currentUser){setServiceMsg("Devi fare login.");return}const name=document.getElementById("serviceName").value.trim();if(!name){setServiceMsg("Inserisci il nome del servizio.");return}const response=await supabaseClient.from("services").insert([{user_id:currentUser.id,name}]);if(response.error){setServiceMsg(response.error.message);return}document.getElementById("serviceName").value="";setServiceMsg("Servizio creato.");await loadServices();await loadTotal()}
+async function loadServices(){if(!currentUser)return;const response=await supabaseClient.from("services").select("*").eq("user_id",currentUser.id).order("created_at",{ascending:false});const list=document.getElementById("servicesList");if(response.error){list.innerHTML=response.error.message;return}const services=response.data||[];if(!services.length){list.innerHTML="Nessun servizio";return}let html="";for(const s of services){const entriesResp=await supabaseClient.from("service_entries").select("profit").eq("service_id",s.id);const entries=entriesResp.data||[];let total=0;for(const e of entries)total+=Number(e.profit||0);html+=`<div class="service"><div><b>${s.name}</b></div><div class="${total>=0?'pos':'neg'}">${euro(total)}</div><button class="gray" onclick="openService('${s.id}', '${s.name.replace(/'/g,"\\'")}')">Apri</button><button class="red" onclick="deleteService('${s.id}')">Elimina</button></div>`}list.innerHTML=html}
+async function deleteService(id){if(!confirm("Vuoi eliminare questo servizio e tutte le sue puntate?"))return;const response=await supabaseClient.from("services").delete().eq("id",id);if(response.error){alert(response.error.message);return}if(currentServiceId===id)closeService();await loadServices();await loadTotal()}
+async function openService(id,name){currentServiceId=id;currentServiceName=name;document.getElementById("servicePanel").classList.remove("hidden");document.getElementById("serviceTitle").innerText=name;await loadEntries()}
+function closeService(){currentServiceId=null;currentServiceName="";document.getElementById("servicePanel").classList.add("hidden")}
+function calculateProfit(result,stake,quota){if(result==="win")return stake*quota-stake;if(result==="loss")return -stake;return 0}
+async function addEntry(){if(!currentServiceId){setEntryMsg("Apri prima un servizio.");return}const stake=Number(document.getElementById("stake").value||0),quota=Number(document.getElementById("quota").value||0),result=document.getElementById("result").value,note=document.getElementById("note").value.trim();if(stake<=0){setEntryMsg("Inserisci uno stake valido.");return}if((result==="win"||result==="pending")&&quota<=1){setEntryMsg("Inserisci una quota superiore a 1.");return}const profit=calculateProfit(result,stake,quota);const response=await supabaseClient.from("service_entries").insert([{user_id:currentUser.id,service_id:currentServiceId,entry_date:new Date().toISOString().slice(0,10),stake,quota,result,profit,note}]);if(response.error){setEntryMsg(response.error.message);return}document.getElementById("stake").value="";document.getElementById("quota").value="";document.getElementById("note").value="";document.getElementById("result").value="pending";setEntryMsg(result==="pending"?"Puntata salvata come IN CORSO.":"Puntata salvata.");await loadEntries();await loadServices();await loadTotal()}
+function resultLabel(result){if(result==="win")return "✅ WIN";if(result==="loss")return "❌ LOSS";return "🟡 IN CORSO"}
+function resultClass(result){if(result==="win")return "pos";if(result==="loss")return "neg";return "pending"}
+async function loadEntries(){const response=await supabaseClient.from("service_entries").select("*").eq("service_id",currentServiceId).order("entry_date",{ascending:false}).order("created_at",{ascending:false});const tbody=document.getElementById("entriesBody");if(response.error){tbody.innerHTML="<tr><td colspan='7'>"+response.error.message+"</td></tr>";return}const rows=response.data||[];let total=0;for(const e of rows)total+=Number(e.profit||0);const totalEl=document.getElementById("serviceTotal");totalEl.innerText=euro(total);totalEl.className=total>=0?"pos":"neg";if(!rows.length){tbody.innerHTML="<tr><td colspan='7'>Nessuna puntata</td></tr>";return}let html="";for(const e of rows){const pending=e.result==="pending";html+=`<tr><td>${e.entry_date||"—"}</td><td>${euro(e.stake||0)}</td><td>${Number(e.quota||0).toLocaleString("it-IT",{minimumFractionDigits:2,maximumFractionDigits:2})}</td><td class="${resultClass(e.result)}">${resultLabel(e.result)}</td><td class="${pending?'pending':Number(e.profit||0)>=0?'pos':'neg'}">${pending?'—':euro(e.profit||0)}</td><td>${e.note||"—"}</td><td><div class="row-actions">${pending?`<button class="green" onclick="settleEntry('${e.id}','win',${Number(e.stake||0)},${Number(e.quota||0)})">✅ WIN</button><button class="red" onclick="settleEntry('${e.id}','loss',${Number(e.stake||0)},${Number(e.quota||0)})">❌ LOSS</button>`:`<button class="yellow" onclick="settleEntry('${e.id}','pending',${Number(e.stake||0)},${Number(e.quota||0)})">↩ IN CORSO</button>`}<button class="gray" onclick="deleteEntry('${e.id}')">Elimina</button></div></td></tr>`}tbody.innerHTML=html}
+async function settleEntry(id,result,stake,quota){const label=result==="win"?"WIN":result==="loss"?"LOSS":"IN CORSO";if(!confirm(`Impostare questa puntata come ${label}?`))return;const profit=calculateProfit(result,Number(stake),Number(quota));const response=await supabaseClient.from("service_entries").update({result,profit}).eq("id",id);if(response.error){alert(response.error.message);return}setEntryMsg(`Puntata aggiornata: ${label}.`);await loadEntries();await loadServices();await loadTotal()}
+async function deleteEntry(id){if(!confirm("Vuoi eliminare questa puntata?"))return;const response=await supabaseClient.from("service_entries").delete().eq("id",id);if(response.error){alert(response.error.message);return}await loadEntries();await loadServices();await loadTotal()}
+async function loadTotal(){if(!currentUser)return;const response=await supabaseClient.from("service_entries").select("profit").eq("user_id",currentUser.id);if(response.error){document.getElementById("totalProfit").innerText="Errore";return}const rows=response.data||[];let total=0;for(const e of rows)total+=Number(e.profit||0);const el=document.getElementById("totalProfit");el.innerText=euro(total);el.className=total>=0?"pos":"neg"}
+async function boot(){try{const response=await supabaseClient.auth.getUser();if(response.error||!response.data||!response.data.user){showLogin();setLoginMsg("Fai login per usare i Servizi.");return}currentUser=response.data.user;showApp();await loadServices();await loadTotal()}catch(err){console.error(err);showLogin();setLoginMsg("Errore iniziale pagina.")}}
 boot();
 </script>
 </body>
