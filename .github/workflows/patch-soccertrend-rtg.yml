@@ -1,5 +1,6 @@
 name: Patch SoccerTrend RTG
 
+# one-time patch runner
 on:
   push:
     branches: [main]
@@ -49,11 +50,6 @@ jobs:
             const possession =
               n(stats?.possession?.[side]);
 
-
-            /*
-            RTG BASE
-            */
-
             let rtg =
                 shotsOnTarget * 4
               + totalShots * 1
@@ -61,27 +57,15 @@ jobs:
               + touchesBox * 0.6
               + bigChances * 5;
 
-
-            /*
-            POSSESSION / DOMINANCE BONUS
-
-            Il possesso conta soltanto quando
-            è accompagnato da attività offensiva.
-            Evitiamo quindi di premiare il
-            semplice possesso sterile.
-            */
-
             const attackingActivity =
                  shotsOnTarget >= 2
               || totalShots >= 3
               || touchesBox >= 6;
 
-
             if(
               possession >= 55 &&
               attackingActivity
             ){
-
               const possessionBonus =
                 Math.min(
                   4,
@@ -89,9 +73,7 @@ jobs:
                 );
 
               rtg += possessionBonus;
-
             }
-
 
             return Math.round(
               rtg * 10
