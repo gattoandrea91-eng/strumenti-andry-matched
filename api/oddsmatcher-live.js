@@ -20,9 +20,9 @@ module.exports = async function handler(req,res){
    const j=await r.json();
    if(j.errors&&Object.keys(j.errors).length)return res.status(400).json({ok:false,errors:j.errors});
    raw.push(...(j.response||[]));
-   total=j.paging?.total||1;
+   total=Math.min(Number(j.paging?.total||1),3);
    page++;
-  }while(page<=total&&page<=10);
+  }while(page<=total&&page<=3);
   const out=[];
   for(const item of raw){
    const fx=item.fixture||{};
@@ -41,6 +41,6 @@ module.exports = async function handler(req,res){
   }
   out.sort((a,b)=>b.back-a.back);
   res.setHeader('Cache-Control','s-maxage=300, stale-while-revalidate=60');
-  return res.status(200).json({ok:true,date,bookmaker:target?.name||'Tutti',count:out.length,exchangeConnected:false,note:'Quote bookmaker reali. Per rating matched betting serve una quota BANCA Exchange reale.',results:out});
+  return res.status(200).json({ok:true,date,bookmaker:target?.name||'Tutti',count:out.length,exchangeConnected:false,note:'Quote bookmaker reali. Piano API-Football free: ricerca limitata alle prime 3 pagine. Per rating matched betting serve una quota BANCA Exchange reale.',results:out});
  }catch(e){return res.status(500).json({ok:false,error:e.message});}
 };
