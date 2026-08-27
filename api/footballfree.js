@@ -22,21 +22,10 @@ async function fotmobFetch(url) {
   return JSON.parse(text);
 }
 
-function findStat(statsRoot, wantedKey) {
-  const allPeriod = statsRoot?.Periods?.All?.stats || [];
-  for (const group of allPeriod) {
-    const stats = Array.isArray(group?.stats) ? group.stats : [];
-    for (const stat of stats) {
-      if (stat?.key === wantedKey) return stat.stats || [0, 0];
-    }
-  }
-  return [0, 0];
-}
-
 function num(value) {
   if (value === null || value === undefined || value === "") return 0;
   if (typeof value === "string") {
-    const clean = value.replace("%", "").split(" ")[0];
+    const clean = value.replace("%", "").replace(",", ".").trim().split(" ")[0];
     const n = Number(clean);
     return Number.isFinite(n) ? n : 0;
   }
@@ -44,14 +33,78 @@ function num(value) {
   return Number.isFinite(n) ? n : 0;
 }
 
-function pair(statsRoot, key) {
-  const values = findStat(statsRoot, key);
+function normalizeKey(value) {
+  return String(value || "")
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z0-9]/g, "");
+}
+
+function extractPairFromNode(node) {
+  if (!node || typeof node !== "object") return null;
+
+  const candidates = [node.stats, node.values, node.value, node.data];
+  for (const c of candidates) {
+    if (Array.isArray(c) && c.length >= 2) {
+      return [num(c[0]), num(c[1])];
+    }
+  }
+
+  if (node.home !== undefined || node.away !== undefined) {
+    return [num(node.home), num(node.away)];
+  }
+
+  if (node.homeValue !== undefined || node.awayValue !== undefined) {
+    return [num(node.homeValue), num(node.awayValue)];
+  }
+
+  return null;
+}
+
+function findStatFlexible(root, aliases) {
+  const wanted = aliases.map(normalizeKey).filter(Boolean);
+  const queue = [root];
+  const visited = new Set();
+
+  while (queue.length) {
+    const node = queue.shift();
+    if (!node || typeof node !== "object" || visited.has(node)) continue;
+    visited.add(node);
+
+    if (!Array.isArray(node)) {
+      const names = [node.key, node.title, node.name, node.label, node.statName, node.localizedTitle]
+        .map(normalizeKey)
+        .filter(Boolean);
+
+      const matches = names.some(name => wanted.some(w => name === w || name.includes(w) || w.includes(name)));
+      if (matches) {
+        const pair = extractPairFromNode(node);
+        if (pair) return pair;
+      }
+    }
+
+    if (Array.isArray(node)) {
+      for (const item of node) queue.push(item);
+    } else {
+      for (const value of Object.values(node)) {
+        if (value && typeof value === "object") queue.push(value);
+      }
+    }
+  }
+
+  return [0, 0];
+}
+
+function pairFlexible(statsRoot, aliases) {
+  const values = findStatFlexible(statsRoot, aliases);
   const home = num(values?.[0]);
   const away = num(values?.[1]);
   return { home, away, total: home + away };
 }
 
 function calculateRtg(stats) {
+  // Il possesso NON pesa nel rating: preferiamo azioni concrete e pressione offensiva.
   const raw =
       (stats.shotsOnTarget.total * 4)
     + (stats.totalShots.total * 1)
@@ -95,16 +148,34 @@ module.exports = async (req, res) => {
       const data = await fotmobFetch(`${FOTMOB_BASE}/matchDetails?matchId=${encodeURIComponent(matchId)}`);
       const content = data?.content || {};
       const statsRoot = content?.stats || {};
+
       const stats = {
-        possession: pair(statsRoot, "BallPossesion"),
-        totalShots: pair(statsRoot, "total_shots"),
-        shotsOnTarget: pair(statsRoot, "ShotsOnTarget"),
-        shotsOffTarget: pair(statsRoot, "ShotsOffTarget"),
-        corners: pair(statsRoot, "corners"),
-        touchesBox: pair(statsRoot, "touches_opp_box"),
-        bigChances: pair(statsRoot, "big_chance"),
-        bigChancesMissed: pair(statsRoot, "big_chance_missed_title")
+        possession: pairFlexible(statsRoot, [
+          "BallPossesion", "BallPossession", "Possession", "Possesso", "Possesso palla"
+        ]),
+        totalShots: pairFlexible(statsRoot, [
+          "total_shots", "TotalShots", "Total shots", "Shots", "Tiri", "Tiri totali"
+        ]),
+        shotsOnTarget: pairFlexible(statsRoot, [
+          "ShotsOnTarget", "shots_on_target", "Shots on target", "Tiri in porta"
+        ]),
+        shotsOffTarget: pairFlexible(statsRoot, [
+          "ShotsOffTarget", "shots_off_target", "Shots off target", "Tiri fuori"
+        ]),
+        corners: pairFlexible(statsRoot, [
+          "corners", "Corner", "Corner kicks", "Calci d'angolo"
+        ]),
+        touchesBox: pairFlexible(statsRoot, [
+          "touches_opp_box", "TouchesInOppositionBox", "Touches in opposition box", "Touches in box", "Tocchi in area"
+        ]),
+        bigChances: pairFlexible(statsRoot, [
+          "big_chance", "BigChances", "Big chances", "Grandi occasioni"
+        ]),
+        bigChancesMissed: pairFlexible(statsRoot, [
+          "big_chance_missed_title", "BigChancesMissed", "Big chances missed", "Grandi occasioni sbagliate"
+        ])
       };
+
       const rtg = calculateRtg(stats);
       const momentum = content?.momentum || content?.matchMomentum || null;
       const momentumArray = normalizeMomentum(momentum);
@@ -113,6 +184,7 @@ module.exports = async (req, res) => {
       const shotmap = content?.shotmap || null;
       const matchStatus = data?.general?.matchStatus || data?.general?.status || "";
       const matchTime = data?.general?.matchTime || data?.general?.liveTime || "";
+
       return res.status(200).json({
         success: true,
         mode: "DETAIL",
@@ -132,6 +204,7 @@ module.exports = async (req, res) => {
       });
     }
 
+    // FEED LIVE: volutamente lasciato identico alla versione che funzionava.
     const date = String(req.query.date || todayYYYYMMDD());
     const data = await fotmobFetch(`${FOTMOB_BASE}/matches?date=${encodeURIComponent(date)}`);
     const leagues = Array.isArray(data?.leagues) ? data.leagues : [];
