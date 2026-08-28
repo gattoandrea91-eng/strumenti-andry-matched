@@ -4,8 +4,98 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>TrackerGatto</title>
-<meta http-equiv="refresh" content="0; url=/trackergatto-v2.html?csvimport=1">
-<script>location.replace('/trackergatto-v2.html?csvimport=1');</script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+html,body{margin:0;height:100%;background:#070809;font-family:Arial,sans-serif}
+#bar{position:fixed;right:18px;bottom:18px;z-index:9999;display:flex;gap:8px;align-items:center}
+#bar button{border:1px solid #34383d;background:#142840;color:#b9d8ff;padding:11px 14px;border-radius:10px;cursor:pointer;font-weight:800;box-shadow:0 6px 18px #0008}
+#bar button:disabled{opacity:.55;cursor:not-allowed}
+#status{display:none;background:#111315;color:#ddd;border:1px solid #2a2e33;padding:10px 12px;border-radius:10px;font-size:12px;max-width:340px}
+iframe{width:100%;height:100%;border:0;display:block}
+</style>
 </head>
-<body></body>
+<body>
+<iframe id="trackerFrame" src="/trackergatto-v2.html" title="TrackerGatto"></iframe>
+<div id="bar"><div id="status"></div><button id="importBtn" type="button">📥 Importa conti CSV</button><input id="csvFile" type="file" accept=".csv,text/csv" hidden></div>
+<script>
+const SUPA = window.supabase.createClient('https://aihwrkqfzhwedqdbxbxh.supabase.co','sb_publishable_G_glT9ld2cqENlVSup38NQ_q8HWyZPd');
+const btn=document.getElementById('importBtn'), input=document.getElementById('csvFile'), statusEl=document.getElementById('status');
+function setStatus(msg){statusEl.textContent=msg;statusEl.style.display=msg?'block':'none'}
+btn.addEventListener('click', async()=>{
+  const {data}=await SUPA.auth.getSession();
+  if(!data?.session){alert('Accedi prima al TrackerGatto, poi premi di nuovo Importa conti CSV.');return}
+  input.click();
+});
+input.addEventListener('change', async()=>{
+  const file=input.files?.[0]; input.value=''; if(!file)return;
+  btn.disabled=true; setStatus('Lettura CSV...');
+  try{await importCsv(file)}catch(e){console.error(e);alert('Errore importazione: '+(e?.message||e));setStatus('Errore importazione');}
+  finally{btn.disabled=false}
+});
+function detectDelimiter(text){
+  const line=(text.replace(/^\uFEFF/,'').split(/\r?\n/,1)[0]||'');
+  let semi=0,comma=0,q=false;
+  for(let i=0;i<line.length;i++){const c=line[i];if(c==='"')q=!q;else if(!q&&c===';')semi++;else if(!q&&c===',')comma++;}
+  return semi>=comma?';':',';
+}
+function parseCsv(text){
+  text=text.replace(/^\uFEFF/,''); const d=detectDelimiter(text); const rows=[]; let row=[],cell='',quoted=false;
+  for(let i=0;i<text.length;i++){
+    const c=text[i];
+    if(c==='"'){
+      if(quoted&&text[i+1]==='"'){cell+='"';i++;}else quoted=!quoted;
+    }else if(c===d&&!quoted){row.push(cell);cell='';}
+    else if((c==='\n'||c==='\r')&&!quoted){
+      if(c==='\r'&&text[i+1]==='\n')i++; row.push(cell);cell='';
+      if(row.some(v=>String(v).trim()!==''))rows.push(row); row=[];
+    }else cell+=c;
+  }
+  if(cell!==''||row.length){row.push(cell);if(row.some(v=>String(v).trim()!==''))rows.push(row)}
+  const headers=(rows.shift()||[]).map(h=>String(h).replace(/^\uFEFF/,'').trim());
+  return rows.map(r=>Object.fromEntries(headers.map((h,i)=>[h,String(r[i]??'').trim()])));
+}
+function parseEuro(v){
+  let s=String(v??'').replace(/\u00a0/g,' ').replace(/[€\s]/g,'');
+  if(s.includes(',')&&s.includes('.'))s=s.replace(/\./g,'').replace(',','.');
+  else if(s.includes(','))s=s.replace(',','.');
+  const n=Number(s); return Number.isFinite(n)?n:0;
+}
+function norm(s){return String(s??'').trim().replace(/\s+/g,' ').toLowerCase()}
+async function importCsv(file){
+  const {data:auth,error:authErr}=await SUPA.auth.getSession(); if(authErr)throw authErr;
+  const user=auth?.session?.user; if(!user)throw new Error('Sessione non trovata');
+  const rows=parseCsv(await file.text()).filter(r=>r.Intestatario&&r.Conto);
+  if(!rows.length)throw new Error('CSV non riconosciuto: servono le colonne Intestatario e Conto');
+  if(!confirm(`Importare ${rows.length} conti nel tuo profilo privato?`)){setStatus('Importazione annullata');return}
+  setStatus(`Preparazione di ${rows.length} conti...`);
+  const {data:existingH,error:ehErr}=await SUPA.from('tracker_holders').select('id,name'); if(ehErr)throw ehErr;
+  const holderMap=new Map((existingH||[]).map(h=>[norm(h.name),h.id]));
+  const missingNames=[]; const seenMissing=new Set();
+  for(const r of rows){const n=r.Intestatario.trim(),k=norm(n);if(!holderMap.has(k)&&!seenMissing.has(k)){seenMissing.add(k);missingNames.push(n)}}
+  if(missingNames.length){
+    setStatus(`Creo ${missingNames.length} intestatari...`);
+    const {data:newH,error}=await SUPA.from('tracker_holders').insert(missingNames.map(name=>({user_id:user.id,name}))).select('id,name');
+    if(error)throw error; for(const h of newH||[])holderMap.set(norm(h.name),h.id);
+  }
+  const {data:existingA,error:eaErr}=await SUPA.from('tracker_accounts').select('holder_id,name,note'); if(eaErr)throw eaErr;
+  const signatures=new Set((existingA||[]).map(a=>`${a.holder_id}|${norm(a.name)}|${norm(a.note)}`));
+  const inserts=[];
+  for(const r of rows){
+    const holderId=holderMap.get(norm(r.Intestatario)); if(!holderId)continue;
+    const note=[r.Descrizione?`Descrizione: ${r.Descrizione}`:'',r.Creato?`Creato: ${r.Creato}`:'',r.Stato?`Stato: ${r.Stato}`:''].filter(Boolean).join(' | ');
+    const sig=`${holderId}|${norm(r.Conto)}|${norm(note)}`; if(signatures.has(sig))continue; signatures.add(sig);
+    inserts.push({user_id:user.id,holder_id:holderId,name:r.Conto.trim(),note,balance:parseEuro(r['Saldo Attuale'])});
+  }
+  let done=0;
+  for(let i=0;i<inserts.length;i+=75){
+    setStatus(`Importazione ${Math.min(i+75,inserts.length)}/${inserts.length}...`);
+    const {error}=await SUPA.from('tracker_accounts').insert(inserts.slice(i,i+75)); if(error)throw error; done+=Math.min(75,inserts.length-i);
+  }
+  setStatus(`Fatto: ${done} conti importati. Ricarico il Tracker...`);
+  alert(`Importazione completata: ${done} conti aggiunti. ${rows.length-done} già presenti o saltati.`);
+  document.getElementById('trackerFrame').contentWindow.location.reload();
+  setTimeout(()=>setStatus(''),3500);
+}
+</script>
+</body>
 </html>
