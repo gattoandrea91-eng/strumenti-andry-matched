@@ -23,9 +23,30 @@ module.exports = async function handler(req,res){
    total=Math.min(Number(j.paging?.total||1),3);
    page++;
   }while(page<=total&&page<=3);
+
+  // L'endpoint odds spesso restituisce solo fixture.id. Recuperiamo i nomi reali
+  // delle squadre dall'endpoint fixtures in un'unica chiamata batch (max 20 ID).
+  const fixtureIds=[...new Set(raw.map(x=>x?.fixture?.id).filter(Boolean))].slice(0,20);
+  const fixtureMap=new Map();
+  if(fixtureIds.length){
+   const fr=await fetch('https://v3.football.api-sports.io/fixtures?ids='+fixtureIds.join('-')+'&timezone=Europe/Rome',{headers:h});
+   const fj=await fr.json();
+   if(!(fj.errors&&Object.keys(fj.errors).length)){
+    for(const f of (fj.response||[])){
+     const id=f?.fixture?.id;
+     if(id)fixtureMap.set(String(id),f);
+    }
+   }
+  }
+
   const out=[];
   for(const item of raw){
    const fx=item.fixture||{};
+   const full=fixtureMap.get(String(fx.id));
+   const home=full?.teams?.home?.name||item?.teams?.home?.name;
+   const away=full?.teams?.away?.name||item?.teams?.away?.name;
+   const league=full?.league?.name||item?.league?.name||'';
+   const kickoff=full?.fixture?.date||fx.date;
    for(const book of (item.bookmakers||[])){
     if(target&&book.id!==target.id)continue;
     for(const bet of (book.bets||[])){
@@ -34,13 +55,13 @@ module.exports = async function handler(req,res){
      for(const v of (bet.values||[])){
       const back=Number(v.odd);
       if(!(back>=qmin&&back<=qmax))continue;
-      out.push({fixtureId:fx.id,date:fx.date,match:(item.teams?.home?.name&&item.teams?.away?.name)?item.teams.home.name+' - '+item.teams.away.name:'Fixture '+fx.id,market:bn,selection:v.value,book:book.name,back});
+      out.push({fixtureId:fx.id,date:kickoff,match:(home&&away)?home+' - '+away:'Partita #'+fx.id,home:home||'',away:away||'',league,market:bn,selection:v.value,book:book.name,back});
      }
     }
    }
   }
   out.sort((a,b)=>b.back-a.back);
   res.setHeader('Cache-Control','s-maxage=300, stale-while-revalidate=60');
-  return res.status(200).json({ok:true,date,bookmaker:target?.name||'Tutti',count:out.length,exchangeConnected:false,note:'Quote bookmaker reali. Piano API-Football free: ricerca limitata alle prime 3 pagine. Per rating matched betting serve una quota BANCA Exchange reale.',results:out});
+  return res.status(200).json({ok:true,date,bookmaker:target?.name||'Tutti',count:out.length,exchangeConnected:false,note:'Quote bookmaker reali. Le partite vengono risolte tramite Fixtures API. Piano API-Football: ricerca limitata alle prime 3 pagine; per rating matched betting serve una quota BANCA Exchange reale.',results:out});
  }catch(e){return res.status(500).json({ok:false,error:e.message});}
 };
