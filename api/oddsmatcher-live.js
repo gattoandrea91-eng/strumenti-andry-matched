@@ -11,6 +11,7 @@ module.exports = async function handler(req,res){
   const books=Array.isArray(bj.response)?bj.response:[];
   const target=books.find(b=>String(b.name||'').toLowerCase()===bookmaker.toLowerCase())||books.find(b=>String(b.name||'').toLowerCase().includes(bookmaker.toLowerCase()));
   if(bookmaker&&!target)return res.status(400).json({ok:false,error:'Bookmaker non disponibile in API-Football',available:books.map(b=>b.name).filter(Boolean)});
+
   const params=new URLSearchParams({date});
   if(target)params.set('bookmaker',String(target.id));
   let page=1,total=1,raw=[];
@@ -24,21 +25,45 @@ module.exports = async function handler(req,res){
    page++;
   }while(page<=total&&page<=3);
 
-  // Odds non include sempre i nomi squadra. Recuperiamo le fixture a gruppi,
-  // usando l'endpoint /fixtures?id=... che e' supportato in modo affidabile.
-  const fixtureIds=[...new Set(raw.map(x=>x?.fixture?.id).filter(Boolean))];
+  // Recupera TUTTE le partite del giorno con una sola chiamata e crea una mappa per fixture.id.
+  // Questo evita decine di chiamate /fixtures?id=... che sul piano free venivano risolte solo in parte.
   const fixtureMap=new Map();
-  const chunks=[];
-  for(let i=0;i<fixtureIds.length;i+=12)chunks.push(fixtureIds.slice(i,i+12));
-  for(const chunk of chunks.slice(0,5)){
-   const results=await Promise.all(chunk.map(async id=>{
+  try{
+   const fr=await fetch('https://v3.football.api-sports.io/fixtures?date='+encodeURIComponent(date)+'&timezone=Europe/Rome',{headers:h});
+   const fj=await fr.json();
+   if(!(fj.errors&&Object.keys(fj.errors).length)){
+    for(const f of (fj.response||[])){
+     if(f?.fixture?.id) fixtureMap.set(String(f.fixture.id),f);
+    }
+   }
+  }catch{}
+
+  // Fallback mirato: per gli ID ancora mancanti prova singolarmente, ma solo per gli ID
+  // che producono davvero risultati nel filtro quota scelto.
+  const preliminaryIds=new Set();
+  for(const item of raw){
+   for(const book of (item.bookmakers||[])){
+    if(target&&book.id!==target.id)continue;
+    for(const bet of (book.bets||[])){
+     const bn=String(bet.name||'');
+     if(!/match winner|winner|1x2/i.test(bn))continue;
+     for(const v of (bet.values||[])){
+      const back=Number(v.odd);
+      if(back>=qmin&&back<=qmax&&item?.fixture?.id) preliminaryIds.add(String(item.fixture.id));
+     }
+    }
+   }
+  }
+  const missing=[...preliminaryIds].filter(id=>!fixtureMap.has(id)).slice(0,12);
+  if(missing.length){
+   const resolved=await Promise.all(missing.map(async id=>{
     try{
      const fr=await fetch('https://v3.football.api-sports.io/fixtures?id='+encodeURIComponent(id)+'&timezone=Europe/Rome',{headers:h});
      const fj=await fr.json();
      return (fj.response||[])[0]||null;
     }catch{return null}
    }));
-   for(const f of results){if(f?.fixture?.id)fixtureMap.set(String(f.fixture.id),f)}
+   for(const f of resolved){if(f?.fixture?.id)fixtureMap.set(String(f.fixture.id),f)}
   }
 
   const out=[];
@@ -63,7 +88,9 @@ module.exports = async function handler(req,res){
    }
   }
   out.sort((a,b)=>b.back-a.back);
-  res.setHeader('Cache-Control','s-maxage=120, stale-while-revalidate=30');
-  return res.status(200).json({ok:true,date,bookmaker:target?.name||'Tutti',count:out.length,exchangeConnected:false,resolvedFixtures:fixtureMap.size,totalFixtures:fixtureIds.length,note:'Quote bookmaker reali. Nomi delle partite risolti tramite Fixtures API; per rating matched betting serve una quota BANCA Exchange reale.',results:out});
+  const resultIds=[...new Set(out.map(x=>String(x.fixtureId)))];
+  const resolvedResultIds=resultIds.filter(id=>fixtureMap.has(id));
+  res.setHeader('Cache-Control','s-maxage=60, stale-while-revalidate=20');
+  return res.status(200).json({ok:true,date,bookmaker:target?.name||'Tutti',count:out.length,exchangeConnected:false,resolvedFixtures:resolvedResultIds.length,totalFixtures:resultIds.length,note:'Quote bookmaker reali. Nomi partite risolti dal feed Fixtures del giorno con fallback per ID mancanti; per rating matched betting serve una quota BANCA Exchange reale.',results:out});
  }catch(e){return res.status(500).json({ok:false,error:e.message});}
 };
