@@ -12,7 +12,7 @@ async function getExchange(key,date){
   const batch=soccer.slice(i,i+8);
   const got=await Promise.all(batch.map(async s=>{
    try{
-    const u='https://api.the-odds-api.com/v4/sports/'+encodeURIComponent(s.key)+'/odds?apiKey='+encodeURIComponent(key)+'&regions=eu&markets=h2h&oddsFormat=decimal&dateFormat=iso&bookmakers=betfair_ex_eu';
+    const u='https://api.the-odds-api.com/v4/sports/'+encodeURIComponent(s.key)+'/odds?apiKey='+encodeURIComponent(key)+'&regions=eu&markets=h2h_lay&oddsFormat=decimal&dateFormat=iso&bookmakers=betfair_ex_eu';
     const r=await fetch(u);const j=await r.json();return r.ok&&Array.isArray(j)?j:[];
    }catch{return []}
   }));
@@ -57,7 +57,7 @@ module.exports = async function handler(req,res){
   let exchangeEvents=[],exchangeError=null;if(exchangeKey){try{exchangeEvents=await getExchange(exchangeKey,date);}catch(e){exchangeError=e.message;}}
   let matched=0;for(const row of out){const x=findLay(exchangeEvents,row);if(x&&x.lay>1){Object.assign(row,x);row.rating=Number((100*row.back/row.lay).toFixed(2));matched++;}else{row.lay=null;row.rating=null;}}
   out.sort((a,b)=>(b.rating||0)-(a.rating||0)||b.back-a.back);const resultIds=[...new Set(out.map(x=>String(x.fixtureId)))];const resolved=resultIds.filter(id=>fixtureMap.has(id));
-  res.setHeader('Cache-Control','s-maxage=60, stale-while-revalidate=20');
-  return res.status(200).json({ok:true,date,bookmaker:target?.name||'Tutti',count:out.length,exchangeConnected:!!exchangeKey,exchangeEvents:exchangeEvents.length,exchangeMatched:matched,exchangeError,resolvedFixtures:resolved.length,totalFixtures:resultIds.length,note:exchangeKey?'Betfair Exchange collegato tramite The Odds API. Solo mercato Match Winner 1X2 viene abbinato.':'ODDSMATCHER_ODDS_API_KEY non configurata.',results:out});
+  res.setHeader('Cache-Control','s-maxage=30, stale-while-revalidate=10');
+  return res.status(200).json({ok:true,date,bookmaker:target?.name||'Tutti',count:out.length,exchangeConnected:!!exchangeKey,exchangeEvents:exchangeEvents.length,exchangeMatched:matched,exchangeError,resolvedFixtures:resolved.length,totalFixtures:resultIds.length,note:exchangeKey?(exchangeError?'Errore Exchange: '+exchangeError:'Betfair Exchange collegato tramite The Odds API. Abbinamenti trovati: '+matched+'.'):'ODDSMATCHER_ODDS_API_KEY non configurata.',results:out});
  }catch(e){return res.status(500).json({ok:false,error:e.message});}
 };
