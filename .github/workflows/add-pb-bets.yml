@@ -1,0 +1,58 @@
+name: Add TrackerGatto PB Bets
+on:
+  push:
+    paths:
+      - '.github/workflows/add-pb-bets.yml'
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Patch TrackerGatto PB bets
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('trackergatto-v2.html')
+          s=p.read_text()
+          if "id=\"tabPB\"" in s:
+              print('PB already present')
+              raise SystemExit(0)
+          old="""<button id=\"tabPuntate\" onclick=\"showTab('puntate')\">Puntate</button><button id=\"tabRapide\" onclick=\"showTab('rapide')\">⚡ Rapide</button>"""
+          new="""<button id=\"tabPuntate\" onclick=\"showTab('puntate')\">Puntate</button><button id=\"tabPB\" onclick=\"showTab('pb')\">PB</button><button id=\"tabRapide\" onclick=\"showTab('rapide')\">⚡ Rapide</button>"""
+          if old not in s: raise SystemExit('tabs marker not found')
+          s=s.replace(old,new,1)
+          marker='<section id="rapide" class="section">'
+          pb='''<section id="pb" class="section"><div class="card"><div class="title"><h2>🔁 Puntate PB</h2><button class="btn gold" onclick="openPBModal()">+ Nuova PB</button></div><div class="warn">Una PB collega una PUNTA bookmaker e una BANCA exchange. Gli importi vengono impegnati subito; alla chiusura scegli quale lato ha vinto e i due saldi vengono aggiornati automaticamente.</div><div class="tablewrap"><table><thead><tr><th>Data</th><th>Evento</th><th>Punta</th><th>Banca</th><th>Responsabilità</th><th>Esito Punta</th><th>Esito Banca</th><th>Stato</th><th>Opzioni</th></tr></thead><tbody id="pbBody"></tbody></table></div></div></section>'''
+          if marker not in s: raise SystemExit('rapide marker not found')
+          s=s.replace(marker,pb+marker,1)
+          oldmap="{dashboard:'tabDashboard',conti:'tabConti',wallet:'tabWallet',movimenti:'tabMovimenti',puntate:'tabPuntate',rapide:'tabRapide'}"
+          newmap="{dashboard:'tabDashboard',conti:'tabConti',wallet:'tabWallet',movimenti:'tabMovimenti',puntate:'tabPuntate',pb:'tabPB',rapide:'tabRapide'}"
+          if oldmap not in s: raise SystemExit('showTab map marker not found')
+          s=s.replace(oldmap,newmap,1)
+          oldrender="const normalBets=bets.filter(b=>!isQuickBet(b)),quickBets=bets.filter(isQuickBet);"
+          newrender="const normalBets=bets.filter(b=>!isQuickBet(b)&&!isPBBet(b)),pbBets=bets.filter(isPBBet),quickBets=bets.filter(isQuickBet);renderPB(pbBets);"
+          if oldrender not in s: raise SystemExit('render split marker not found')
+          s=s.replace(oldrender,newrender,1)
+          marker='function openQuickBetModal(){'
+          funcs=r'''function isPBBet(b){return String(b?.description||'').startsWith('PB|')}function pbParts(b){const p=String(b?.description||'').split('|');return{group:p[1]||'',side:p[2]||'',event:p[3]||'',backStake:Number(p[4]||0),backOdds:Number(p[5]||0),layStake:Number(p[6]||0),layOdds:Number(p[7]||0),commission:Number(p[8]||0)}}function pbGroups(rows){const g={};for(const b of rows){const x=pbParts(b);if(!x.group)continue;(g[x.group]??=[]).push(b)}return Object.entries(g).map(([id,rows])=>({id,rows,punta:rows.find(b=>pbParts(b).side==='PUNTA'),banca:rows.find(b=>pbParts(b).side==='BANCA')})).filter(x=>x.punta&&x.banca).sort((a,b)=>String(b.punta.bet_date||'').localeCompare(String(a.punta.bet_date||'')))}function pbOutcomeText(b){if(!b)return'—';if(b.status==='PENDING')return'In corso';const p=Number(b.profit||0);return`${b.status} ${p>=0?'+':''}${euro(p)}`}function renderPB(rows){if(!window.pbBody)return;const groups=pbGroups(rows);pbBody.innerHTML=groups.length?groups.map(g=>{const pp=pbParts(g.punta),bp=pbParts(g.banca),liab=Number(g.banca.stake||0),closed=g.punta.status!=='PENDING'&&g.banca.status!=='PENDING';return`<tr><td>${esc(g.punta.bet_date||'')}</td><td>${esc(pp.event||bp.event||'—')}</td><td><b>${esc(accountName(g.punta.account_id))}</b><br>${euro(pp.backStake)} @ ${Number(pp.backOdds).toFixed(2)}</td><td><b>${esc(accountName(g.banca.account_id))}</b><br>${euro(bp.layStake)} @ ${Number(bp.layOdds).toFixed(2)} · ${Number(bp.commission).toFixed(2)}%</td><td class="neg">${euro(liab)}</td><td>${pbOutcomeText(g.punta)}</td><td>${pbOutcomeText(g.banca)}</td><td><span class="pill ${closed?'win':'pending'}">${closed?'CHIUSA':'IN CORSO'}</span></td><td>${closed?'—':`<button class="btn gold" onclick="openPBCloseModal('${g.id}')">Chiudi PB</button>`}</td></tr>`}).join(''):'<tr><td colspan="9" class="empty">Nessuna PB</td></tr>'}function openPBModal(){if(accounts.length<2)return alert('Servono almeno due conti');showModal('Nuova Puntata PB',`<div class="field"><label>Evento</label><input id="pbEvent" placeholder="Es. Benfica v Estoril"></div><div class="field"><label>Data</label><input id="pbDate" type="date" value="${today()}"></div><hr style="border-color:#2a2e33"><div class="field"><label>Conto PUNTA</label><select id="pbBackAccount">${accountOpts()}</select></div><div class="row"><div class="field"><label>Stake Punta</label><input id="pbBackStake" type="number" min="0.01" step="0.01"></div><div class="field"><label>Quota Punta</label><input id="pbBackOdds" type="number" min="1.01" step="0.01"></div></div><hr style="border-color:#2a2e33"><div class="field"><label>Conto BANCA / Exchange</label><select id="pbLayAccount">${accountOpts()}</select></div><div class="row"><div class="field"><label>Importo Banca</label><input id="pbLayStake" type="number" min="0.01" step="0.01"></div><div class="field"><label>Quota Banca</label><input id="pbLayOdds" type="number" min="1.01" step="0.01"></div><div class="field"><label>Commissione %</label><input id="pbComm" type="number" min="0" max="100" step="0.01" value="4.5"></div></div><div id="pbCalc" class="warn">Inserisci gli importi per vedere responsabilità e risultati.</div><button class="btn gold" onclick="addPB()">Salva PB</button>`);['pbBackStake','pbBackOdds','pbLayStake','pbLayOdds','pbComm'].forEach(id=>document.getElementById(id)?.addEventListener('input',updatePBCalc));updatePBCalc()}function updatePBCalc(){const bs=Number(document.getElementById('pbBackStake')?.value||0),bo=Number(document.getElementById('pbBackOdds')?.value||0),ls=Number(document.getElementById('pbLayStake')?.value||0),lo=Number(document.getElementById('pbLayOdds')?.value||0),c=Number(document.getElementById('pbComm')?.value||0),liab=ls*Math.max(0,lo-1),pWin=bs*Math.max(0,bo-1)-liab,lWin=ls*(1-c/100)-bs,el=document.getElementById('pbCalc');if(el)el.innerHTML=`Responsabilità banca: <b>${euro(liab)}</b><br>Se vince PUNTA: <b>${pWin>=0?'+':''}${euro(pWin)}</b> · Se vince BANCA: <b>${lWin>=0?'+':''}${euro(lWin)}</b>`}async function addPB(){const event=pbEvent.value.trim(),date=pbDate.value||today(),back=accounts.find(a=>a.id===pbBackAccount.value),lay=accounts.find(a=>a.id===pbLayAccount.value),bs=Number(pbBackStake.value||0),bo=Number(pbBackOdds.value||0),ls=Number(pbLayStake.value||0),lo=Number(pbLayOdds.value||0),comm=Number(pbComm.value||0);if(!event||!back||!lay||back.id===lay.id||bs<=0||bo<=1||ls<=0||lo<=1||comm<0||comm>100)return alert('Controlla i dati della PB');const liab=Number((ls*(lo-1)).toFixed(2));if(Number(back.balance)<bs)return alert('Saldo insufficiente sul conto Punta');if(Number(lay.balance)<liab)return alert('Saldo insufficiente sul conto Banca');const oldBack=Number(back.balance),oldLay=Number(lay.balance),r1=await SUPA.from('tracker_accounts').update({balance:oldBack-bs}).eq('id',back.id);if(r1.error)return alert(r1.error.message);const r2=await SUPA.from('tracker_accounts').update({balance:oldLay-liab}).eq('id',lay.id);if(r2.error){await SUPA.from('tracker_accounts').update({balance:oldBack}).eq('id',back.id);return alert(r2.error.message)}const gid=`${Date.now()}-${Math.random().toString(36).slice(2,7)}`,meta=`${event}|${bs}|${bo}|${ls}|${lo}|${comm}`,rows=[{user_id:user.id,account_id:back.id,bet_date:date,description:`PB|${gid}|PUNTA|${meta}`,stake:bs,odds:bo,status:'PENDING',profit:0},{user_id:user.id,account_id:lay.id,bet_date:date,description:`PB|${gid}|BANCA|${meta}`,stake:liab,odds:lo,status:'PENDING',profit:0}],ins=await SUPA.from('tracker_bets').insert(rows);if(ins.error){await SUPA.from('tracker_accounts').update({balance:oldBack}).eq('id',back.id);await SUPA.from('tracker_accounts').update({balance:oldLay}).eq('id',lay.id);return alert(ins.error.message)}closeModal();await loadAll();showTab('pb')}function openPBCloseModal(gid){const g=pbGroups(bets.filter(isPBBet)).find(x=>x.id===gid);if(!g)return alert('PB non trovata');const p=pbParts(g.punta),b=pbParts(g.banca);showModal('Chiudi PB',`<div class="warn"><b>${esc(p.event)}</b><br>Punta: ${euro(p.backStake)} @ ${Number(p.backOdds).toFixed(2)}<br>Banca: ${euro(b.layStake)} @ ${Number(b.layOdds).toFixed(2)}</div><div class="actions"><button class="btn green" onclick="settlePB('${gid}','PUNTA')">✅ Vince PUNTA</button><button class="btn blue" onclick="settlePB('${gid}','BANCA')">🔁 Vince BANCA</button></div>`)}async function settlePB(gid,winner){const g=pbGroups(bets.filter(isPBBet)).find(x=>x.id===gid);if(!g||g.punta.status!=='PENDING'||g.banca.status!=='PENDING')return alert('PB già chiusa o non valida');const p=pbParts(g.punta),b=pbParts(g.banca),back=accounts.find(a=>a.id===g.punta.account_id),lay=accounts.find(a=>a.id===g.banca.account_id);if(!back||!lay)return alert('Conti non trovati');const bs=p.backStake,bo=p.backOdds,ls=b.layStake,comm=b.commission,liab=Number(g.banca.stake||0),backProfit=winner==='PUNTA'?bs*(bo-1):-bs,layProfit=winner==='BANCA'?ls*(1-comm/100):-liab,backCredit=winner==='PUNTA'?bs*bo:0,layCredit=winner==='BANCA'?liab+layProfit:0,oldBack=Number(back.balance),oldLay=Number(lay.balance);const r1=await SUPA.from('tracker_accounts').update({balance:oldBack+backCredit}).eq('id',back.id);if(r1.error)return alert(r1.error.message);const r2=await SUPA.from('tracker_accounts').update({balance:oldLay+layCredit}).eq('id',lay.id);if(r2.error){await SUPA.from('tracker_accounts').update({balance:oldBack}).eq('id',back.id);return alert(r2.error.message)}const u1=await SUPA.from('tracker_bets').update({status:winner==='PUNTA'?'WIN':'LOSS',profit:Number(backProfit.toFixed(2))}).eq('id',g.punta.id);if(u1.error){await SUPA.from('tracker_accounts').update({balance:oldBack}).eq('id',back.id);await SUPA.from('tracker_accounts').update({balance:oldLay}).eq('id',lay.id);return alert(u1.error.message)}const u2=await SUPA.from('tracker_bets').update({status:winner==='BANCA'?'WIN':'LOSS',profit:Number(layProfit.toFixed(2))}).eq('id',g.banca.id);if(u2.error){await SUPA.from('tracker_bets').update({status:'PENDING',profit:0}).eq('id',g.punta.id);await SUPA.from('tracker_accounts').update({balance:oldBack}).eq('id',back.id);await SUPA.from('tracker_accounts').update({balance:oldLay}).eq('id',lay.id);return alert(u2.error.message)}closeModal();await loadAll();showTab('pb')}'''
+          if marker not in s: raise SystemExit('quick modal marker not found')
+          s=s.replace(marker,funcs+marker,1)
+          p.write_text(s)
+          print('PB patch applied')
+          PY
+      - name: Verify markers
+        run: |
+          grep -q 'id="tabPB"' trackergatto-v2.html
+          grep -q 'function settlePB' trackergatto-v2.html
+          grep -q 'function renderPB' trackergatto-v2.html
+      - name: Commit patch
+        run: |
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add trackergatto-v2.html
+          git commit -m "Add paired back lay bets to TrackerGatto" || exit 0
+          git pull --rebase origin main
+          git push
