@@ -1,0 +1,33 @@
+name: Inspect TrackerGatto Ops
+on:
+  push:
+    paths:
+      - '.github/workflows/inspect-tracker-ops.yml'
+permissions:
+  contents: read
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Print operation snippets
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          s=Path('trackergatto-v2.html').read_text()
+          keys=['movesBody.innerHTML','betsBody.innerHTML','quickBetsBody.innerHTML','function openMovementModal','async function addMovement','function openBetModal','async function addBet','function settleBet','function openQuickBetModal','async function addQuickBet','function renderPB','function settlePB']
+          for k in keys:
+              i=s.find(k)
+              print('\n===',k,'===')
+              if i<0:
+                  print('NOT FOUND')
+                  continue
+              j=len(s)
+              # show up to next named function or 2600 chars
+              nxt=s.find('function ', i+len(k))
+              anxt=s.find('async function ', i+len(k))
+              cands=[x for x in (nxt,anxt) if x>i]
+              if cands: j=min(min(cands),i+3200)
+              else: j=min(len(s),i+3200)
+              print(s[i:j])
+          PY
