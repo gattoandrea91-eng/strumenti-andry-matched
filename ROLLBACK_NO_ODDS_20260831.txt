@@ -1,0 +1,1 @@
+Stable SoccerTrend rollback checkpoint: live-odds experiment disabled. Main is based on 285711d007ee8f41116313930b9a36feea4483f8.
