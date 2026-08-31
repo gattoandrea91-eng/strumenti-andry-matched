@@ -1,0 +1,36 @@
+name: Add TrackerGatto Wallet Tools
+on:
+  push:
+    paths:
+      - '.github/workflows/add-wallet-tools.yml'
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Patch TrackerGatto wallet section
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('trackergatto-v2.html')
+          s=p.read_text()
+          old='''<section id="wallet" class="section"><div class="card"><div class="title"><h2>💳 Wallet</h2><button class="btn gold" onclick="openWalletModal()">+ Nuovo wallet</button></div><div class="warn">Qui puoi creare PayPal, Revolut, conto bancario, Crypto, Contanti o qualsiasi altro wallet. I trasferimenti tra bookmaker e wallet non cambiano il capitale totale.</div>'''
+          new='''<section id="wallet" class="section"><div class="card"><div class="title"><h2>💳 Wallet</h2><div class="actions"><button class="btn gold" onclick="openWalletModal()">+ Nuovo wallet</button><button class="btn blue" onclick="openWalletTransferModal()">⇄ Trasferisci</button><button class="btn green" onclick="openWalletAdjustModal()">＋/− Ricarica/Spesa</button></div></div><div class="warn">TRASFERISCI sposta denaro tra due wallet senza cambiare il capitale totale. RICARICA aggiunge saldo, SPESA lo scala.</div>'''
+          if old not in s: raise SystemExit('wallet section marker not found')
+          s=s.replace(old,new,1)
+          marker='function openWalletModal(){'
+          insert=r'''function walletHolderLabel(w){const h=holders.find(x=>x.id===w.holder_id);return h?.name||String(w.note||'').replace(/^Intestatario:\s*/i,'').split('|')[0].trim()||'Senza intestatario'}function walletGroupedOpts(sel=''){const groups={};for(const w of wallets){const h=walletHolderLabel(w);(groups[h]??=[]).push(w)}return Object.keys(groups).sort((a,b)=>a.localeCompare(b,'it',{sensitivity:'base'})).map(h=>`<optgroup label="👤 ${esc(h)}">${groups[h].sort((a,b)=>String(a.name||'').localeCompare(String(b.name||''),'it',{sensitivity:'base'})).map(w=>`<option value="${w.id}" ${w.id===sel?'selected':''}>${esc(w.name)} — ${euro(w.balance)}</option>`).join('')}</optgroup>`).join('')}function openWalletTransferModal(){if(wallets.length<2)return alert('Servono almeno due wallet');showModal('Trasferisci tra wallet',`<div class="field"><label>Da wallet</label><select id="mWalletFrom">${walletGroupedOpts()}</select></div><div class="field"><label>A wallet</label><select id="mWalletTo">${walletGroupedOpts()}</select></div><div class="row"><div class="field"><label>Importo</label><input id="mAmount" type="number" min="0.01" step="0.01"></div><div class="field"><label>Data</label><input id="mDate" type="date" value="${today()}"></div></div><div class="field"><label>Descrizione</label><input id="mDesc" placeholder="Facoltativa"></div><button class="btn gold" onclick="saveWalletTransfer()">Trasferisci</button>`)}async function saveWalletTransfer(){const from=wallets.find(x=>x.id===mWalletFrom.value),to=wallets.find(x=>x.id===mWalletTo.value),amount=Math.abs(Number(mAmount.value||0));if(!from||!to||from.id===to.id)return alert('Scegli due wallet diversi');if(amount<=0)return alert('Inserisci un importo');if(Number(from.balance)<amount)return alert('Saldo wallet di partenza insufficiente');const r1=await SUPA.from('tracker_wallets').update({balance:Number(from.balance)-amount}).eq('id',from.id);if(r1.error)return alert(r1.error.message);const r2=await SUPA.from('tracker_wallets').update({balance:Number(to.balance)+amount}).eq('id',to.id);if(r2.error){await SUPA.from('tracker_wallets').update({balance:from.balance}).eq('id',from.id);return alert(r2.error.message)}const desc=`WALLET_TRANSFER|${from.id}|${to.id}|${mDesc.value.trim()}`;const rm=await SUPA.from('tracker_movements').insert({user_id:user.id,movement_date:mDate.value||today(),movement_type:'WALLET_TRANSFER',amount,account_id:null,wallet_id:from.id,description:desc});if(rm.error)console.warn('Storico trasferimento non salvato:',rm.error.message);closeModal();await loadAll()}function openWalletAdjustModal(){if(!wallets.length)return alert('Crea prima un wallet');showModal('Ricarica / Spesa wallet',`<div class="field"><label>Metodo</label><select id="mType"><option value="RICARICA">RICARICA (+)</option><option value="SPESA">SPESA (−)</option></select></div><div class="field"><label>Wallet</label><select id="mWallet">${walletGroupedOpts()}</select></div><div class="row"><div class="field"><label>Movimento</label><input id="mAmount" type="number" min="0.01" step="0.01"></div><div class="field"><label>Data</label><input id="mDate" type="date" value="${today()}"></div></div><div class="field"><label>Descrizione</label><input id="mDesc" placeholder="Facoltativa"></div><button class="btn gold" onclick="saveWalletAdjust()">Salva</button>`)}async function saveWalletAdjust(){const w=wallets.find(x=>x.id===mWallet.value),amount=Math.abs(Number(mAmount.value||0)),spesa=mType.value==='SPESA';if(!w||amount<=0)return alert('Dati non validi');if(spesa&&Number(w.balance)<amount)return alert('Saldo wallet insufficiente');const r=await SUPA.from('tracker_wallets').update({balance:Number(w.balance)+(spesa?-amount:amount)}).eq('id',w.id);if(r.error)return alert(r.error.message);const rm=await SUPA.from('tracker_movements').insert({user_id:user.id,movement_date:mDate.value||today(),movement_type:mType.value,amount,account_id:null,wallet_id:w.id,description:`WALLET_ADJUST|${mDesc.value.trim()}`});if(rm.error)console.warn('Storico ricarica/spesa non salvato:',rm.error.message);closeModal();await loadAll()}'''
+          if marker not in s: raise SystemExit('function marker not found')
+          s=s.replace(marker,insert+marker,1)
+          p.write_text(s)
+          PY
+      - name: Commit patch
+        run: |
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add trackergatto-v2.html
+          git commit -m "Add wallet transfers and recharge spending" || exit 0
+          git push
