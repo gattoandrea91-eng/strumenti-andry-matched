@@ -1,0 +1,68 @@
+name: Add TrackerGatto Quick Bets
+
+on:
+  push:
+    paths:
+      - 'trigger-quick-bets.txt'
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Patch TrackerGatto
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p=Path('trackergatto-v2.html')
+          s=p.read_text()
+
+          reps=[]
+          reps.append((
+            '<button id="tabPuntate" onclick="showTab(\'puntate\')">Puntate</button>',
+            '<button id="tabPuntate" onclick="showTab(\'puntate\')">Puntate</button><button id="tabRapide" onclick="showTab(\'rapide\')">⚡ Rapide</button>'
+          ))
+          reps.append((
+            '</section></div></div><div id="modal" class="modal hidden">',
+            '</section><section id="rapide" class="section"><div class="card"><div class="title"><h2>⚡ Giocate rapide</h2><button class="btn gold" onclick="openQuickBetModal()">+ Nuova rapida</button></div><div class="warn">Inserisci direttamente il risultato sul conto: per esempio +15 per una vincita oppure -15 per una perdita. Il saldo viene aggiornato subito.</div><div class="tablewrap"><table><thead><tr><th>Data</th><th>Conto</th><th>Metodo</th><th>Note</th><th>Movimento</th></tr></thead><tbody id="quickBetsBody"></tbody></table></div></div></section></div></div><div id="modal" class="modal hidden">'
+          ))
+          reps.append((
+            "{dashboard:'tabDashboard',conti:'tabConti',wallet:'tabWallet',movimenti:'tabMovimenti',puntate:'tabPuntate'}[n]",
+            "{dashboard:'tabDashboard',conti:'tabConti',wallet:'tabWallet',movimenti:'tabMovimenti',puntate:'tabPuntate',rapide:'tabRapide'}[n]"
+          ))
+          reps.append((
+            "function walletName(id){return wallets.find(x=>x.id===id)?.name||'—'}function showTab",
+            "function walletName(id){return wallets.find(x=>x.id===id)?.name||'—'}function isQuickBet(b){return Number(b?.stake)===0&&Number(b?.odds)===0&&String(b?.description||'').startsWith('RAPIDA|')}function quickParts(b){const p=String(b?.description||'').split('|');return{method:p[1]||'ALTRO',note:p.slice(2).join('|')}}function showTab"
+          ))
+          reps.append((
+            "betsBody.innerHTML=bets.length?bets.map(b=>",
+            "const normalBets=bets.filter(b=>!isQuickBet(b)),quickBets=bets.filter(isQuickBet);betsBody.innerHTML=normalBets.length?normalBets.map(b=>"
+          ))
+          reps.append((
+            ":'<tr><td colspan=\"8\" class=\"empty\">Nessuna puntata</td></tr>'}function closeModal",
+            ":'<tr><td colspan=\"8\" class=\"empty\">Nessuna puntata</td></tr>';quickBetsBody.innerHTML=quickBets.length?quickBets.map(b=>{const q=quickParts(b),mv=Number(b.profit||0);return`<tr><td>${esc(b.bet_date)}</td><td>${esc(accountName(b.account_id))}</td><td>${esc(q.method)}</td><td>${esc(q.note||'—')}</td><td class=\"${mv>=0?'money':'neg'}\">${mv>=0?'+':''}${euro(mv)}</td></tr>`}).join(''):'<tr><td colspan=\"5\" class=\"empty\">Nessuna giocata rapida</td></tr>'}function closeModal"
+          ))
+          reps.append((
+            "function openBetModal(){if(!accounts.length)return alert('Crea prima un conto');",
+            "function openQuickBetModal(){if(!accounts.length)return alert('Crea prima un conto');showModal('Nuova giocata rapida',`<div class=\"field\"><label>Conto</label><select id=\"mAccount\">${accountOpts()}</select></div><div class=\"row\"><div class=\"field\"><label>Metodo</label><select id=\"mMethod\"><option>SPORT</option><option>CASINO</option><option>SLOT</option><option>BONUS</option><option>ALTRO</option></select></div><div class=\"field\"><label>Movimento (+/-)</label><input id=\"mQuickMove\" type=\"number\" step=\"0.01\" placeholder=\"es. +15 oppure -15\"></div><div class=\"field\"><label>Data</label><input id=\"mDate\" type=\"date\" value=\"${today()}\"></div></div><div class=\"field\"><label>Note</label><input id=\"mDesc\" placeholder=\"Facoltative\"></div><button class=\"btn gold\" onclick=\"addQuickBet()\">Salva movimento</button>`)}async function addQuickBet(){const a=accounts.find(x=>x.id===mAccount.value),movement=Number(mQuickMove.value||0),method=mMethod.value;if(!a||!Number.isFinite(movement)||movement===0)return alert('Inserisci un movimento, ad esempio +15 o -15');const newBalance=Number(a.balance)+movement;if(newBalance<0)return alert('Il movimento porterebbe il conto sotto zero');const r1=await SUPA.from('tracker_accounts').update({balance:newBalance}).eq('id',a.id);if(r1.error)return alert(r1.error.message);const r2=await SUPA.from('tracker_bets').insert({user_id:user.id,account_id:a.id,bet_date:mDate.value||today(),description:`RAPIDA|${method}|${mDesc.value.trim()}`,stake:0,odds:0,status:movement>=0?'WIN':'LOSS',profit:movement});if(r2.error){await SUPA.from('tracker_accounts').update({balance:a.balance}).eq('id',a.id);return alert(r2.error.message)}closeModal();await loadAll();showTab('rapide')}function openBetModal(){if(!accounts.length)return alert('Crea prima un conto');"
+          ))
+
+          for old,new in reps:
+            c=s.count(old)
+            if c!=1:
+              raise SystemExit(f'Pattern count {c}, expected 1: {old[:100]}')
+            s=s.replace(old,new,1)
+          p.write_text(s)
+          PY
+      - name: Commit patch
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add trackergatto-v2.html
+          git commit -m "Add quick bets to TrackerGatto"
+          git push
