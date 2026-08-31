@@ -1,0 +1,78 @@
+name: Add TrackerGatto Edit Delete Operations V3
+on:
+  push:
+    paths:
+      - '.github/workflows/add-edit-delete-operations-v3.yml'
+permissions:
+  contents: write
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Apply corrected operation patch
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('trackergatto-v2.html'); s=p.read_text()
+          if 'function deletePBOperation' in s:
+              print('already applied'); raise SystemExit(0)
+          src=Path('.github/workflows/add-edit-delete-operations.yml').read_text()
+          start_marker="funcs=r'''"
+          end_marker="'''\n          s=s.replace(marker,funcs+marker,1)"
+          a=src.index(start_marker)+len(start_marker)
+          b=src.index(end_marker,a)
+          funcs=src[a:b]
+
+          reps=[
+          ('<th>Data</th><th>Tipo</th><th>Conto</th><th>Wallet</th><th>Importo</th><th>Descrizione</th></tr></thead><tbody id="movesBody">','<th>Data</th><th>Tipo</th><th>Conto</th><th>Wallet</th><th>Importo</th><th>Descrizione</th><th>Opzioni</th></tr></thead><tbody id="movesBody">'),
+          ('<th>Data</th><th>Conto</th><th>Metodo</th><th>Note</th><th>Movimento</th></tr></thead><tbody id="quickBetsBody">','<th>Data</th><th>Conto</th><th>Metodo</th><th>Note</th><th>Movimento</th><th>Opzioni</th></tr></thead><tbody id="quickBetsBody">'),
+          ('''movesBody.innerHTML=movements.length?movements.map(m=>`<tr><td>${esc(m.movement_date)}</td><td>${esc(m.movement_type)}</td><td>${esc(accountName(m.account_id))}</td><td>${esc(walletName(m.wallet_id))}</td><td class="money">${euro(m.amount)}</td><td>${esc(m.description||'—')}</td></tr>`).join(''):'<tr><td colspan="6" class="empty">Nessun movimento</td></tr>';''','''movesBody.innerHTML=movements.length?movements.map(m=>`<tr><td>${esc(m.movement_date)}</td><td>${esc(m.movement_type)}</td><td>${esc(accountName(m.account_id))}</td><td>${esc(walletName(m.wallet_id))}</td><td class="money">${euro(m.amount)}</td><td>${esc(movementDescription(m))}</td><td><div class="actions"><button class="btn blue" onclick="openEditMovement('${m.id}')">Modifica</button><button class="btn red" onclick="deleteMovementOperation('${m.id}')">Elimina</button></div></td></tr>`).join(''):'<tr><td colspan="7" class="empty">Nessun movimento</td></tr>';''')]
+          for old,new in reps:
+              if old not in s: raise SystemExit('required marker missing: '+old[:80])
+              s=s.replace(old,new,1)
+
+          start=s.find('betsBody.innerHTML=normalBets.length?'); end=s.find(';quickBetsBody.innerHTML=',start)
+          if start<0 or end<0: raise SystemExit('bet render missing')
+          betrender="""betsBody.innerHTML=normalBets.length?normalBets.map(b=>`<tr><td>${esc(b.bet_date)}</td><td>${esc(accountName(b.account_id))}</td><td>${esc(b.description||'—')}</td><td>${euro(b.stake)}</td><td>${Number(b.odds).toFixed(2)}</td><td><span class=\"pill ${b.status==='WIN'?'win':b.status==='LOSS'?'loss':b.status==='VOID'?'void':'pending'}\">${b.status}</span></td><td>${b.status==='PENDING'?'—':euro(b.profit)}</td><td><div class=\"actions\">${b.status==='PENDING'?`<button class=\"btn green\" onclick=\"settleBet('${b.id}','WIN')\">WIN</button><button class=\"btn red\" onclick=\"settleBet('${b.id}','LOSS')\">LOSS</button><button class=\"btn blue\" onclick=\"settleBet('${b.id}','VOID')\">VOID</button>`:''}<button class=\"btn blue\" onclick=\"openEditBet('${b.id}')\">Modifica</button><button class=\"btn red\" onclick=\"deleteBetOperation('${b.id}')\">Elimina</button></div></td></tr>`).join(''):'<tr><td colspan=\"8\" class=\"empty\">Nessuna puntata</td></tr>'"""
+          s=s[:start]+betrender+s[end:]
+
+          start=s.find('quickBetsBody.innerHTML=quickBets.length?'); end=s.find('}function closeModal',start)
+          if start<0 or end<0: raise SystemExit('quick render missing')
+          quick="""quickBetsBody.innerHTML=quickBets.length?quickBets.map(b=>{const q=quickParts(b),mv=Number(b.profit||0);return`<tr><td>${esc(b.bet_date)}</td><td>${esc(accountName(b.account_id))}</td><td>${esc(q.method)}</td><td>${esc(q.note||'—')}</td><td class=\"${mv>=0?'money':'neg'}\">${mv>=0?'+':''}${euro(mv)}</td><td><div class=\"actions\"><button class=\"btn blue\" onclick=\"openEditQuickBet('${b.id}')\">Modifica</button><button class=\"btn red\" onclick=\"deleteBetOperation('${b.id}')\">Elimina</button></div></td></tr>`}).join(''):'<tr><td colspan=\"6\" class=\"empty\">Nessuna giocata rapida</td></tr>'"""
+          s=s[:start]+quick+s[end:]
+
+          start=s.find('function renderPB(rows){'); end=s.find('function openPBModal(){',start)
+          if start<0 or end<0: raise SystemExit('PB render missing')
+          pbr="""function renderPB(rows){if(!window.pbBody)return;const groups=pbGroups(rows);pbBody.innerHTML=groups.length?groups.map(g=>{const pp=pbParts(g.punta),bp=pbParts(g.banca),liab=Number(g.banca.stake||0),closed=g.punta.status!=='PENDING'&&g.banca.status!=='PENDING';return`<tr><td>${esc(g.punta.bet_date||'')}</td><td>${esc(pp.event||bp.event||'—')}</td><td><b>${esc(accountName(g.punta.account_id))}</b><br>${euro(pp.backStake)} @ ${Number(pp.backOdds).toFixed(2)}</td><td><b>${esc(accountName(g.banca.account_id))}</b><br>${euro(bp.layStake)} @ ${Number(bp.layOdds).toFixed(2)} · ${Number(bp.commission).toFixed(2)}%</td><td class=\"neg\">${euro(liab)}</td><td>${pbOutcomeText(g.punta)}</td><td>${pbOutcomeText(g.banca)}</td><td><span class=\"pill ${closed?'win':'pending'}\">${closed?'CHIUSA':'IN CORSO'}</span></td><td><div class=\"actions\">${closed?'':`<button class=\"btn gold\" onclick=\"openPBCloseModal('${g.id}')\">Chiudi PB</button>`}<button class=\"btn blue\" onclick=\"openEditPB('${g.id}')\">Modifica</button><button class=\"btn red\" onclick=\"deletePBOperation('${g.id}')\">Elimina</button></div></td></tr>`}).join(''):'<tr><td colspan=\"9\" class=\"empty\">Nessuna PB</td></tr>'}"""
+          s=s[:start]+pbr+s[end:]
+
+          marker='function openMovementModal(){'
+          if marker not in s: raise SystemExit('movement marker missing')
+          s=s.replace(marker,funcs+marker,1)
+
+          # Safety: if movement history insert fails, put both balances back.
+          old="""const rm=await SUPA.from('tracker_movements').insert({user_id:user.id,movement_date:mDate.value||today(),movement_type:mType.value,amount,account_id:a.id,wallet_id:w.id,description:mDesc.value.trim()});if(rm.error)return alert(rm.error.message);closeModal();await loadAll()"""
+          new="""const rm=await SUPA.from('tracker_movements').insert({user_id:user.id,movement_date:mDate.value||today(),movement_type:mType.value,amount,account_id:a.id,wallet_id:w.id,description:mDesc.value.trim()});if(rm.error){await SUPA.from('tracker_accounts').update({balance:a.balance}).eq('id',a.id);await SUPA.from('tracker_wallets').update({balance:w.balance}).eq('id',w.id);return alert(rm.error.message)}closeModal();await loadAll()"""
+          if old not in s: raise SystemExit('addMovement rollback marker missing')
+          s=s.replace(old,new,1)
+          p.write_text(s)
+          PY
+      - name: Verify syntax
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          s=Path('trackergatto-v2.html').read_text(); js=s.split('<script>')[-1].split('</script>')[0]
+          Path('/tmp/tracker.js').write_text(js)
+          for x in ['function deleteMovementOperation','function openEditBet','function openEditQuickBet','function openEditPB','function deletePBOperation']:
+              assert x in s,x
+          PY
+          node --check /tmp/tracker.js
+      - name: Commit
+        run: |
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add trackergatto-v2.html
+          git commit -m "Add edit and delete with balance rollback to TrackerGatto"
+          git pull --rebase origin main
+          git push
