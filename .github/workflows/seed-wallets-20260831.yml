@@ -1,0 +1,33 @@
+name: Seed TrackerGatto Wallets 20260831
+on:
+  push:
+    paths:
+      - '.github/workflows/seed-wallets-20260831.yml'
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Add wallet seed routine
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('trackergatto-v2.html')
+          s=p.read_text()
+          old="async function boot(){const r=await SUPA.auth.getSession();user=r.data?.session?.user||null;if(!user){location.href='home-odds.html';return}document.getElementById('app').classList.remove('hidden');await loadAll()}"
+          seed=r'''async function seedImportedWallets(){const seed=[['AndreaGatto','revolut',3000.97],['AndreaGatto','Paypal',311.02],['Stefania Bellina','Paypal',257.01],['Letizia Brienza','miei ciro',200.30],['AndreaGatto','postpayy',150.42],['Sharon Citraro','payp',140.22],['Christian Di Giacomo','Mooney',107.36],['Barresi Maria','Mooney',95.44],['Gennaro Passaro','Paypal',90.64],['Maria Bona Silicani','Mooney',86.89],['Federico Raciti','Revolut',20.06],['Zaira Pia Valerio','Paypal',19.00],['Orazio Gatto','Mooney',12.00],['Francesca Bellina','Paypal',8.79],['Flora Cuccurullo','Mooney',8.50],['AndreaGatto','hype',6.32],['Giuseppe Bellina','Postpay',4.99],['Adriana De Siena','Postpay',3.43],['Giorgia Caruso','BBVA',3.13],['Roberto Falcione','BBVA',2.75],['Lorella','Paypal',2.15],['Lisa Giordano','Mooney',2.14],['Roberto Falcione','paypal',0.70],['AndreaGatto','i card',0.57],['Giorgia Caruso','Paypal',0.44],['Francesca Bellina','Revolut',0.41],['Luisa Tumbarello','Mooney',0.20],['Benedetta Cardo','BBVA',0],['Flora Cuccurullo','Paypal',0],['Giuseppe Bellina','Paypal',0],['Lisa Giordano','Paypal',0],['Camilla','Paypal',0],['Rosario Figliuoli','Paypal',0],['Debora Divita','Revolut Virtuale Andry',0]];const {data:cur,error}=await SUPA.from('tracker_wallets').select('id,name,note,balance');if(error){console.warn('Seed wallet query:',error.message);return}const norm=v=>String(v||'').trim().toLowerCase().replace(/\s+/g,' ');const existing=new Set((cur||[]).map(w=>norm(w.note).includes('intestatario:')?norm(w.note)+'|'+norm(w.name):'|'+norm(w.name)));const rows=[];for(const [holder,name,balance] of seed){const note=`Intestatario: ${holder}`;const sig=norm(note)+'|'+norm(name);if(existing.has(sig))continue;rows.push({user_id:user.id,name,wallet_type:name,note,balance})}if(rows.length){const {error:e}=await SUPA.from('tracker_wallets').insert(rows);if(e){console.warn('Seed wallet insert:',e.message);return}}}async function boot(){const r=await SUPA.auth.getSession();user=r.data?.session?.user||null;if(!user){location.href='home-odds.html';return}document.getElementById('app').classList.remove('hidden');await seedImportedWallets();await loadAll()}'''
+          if old not in s: raise SystemExit('boot marker not found')
+          s=s.replace(old,seed,1)
+          p.write_text(s)
+          PY
+      - name: Commit seed patch
+        run: |
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add trackergatto-v2.html
+          git commit -m "Seed 34 TrackerGatto wallets" || exit 0
+          git pull --rebase origin main
+          git push
