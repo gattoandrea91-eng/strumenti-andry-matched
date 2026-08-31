@@ -1,0 +1,40 @@
+name: Fix SoccerTrend Telegram pressure fallback
+on:
+  push:
+    paths:
+      - '.github/workflows/fix-soccertrend-telegram-fallback.yml'
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+      - name: Patch Telegram fallback
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('api/telegram-signals.js')
+          s=p.read_text()
+          old="info={id,match:`${match.home} - ${match.away}`,minute,score:over.score,market:over.market,recentBig:over.recentBig,recentSot:over.recentSot,recentShots:over.recentShots,recentPressure:over.recentPressure};checked.push(info);if(over.score<84||!over.recentPressure)continue;qualified.push({match,id,minute,over})"
+          new="noRecentTelemetry=over.recentShots===0&&over.recentSot===0&&over.recentBig===0&&over.recentXg===0,fallbackPressure=noRecentTelemetry&&over.score>=90&&over.shots>=12&&over.sot>=4&&(over.corners>=4||over.big>=1),pressureOk=over.recentPressure||fallbackPressure,info={id,match:`${match.home} - ${match.away}`,minute,score:over.score,market:over.market,recentBig:over.recentBig,recentSot:over.recentSot,recentShots:over.recentShots,recentPressure:over.recentPressure,fallbackPressure,pressureOk,shots:over.shots,sot:over.sot,corners:over.corners,big:over.big};checked.push(info);if(over.score<84||!pressureOk)continue;qualified.push({match,id,minute,over,pressureMode:over.recentPressure?'RECENT15':'CUMULATIVE_FALLBACK'})"
+          if old not in s:
+              raise SystemExit('target pattern not found')
+          s=s.replace(old,new,1)
+          s=s.replace("qualified.sort((a,b)=>b.over.score-a.over.score||b.over.recentBig-a.over.recentBig||b.over.recentSot-a.over.recentSot);const best=qualified[0];if(best){const{match,id,minute,over}=best;", "qualified.sort((a,b)=>b.over.score-a.over.score||b.over.recentBig-a.over.recentBig||b.over.recentSot-a.over.recentSot);const best=qualified[0];if(best){const{match,id,minute,over,pressureMode}=best;",1)
+          s=s.replace("alerts.push({id,score:over.score,market:over.market,match:`${match.home} - ${match.away}`,recentBig:over.recentBig,recentSot:over.recentSot})", "alerts.push({id,score:over.score,market:over.market,match:`${match.home} - ${match.away}`,recentBig:over.recentBig,recentSot:over.recentSot,pressureMode})",1)
+          s=s.replace("mode:'STRONG_RECENT_PRESSURE_V7',telegramThreshold:84,recentPressureRequired:true", "mode:'STRONG_PRESSURE_V8',telegramThreshold:84,recentPressureRequired:true,cumulativeFallback:true",1)
+          p.write_text(s)
+          PY
+      - name: Commit patch
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add api/telegram-signals.js
+          git commit -m 'Allow strong cumulative fallback when FotMob recent shots are unavailable'
+          git pull --rebase origin main
+          git push origin main
