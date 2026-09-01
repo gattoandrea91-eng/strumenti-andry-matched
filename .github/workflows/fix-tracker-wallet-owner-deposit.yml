@@ -1,0 +1,57 @@
+name: Fix Tracker wallet owner in deposits
+on:
+  push:
+    paths:
+      - '.github/workflows/fix-tracker-wallet-owner-deposit.yml'
+permissions:
+  contents: write
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Patch deposit wallet selector
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('trackergatto-v2.html')
+          s=p.read_text()
+          marker='function openMovementModal(){'
+          start=s.find(marker)
+          end=s.find('}async function addMovement()', start)
+          if start < 0 or end < 0:
+              raise SystemExit('openMovementModal not found')
+          block=s[start:end]
+          old='${walletOpts()}'
+          new='${walletGroupedOpts()}'
+          if old not in block:
+              if new in block:
+                  print('already applied')
+                  raise SystemExit(0)
+              raise SystemExit('wallet selector marker not found')
+          block=block.replace(old,new,1)
+          s=s[:start]+block+s[end:]
+          p.write_text(s)
+          PY
+      - name: Verify syntax and patch
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          s=Path('trackergatto-v2.html').read_text()
+          start=s.find('function openMovementModal(){')
+          end=s.find('}async function addMovement()',start)
+          block=s[start:end]
+          assert '${walletGroupedOpts()}' in block
+          assert '${walletOpts()}' not in block
+          js=s.split('<script>')[-1].split('</script>')[0]
+          Path('/tmp/tracker.js').write_text(js)
+          PY
+          node --check /tmp/tracker.js
+      - name: Commit
+        run: |
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add trackergatto-v2.html
+          git commit -m "Show wallet owner in deposit selector"
+          git pull --rebase origin main
+          git push
