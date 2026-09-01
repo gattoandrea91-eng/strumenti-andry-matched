@@ -1,0 +1,37 @@
+name: Fix SoccerTrend no repeat match
+on:
+  push:
+    paths:
+      - '.github/workflows/fix-soccertrend-no-repeat-match.yml'
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - name: Keep settled match as history marker
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('api/telegram-signals.js')
+          s=p.read_text()
+          old="await markSettled(sig.match_id,sig.message_id);await deleteSignal(sig.match_id);settled.push({id:sig.match_id,result,stats,removed:true,alreadyEdited:!!editResult?.notModified})"
+          new="await markSettled(sig.match_id,sig.message_id);settled.push({id:sig.match_id,result,stats,removed:false,keptAsHistory:true,alreadyEdited:!!editResult?.notModified})"
+          if old not in s:
+              raise SystemExit('settlement pattern not found')
+          s=s.replace(old,new,1)
+          p.write_text(s)
+          PY
+          node --check api/telegram-signals.js
+      - name: Commit patch
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add api/telegram-signals.js
+          git commit -m 'Prevent repeat Telegram signals for settled matches'
+          git pull --rebase origin main
+          git push origin main
