@@ -1,0 +1,46 @@
+name: Add paid received difference to Spese
+on:
+  push:
+    paths:
+      - '.github/workflows/add-spese-paid-received-difference.yml'
+permissions:
+  contents: write
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - name: Patch Spese summary
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('spese.html')
+          s=p.read_text()
+          s=s.replace("grid-template-columns:repeat(5,1fr)","grid-template-columns:repeat(6,1fr)",1)
+          anchor='<div class="card"><small>Da ricevere</small><strong id="totReceive">€ 0,00</strong></div><div class="card"><small>Extra</small><strong id="totExtra">€ 0,00</strong></div>'
+          repl='<div class="card"><small>Da ricevere</small><strong id="totReceive">€ 0,00</strong></div><div class="card"><small>Differenza ricevuto - pagato</small><strong id="totDifference">€ 0,00</strong></div><div class="card"><small>Extra</small><strong id="totExtra">€ 0,00</strong></div>'
+          if 'id="totDifference"' not in s:
+              if anchor not in s: raise SystemExit('summary anchor not found')
+              s=s.replace(anchor,repl,1)
+          target="$('totReceive').textContent=eur(monthRows.filter(r=>stateOf(r)==='receive').reduce((a,r)=>a+n(r.importo),0));$('totExtra').textContent=eur(expenses.filter(r=>r.categoria==='Extra').reduce((a,r)=>a+n(r.importo),0));"
+          repl2="$('totReceive').textContent=eur(monthRows.filter(r=>stateOf(r)==='receive').reduce((a,r)=>a+n(r.importo),0));const paidTotal=monthRows.filter(r=>stateOf(r)==='paid').reduce((a,r)=>a+n(r.importo),0),receivedTotal=monthRows.filter(r=>stateOf(r)==='received').reduce((a,r)=>a+n(r.importo),0),difference=receivedTotal-paidTotal;const diffEl=$('totDifference');diffEl.textContent=eur(difference);diffEl.style.color=difference>=0?'var(--green)':'var(--red)';$('totExtra').textContent=eur(expenses.filter(r=>r.categoria==='Extra').reduce((a,r)=>a+n(r.importo),0));"
+          if target not in s: raise SystemExit('render target not found')
+          s=s.replace(target,repl2,1)
+          p.write_text(s)
+          PY
+          python3 - <<'PY'
+          import re,pathlib
+          s=pathlib.Path('spese.html').read_text()
+          m=re.search(r'<script>(.*)</script>',s,re.S)
+          if not m: raise SystemExit('script missing')
+          pathlib.Path('/tmp/spese.js').write_text(m.group(1))
+          PY
+          node --check /tmp/spese.js
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add spese.html
+          git commit -m 'Show paid versus received difference in Spese'
+          git pull --rebase origin main
+          git push origin main
