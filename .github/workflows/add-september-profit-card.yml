@@ -1,0 +1,51 @@
+name: Add September profit card
+on:
+  push:
+    paths:
+      - '.github/workflows/add-september-profit-card.yml'
+permissions:
+  contents: write
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Patch TrackerGatto
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('trackergatto-v2.html')
+          s=p.read_text()
+          old='<div class="card"><div class="k">Profitto puntate</div><div class="v" id="betsProfit">€ 0,00</div></div></div><div class="tabs">'
+          new='<div class="card"><div class="k">Profitto puntate</div><div class="v" id="betsProfit">€ 0,00</div></div><div class="card"><div class="k">Guadagni Settembre</div><div class="v" id="septemberProfit">€ 0,00</div></div></div><div class="tabs">'
+          if old not in s: raise SystemExit('stats marker not found')
+          s=s.replace(old,new,1)
+          marker="$('betsProfit').textContent=euro(betsProfit);"
+          replacement=marker+"const septemberProfit=bets.filter(b=>String(b.bet_date||'').startsWith('2026-09-')&&String(b.status||'').toUpperCase()!=='PENDING').reduce((sum,b)=>sum+Number(b.profit||0),0);const sepEl=$('septemberProfit');if(sepEl){sepEl.textContent=euro(septemberProfit);sepEl.className='v '+(septemberProfit>=0?'money':'neg')}"
+          if marker not in s: raise SystemExit('render stats marker not found')
+          s=s.replace(marker,replacement,1)
+          p.write_text(s)
+          PY
+          python3 - <<'PY'
+          import re
+          s=open('trackergatto-v2.html').read()
+          scripts=re.findall(r'<script>(.*?)</script>',s,re.S)
+          open('/tmp/tracker.js','w').write(scripts[-1])
+          PY
+          node --check /tmp/tracker.js
+          grep -q 'Guadagni Settembre' trackergatto-v2.html
+          grep -q '2026-09-' trackergatto-v2.html
+      - name: Commit
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add trackergatto-v2.html
+          git commit -m 'Show September profit in TrackerGatto'
+          git pull --rebase origin main
+          git push origin main
