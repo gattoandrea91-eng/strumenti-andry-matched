@@ -1,0 +1,48 @@
+name: Fix Spese Lavoro category constraint
+on:
+  push:
+    paths:
+      - '.github/workflows/fix-spese-lavoro-category.yml'
+permissions:
+  contents: write
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - name: Patch Lavoro storage
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('spese.html')
+          s=p.read_text()
+          s=s.replace("function cleanNote(note){return String(note||'').replace(/^\\[STATO:(RICEVERE|RICEVUTO)\\]\\s*/,'')}","function isWork(r){return /\\[LAVORO\\]/.test(String(r?.note||''))}function cleanNote(note){return String(note||'').replace(/^\\[STATO:(RICEVERE|RICEVUTO)\\]\\s*/,'').replace(/^\\[LAVORO\\]\\s*/,'')}")
+          s=s.replace("$('categoria').value=r?.categoria||'Extra';","$('categoria').value=r?(isWork(r)?'Lavoro':r.categoria):'Extra';")
+          s=s.replace("(!c||r.categoria===c)","(!c||(c==='Lavoro'?isWork(r):(c==='Extra'?r.categoria==='Extra'&&!isWork(r):r.categoria===c)))")
+          s=s.replace("r.categoria==='Lavoro'&&stateOf(r)==='received'","isWork(r)&&stateOf(r)==='received'")
+          s=s.replace("${esc(r.categoria)}${cleanNote(r.note)?", "${esc(isWork(r)?'Lavoro':r.categoria)}${cleanNote(r.note)?")
+          old="const done=state==='paid'||state==='received',payload={user_id:user.id,nome,categoria:$('categoria').value,importo,scadenza,pagata:done,data_pagamento:done?today():null,note:storedNote(state,$('note').value)};"
+          new="const done=state==='paid'||state==='received',work=$('categoria').value==='Lavoro',baseNote=(work?'[LAVORO] ':'')+$('note').value,payload={user_id:user.id,nome,categoria:work?'Extra':$('categoria').value,importo,scadenza,pagata:done,data_pagamento:done?today():null,note:storedNote(state,baseNote)};"
+          if old not in s: raise SystemExit('save marker missing')
+          s=s.replace(old,new,1)
+          old2="const done=state==='paid'||state==='received',note=storedNote(state,cleanNote(r.note));"
+          new2="const done=state==='paid'||state==='received',note=storedNote(state,(isWork(r)?'[LAVORO] ':'')+cleanNote(r.note));"
+          if old2 not in s: raise SystemExit('setState marker missing')
+          s=s.replace(old2,new2,1)
+          p.write_text(s)
+          PY
+          python3 - <<'PY'
+          import re,pathlib
+          s=pathlib.Path('spese.html').read_text()
+          m=re.search(r'<script>(.*)</script>',s,re.S)
+          pathlib.Path('/tmp/spese.js').write_text(m.group(1))
+          PY
+          node --check /tmp/spese.js
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add spese.html
+          git commit -m 'Store Lavoro entries using allowed Spese category'
+          git pull --rebase origin main
+          git push origin main
