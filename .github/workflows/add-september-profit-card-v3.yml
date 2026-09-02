@@ -1,0 +1,44 @@
+name: Add September profit card v3
+on:
+  push:
+    paths:
+      - '.github/workflows/add-september-profit-card-v3.yml'
+permissions:
+  contents: write
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: {ref: main, fetch-depth: 0}
+      - name: Patch and validate
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+          p=Path('trackergatto-v2.html'); s=p.read_text()
+          old='.stats{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin:16px 0}'
+          if old in s: s=s.replace(old,'.stats{display:grid;grid-template-columns:repeat(6,1fr);gap:12px;margin:16px 0}',1)
+          oldcard='<div class="card"><div class="k">Profitto puntate</div><div class="v" id="betsProfit">€ 0,00</div></div></div><div class="tabs">'
+          newcard='<div class="card"><div class="k">Profitto puntate</div><div class="v" id="betsProfit">€ 0,00</div></div><div class="card"><div class="k">Guadagni Settembre</div><div class="v" id="septemberProfit">€ 0,00</div></div></div><div class="tabs">'
+          if oldcard not in s: raise SystemExit('stats card marker not found')
+          s=s.replace(oldcard,newcard,1)
+          marker="betsProfit.textContent=euro(bets.filter(x=>x.status!=='PENDING').reduce((s,x)=>s+Number(x.profit||0),0));"
+          if marker not in s: raise SystemExit('betsProfit render marker not found')
+          extra="const septemberProfit=bets.filter(x=>String(x.bet_date||'').startsWith('2026-09-')&&x.status!=='PENDING').reduce((s,x)=>s+Number(x.profit||0),0);septemberProfitEl=document.getElementById('septemberProfit');if(septemberProfitEl){septemberProfitEl.textContent=euro(septemberProfit);septemberProfitEl.className='v '+(septemberProfit>=0?'money':'neg');}"
+          s=s.replace(marker,marker+extra,1)
+          p.write_text(s)
+          scripts=re.findall(r'<script>(.*?)</script>',s,re.S)
+          Path('/tmp/tracker.js').write_text(scripts[-1])
+          PY
+          node --check /tmp/tracker.js
+          grep -q 'Guadagni Settembre' trackergatto-v2.html
+          grep -q "startsWith('2026-09-')" trackergatto-v2.html
+      - name: Commit
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add trackergatto-v2.html
+          git commit -m 'Show September profit from bets PB and quick plays'
+          git pull --rebase origin main
+          git push origin main
