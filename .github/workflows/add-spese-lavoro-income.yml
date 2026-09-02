@@ -1,0 +1,50 @@
+name: Add work income tracking to Spese
+on:
+  push:
+    paths:
+      - '.github/workflows/add-spese-lavoro-income.yml'
+permissions:
+  contents: write
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - name: Patch Spese work income
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('spese.html')
+          s=p.read_text()
+          s=s.replace('<button class="btn gold" id="newBtn">+ Nuova voce</button>','<button class="btn" id="workBtn">💼 Lavoro</button> <button class="btn gold" id="newBtn">+ Nuova voce</button>',1)
+          if '<option>Lavoro</option>' not in s:
+              s=s.replace('<option>Spesa</option><option>Extra</option>','<option>Spesa</option><option>Lavoro</option><option>Extra</option>')
+              s=s.replace('<option>Spesa</option><option selected>Extra</option>','<option>Spesa</option><option>Lavoro</option><option selected>Extra</option>')
+          if 'id="totSalary"' not in s:
+              s=s.replace('<div class="card"><small>Pagato</small><strong id="totPaid">€ 0,00</strong></div>','<div class="card"><small>Pagato</small><strong id="totPaid">€ 0,00</strong></div><div class="card"><small>Stipendio ricevuto</small><strong id="totSalary">€ 0,00</strong></div>',1)
+              s=s.replace('grid-template-columns:repeat(6,1fr)','grid-template-columns:repeat(7,1fr)',1)
+              s=s.replace('grid-template-columns:repeat(5,1fr)','grid-template-columns:repeat(6,1fr)',1)
+          marker="$('totPaid').textContent=eur(monthRows.filter(r=>stateOf(r)==='paid').reduce((a,r)=>a+n(r.importo),0));"
+          if "$('totSalary')" not in s:
+              s=s.replace(marker,marker+"$('totSalary').textContent=eur(monthRows.filter(r=>r.categoria==='Lavoro'&&stateOf(r)==='received').reduce((a,r)=>a+n(r.importo),0));",1)
+          hook="$('newBtn').onclick=()=>openModal();"
+          if "$('workBtn').onclick" not in s:
+              s=s.replace(hook,"$('workBtn').onclick=()=>{openModal();$('nome').value='Lavoro';$('categoria').value='Lavoro';$('stato').value='received';$('scadenza').value=today()};"+hook,1)
+          p.write_text(s)
+          PY
+          python3 - <<'PY'
+          import re,pathlib
+          s=pathlib.Path('spese.html').read_text()
+          m=re.search(r'<script>(.*)</script>',s,re.S)
+          if not m: raise SystemExit('script missing')
+          pathlib.Path('/tmp/spese.js').write_text(m.group(1))
+          PY
+          node --check /tmp/spese.js
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add spese.html
+          git commit -m 'Add Lavoro income and salary total to Spese'
+          git pull --rebase origin main
+          git push origin main
