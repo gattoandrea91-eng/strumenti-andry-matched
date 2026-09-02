@@ -1,0 +1,54 @@
+name: Add customer payment summary to Reserved Orders
+on:
+  push:
+    paths:
+      - '.github/workflows/add-order-payment-summary.yml'
+permissions:
+  contents: write
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Patch Reserved Orders
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('ordini-riservati.html')
+          s=p.read_text()
+          old='.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:16px}'
+          new='.stats{display:grid;grid-template-columns:repeat(6,1fr);gap:12px;margin-top:16px}'
+          if old in s:
+              s=s.replace(old,new,1)
+          old_html='<div class="stats"><div class="card"><div class="k">Ordini</div><div class="v" id="count">0</div></div><div class="card"><div class="k">Incassato clienti</div><div class="v" id="revenue">€ 0,00</div></div><div class="card"><div class="k">Pagato da noi</div><div class="v" id="cost">€ 0,00</div></div><div class="card"><div class="k">Guadagno reale</div><div class="v" id="profit">€ 0,00</div></div></div>'
+          new_html='<div class="stats"><div class="card"><div class="k">Ordini</div><div class="v" id="count">0</div></div><div class="card"><div class="k">Costo clienti</div><div class="v" id="revenue">€ 0,00</div></div><div class="card"><div class="k">Pagato clienti</div><div class="v profit" id="paidCustomers">€ 0,00</div></div><div class="card"><div class="k">Da ricevere</div><div class="v loss" id="unpaidCustomers">€ 0,00</div></div><div class="card"><div class="k">Pagato da noi</div><div class="v" id="cost">€ 0,00</div></div><div class="card"><div class="k">Guadagno reale</div><div class="v" id="profit">€ 0,00</div></div></div>'
+          if old_html not in s:
+              raise SystemExit('stats block not found')
+          s=s.replace(old_html,new_html,1)
+          old_js="function render(){const totalRevenue=orders.reduce((s,x)=>s+Number(x.theirPrice||0),0),totalCost=groups.reduce((s,g)=>s+Number(g.totalPaid||0),0),totalProfit=groups.reduce((s,g)=>s+groupRevenue(g)-Number(g.totalPaid||0),0);$('count').textContent=orders.length;$('revenue').textContent=euro(totalRevenue);$('cost').textContent=euro(totalCost);$('profit').textContent=euro(totalProfit);"
+          new_js="function render(){const totalRevenue=orders.reduce((s,x)=>s+Number(x.theirPrice||0),0),paidCustomers=orders.filter(x=>x.payment==='PAGATO').reduce((s,x)=>s+Number(x.theirPrice||0),0),unpaidCustomers=orders.filter(x=>x.payment!=='PAGATO').reduce((s,x)=>s+Number(x.theirPrice||0),0),totalCost=groups.reduce((s,g)=>s+Number(g.totalPaid||0),0),totalProfit=groups.reduce((s,g)=>s+groupRevenue(g)-Number(g.totalPaid||0),0);$('count').textContent=orders.length;$('revenue').textContent=euro(totalRevenue);$('paidCustomers').textContent=euro(paidCustomers);$('unpaidCustomers').textContent=euro(unpaidCustomers);$('cost').textContent=euro(totalCost);$('profit').textContent=euro(totalProfit);"
+          if old_js not in s:
+              raise SystemExit('render prefix not found')
+          s=s.replace(old_js,new_js,1)
+          p.write_text(s)
+          PY
+          python3 - <<'PY'
+          import re, pathlib, subprocess, tempfile
+          s=pathlib.Path('ordini-riservati.html').read_text()
+          m=re.search(r'<script>\s*(.*?)\s*</script></body>',s,re.S)
+          if not m: raise SystemExit('script not found')
+          js=m.group(1)
+          f=tempfile.NamedTemporaryFile('w',suffix='.js',delete=False)
+          f.write(js); f.close()
+          subprocess.run(['node','--check',f.name],check=True)
+          PY
+      - name: Commit and push
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add ordini-riservati.html
+          git commit -m 'Show customer paid and unpaid totals in Reserved Orders'
+          git pull --rebase origin main
+          git push origin main
