@@ -1,0 +1,44 @@
+name: Remove global TrackerGatto wallet seed
+on:
+  push:
+    paths:
+      - '.github/workflows/remove-global-wallet-seed.yml'
+permissions:
+  contents: write
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Remove automatic personal wallet seed
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('trackergatto-v2.html')
+          s=p.read_text()
+          old="document.getElementById('app').classList.remove('hidden');await seedImportedWallets();await loadAll()"
+          new="document.getElementById('app').classList.remove('hidden');await loadAll()"
+          if old not in s:
+              raise SystemExit('boot seed call marker missing')
+          s=s.replace(old,new,1)
+          p.write_text(s)
+          PY
+      - name: Verify syntax and behavior marker
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          s=Path('trackergatto-v2.html').read_text()
+          assert "await seedImportedWallets();await loadAll()" not in s
+          assert "document.getElementById('app').classList.remove('hidden');await loadAll()" in s
+          js=s.split('<script>')[-1].split('</script>')[0]
+          Path('/tmp/tracker.js').write_text(js)
+          PY
+          node --check /tmp/tracker.js
+      - name: Commit
+        run: |
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add trackergatto-v2.html
+          git commit -m "Stop copying personal wallets to new Tracker users"
+          git pull --rebase origin main
+          git push
