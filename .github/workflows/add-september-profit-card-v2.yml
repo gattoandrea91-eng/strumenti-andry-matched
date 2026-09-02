@@ -1,0 +1,45 @@
+name: Add September profit card v2
+on:
+  push:
+    paths:
+      - '.github/workflows/add-september-profit-card-v2.yml'
+permissions:
+  contents: write
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: {ref: main, fetch-depth: 0}
+      - name: Patch and validate
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+          p=Path('trackergatto-v2.html'); s=p.read_text()
+          old='<div class="card"><div class="k">Profitto puntate</div><div class="v" id="betsProfit">€ 0,00</div></div></div><div class="tabs">'
+          new='<div class="card"><div class="k">Profitto puntate</div><div class="v" id="betsProfit">€ 0,00</div></div><div class="card"><div class="k">Guadagni Settembre</div><div class="v" id="septemberProfit">€ 0,00</div></div></div><div class="tabs">'
+          if old not in s: raise SystemExit('stats marker not found')
+          s=s.replace(old,new,1)
+          # Find the render function containing the existing betsProfit element assignment, regardless of minified spacing.
+          m=re.search(r"document\.getElementById\(['\"]betsProfit['\"]\)\.textContent=euro\(([^;]+)\);",s)
+          if not m:
+              m=re.search(r"\$\(['\"]betsProfit['\"]\)\.textContent=euro\(([^;]+)\);",s)
+          if not m: raise SystemExit('betsProfit assignment not found')
+          insert=m.group(0)+"const septemberProfit=bets.filter(b=>String(b.bet_date||'').startsWith('2026-09-')&&String(b.status||'').toUpperCase()!=='PENDING').reduce((sum,b)=>sum+Number(b.profit||0),0);const sepEl=document.getElementById('septemberProfit');if(sepEl){sepEl.textContent=euro(septemberProfit);sepEl.className='v '+(septemberProfit>=0?'money':'neg');}"
+          s=s[:m.start()]+insert+s[m.end():]
+          p.write_text(s)
+          scripts=re.findall(r'<script>(.*?)</script>',s,re.S)
+          Path('/tmp/tracker.js').write_text(scripts[-1])
+          PY
+          node --check /tmp/tracker.js
+          grep -q 'Guadagni Settembre' trackergatto-v2.html
+          grep -q "startsWith('2026-09-')" trackergatto-v2.html
+      - name: Commit
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add trackergatto-v2.html
+          git commit -m 'Show September profit in TrackerGatto'
+          git pull --rebase origin main
+          git push origin main
