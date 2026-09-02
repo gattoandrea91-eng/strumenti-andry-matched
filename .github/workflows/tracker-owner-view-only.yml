@@ -1,0 +1,41 @@
+name: Tracker owner-only view
+on:
+  push:
+    paths:
+      - '.github/workflows/tracker-owner-view-only.yml'
+permissions:
+  contents: write
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - name: Patch owner-only view
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('trackergatto-v2.html')
+          s=p.read_text()
+          target="user=data.user;if(!user){location.href='home-odds.html';return}"
+          if target not in s: raise SystemExit('boot auth marker not found')
+          patch="user=data.user;if(!user){location.href='home-odds.html';return}if(String(user.email||'').trim().toLowerCase()!=='gattoandrea91@gmail.com'){holders=[];accounts=[];wallets=[];movements=[];bets=[];document.getElementById('app').classList.remove('hidden');renderAll();return}"
+          if "gattoandrea91@gmail.com'){holders=[];accounts=[];wallets=[]" not in s:
+              s=s.replace(target,patch,1)
+          p.write_text(s)
+          PY
+          python3 - <<'PY'
+          import re,pathlib
+          s=pathlib.Path('trackergatto-v2.html').read_text()
+          m=re.search(r'<script>(.*)</script>',s,re.S)
+          if not m: raise SystemExit('script missing')
+          pathlib.Path('/tmp/tracker.js').write_text(m.group(1))
+          PY
+          node --check /tmp/tracker.js
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add trackergatto-v2.html
+          git commit -m 'Show empty Tracker to non-owner accounts'
+          git pull --rebase origin main
+          git push origin main
