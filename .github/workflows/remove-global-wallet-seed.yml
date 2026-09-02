@@ -10,26 +10,36 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Remove automatic personal wallet seed
+      - name: Add safe cleanup for accidental copied wallets
         run: |
           python3 - <<'PY'
           from pathlib import Path
           p=Path('trackergatto-v2.html')
           s=p.read_text()
-          old="document.getElementById('app').classList.remove('hidden');await seedImportedWallets();await loadAll()"
-          new="document.getElementById('app').classList.remove('hidden');await loadAll()"
+          if 'async function cleanupAccidentalSeedCopy()' in s:
+              print('already applied')
+              raise SystemExit(0)
+          marker='async function boot(){'
+          if marker not in s:
+              raise SystemExit('boot marker missing')
+          fn=r'''async function cleanupAccidentalSeedCopy(){try{const seed=[['AndreaGatto','revolut',3000.97],['AndreaGatto','Paypal',311.02],['Stefania Bellina','Paypal',257.01],['Letizia Brienza','miei ciro',200.30],['AndreaGatto','postpayy',150.42],['Sharon Citraro','payp',140.22],['Christian Di Giacomo','Mooney',107.36],['Barresi Maria','Mooney',95.44],['Gennaro Passaro','Paypal',90.64],['Maria Bona Silicani','Mooney',86.89],['Federico Raciti','Revolut',20.06],['Zaira Pia Valerio','Paypal',19.00],['Orazio Gatto','Mooney',12.00],['Francesca Bellina','Paypal',8.79],['Flora Cuccurullo','Mooney',8.50],['AndreaGatto','hype',6.32],['Giuseppe Bellina','Postpay',4.99],['Adriana De Siena','Postpay',3.43],['Giorgia Caruso','BBVA',3.13],['Roberto Falcione','BBVA',2.75],['Lorella','Paypal',2.15],['Lisa Giordano','Mooney',2.14],['Roberto Falcione','paypal',0.70],['AndreaGatto','i card',0.57],['Giorgia Caruso','Paypal',0.44],['Francesca Bellina','Revolut',0.41],['Luisa Tumbarello','Mooney',0.20],['Benedetta Cardo','BBVA',0],['Flora Cuccurullo','Paypal',0],['Giuseppe Bellina','Paypal',0],['Lisa Giordano','Paypal',0],['Camilla','Paypal',0],['Rosario Figliuoli','Paypal',0],['Debora Divita','Revolut Virtuale Andry',0]];const [h,a,w,m,b]=await Promise.all([SUPA.from('tracker_holders').select('id'),SUPA.from('tracker_accounts').select('id'),SUPA.from('tracker_wallets').select('id,name,note,balance'),SUPA.from('tracker_movements').select('id'),SUPA.from('tracker_bets').select('id')]);if(h.error||a.error||w.error||m.error||b.error)return;const wallets=w.data||[];if((h.data||[]).length||(a.data||[]).length||(m.data||[]).length||(b.data||[]).length||wallets.length!==seed.length)return;const norm=v=>String(v||'').trim().toLowerCase().replace(/\s+/g,' '),owner=x=>String(x.note||'').replace(/^Intestatario:\s*/i,'').split('|')[0].trim(),sig=(holder,name,balance)=>`${norm(holder)}|${norm(name)}|${Number(balance||0).toFixed(2)}`,expected=new Set(seed.map(x=>sig(x[0],x[1],x[2]))),actual=new Set(wallets.map(x=>sig(owner(x),x.name,x.balance)));if(actual.size!==expected.size||[...expected].some(x=>!actual.has(x)))return;const ids=wallets.map(x=>x.id);const del=await SUPA.from('tracker_wallets').delete().in('id',ids);if(del.error)console.warn('Cleanup wallet copiati:',del.error.message)}catch(e){console.warn('Cleanup wallet copiati:',e)}}'''
+          s=s.replace(marker,fn+marker,1)
+          old="document.getElementById('app').classList.remove('hidden');await loadAll()"
+          new="document.getElementById('app').classList.remove('hidden');await cleanupAccidentalSeedCopy();await loadAll()"
           if old not in s:
-              raise SystemExit('boot seed call marker missing')
+              raise SystemExit('boot load marker missing')
           s=s.replace(old,new,1)
           p.write_text(s)
           PY
-      - name: Verify syntax and behavior marker
+      - name: Verify syntax and safety guards
         run: |
           python3 - <<'PY'
           from pathlib import Path
           s=Path('trackergatto-v2.html').read_text()
-          assert "await seedImportedWallets();await loadAll()" not in s
-          assert "document.getElementById('app').classList.remove('hidden');await loadAll()" in s
+          assert 'async function cleanupAccidentalSeedCopy()' in s
+          assert "wallets.length!==seed.length" in s
+          assert "(h.data||[]).length||(a.data||[]).length||(m.data||[]).length||(b.data||[]).length" in s
+          assert "await cleanupAccidentalSeedCopy();await loadAll()" in s
           js=s.split('<script>')[-1].split('</script>')[0]
           Path('/tmp/tracker.js').write_text(js)
           PY
@@ -39,6 +49,6 @@ jobs:
           git config user.name github-actions[bot]
           git config user.email 41898282+github-actions[bot]@users.noreply.github.com
           git add trackergatto-v2.html
-          git commit -m "Stop copying personal wallets to new Tracker users"
+          git commit -m "Clean accidental wallet copies from empty Tracker users"
           git pull --rebase origin main
           git push
