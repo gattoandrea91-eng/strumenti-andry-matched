@@ -1,5 +1,0 @@
-const crypto=require('crypto');
-const RESET_SHA256='70aca5f77ba02c9265d9363554dee89210f0ba9ede9644ff629f25447ab88c18';
-function okKey(v){const h=crypto.createHash('sha256').update(String(v||'')).digest('hex');try{return crypto.timingSafeEqual(Buffer.from(h),Buffer.from(RESET_SHA256))}catch{return false}}
-function supaConfig(){const url=process.env.SUPABASE_URL||'https://aihwrkqfzhwedqdbxbxh.supabase.co',key=process.env.SOCCERTREND_SUPABASE_SECRET_KEY;if(!key)throw new Error('Manca SOCCERTREND_SUPABASE_SECRET_KEY');return{url,key}}
-module.exports=async(req,res)=>{try{if(!okKey(req.query?.key))return res.status(401).json({success:false});const{url,key}=supaConfig();const r=await fetch(`${url}/rest/v1/soccertrend_stats?id=eq.1`,{method:'PATCH',headers:{apikey:key,Authorization:`Bearer ${key}`,'Content-Type':'application/json',Prefer:'return=minimal'},body:JSON.stringify({wins:0,losses:0,updated_at:new Date().toISOString()})});const t=await r.text();if(!r.ok)throw new Error(`Supabase ${r.status}: ${t.slice(0,300)}`);return res.status(200).json({success:true,wins:0,losses:0})}catch(e){return res.status(500).json({success:false,error:String(e?.message||e)})}};
