@@ -1,0 +1,12 @@
+const EXCAPPER='https://www.excapper.com/';
+function cleanHtml(s){return String(s||'').replace(/<script[\s\S]*?<\/script>/gi,' ').replace(/<style[\s\S]*?<\/style>/gi,' ').replace(/<[^>]+>/g,' ').replace(/&nbsp;/gi,' ').replace(/&amp;/gi,'&').replace(/&#39;/g,"'").replace(/&quot;/gi,'"').replace(/\s+/g,' ').trim()}
+function norm(s){return String(s||'').normalize('NFKD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/&/g,' and ').replace(/\b(fc|cf|sc|afc|club|fk|ac|calcio|football|soccer)\b/g,' ').replace(/[^a-z0-9]+/g,' ').replace(/\s+/g,' ').trim()}
+function tokens(s){return new Set(norm(s).split(' ').filter(x=>x.length>1))}
+function sim(a,b){const A=tokens(a),B=tokens(b);if(!A.size||!B.size)return 0;let hit=0;for(const x of A)if(B.has(x))hit++;return (2*hit)/(A.size+B.size)}
+function scoreRow(text,home,away){const t=norm(text),h=norm(home),a=norm(away);if(!t||!h||!a)return 0;let score=(sim(text,home)+sim(text,away))/2;if(t.includes(h))score+=.25;if(t.includes(a))score+=.25;return score}
+async function resolve(home,away){const r=await fetch(EXCAPPER,{headers:{'user-agent':'Mozilla/5.0 SoccerTrend/1.0','accept':'text/html'},cache:'no-store'});if(!r.ok)throw new Error(`Excapper ${r.status}`);const html=await r.text();const rows=html.match(/<tr\b[\s\S]*?<\/tr>/gi)||[];let best=null;for(const row of rows){const ids=[...row.matchAll(/(?:\?|&amp;|&)action=game(?:&amp;|&)id=(\d+)/gi)];if(!ids.length)continue;const text=cleanHtml(row),score=scoreRow(text,home,away);if(!best||score>best.score)best={id:ids[0][1],score,text};}
+if(best&&best.score>=.72)return{url:`${EXCAPPER}?action=game&id=${best.id}`,matched:true,score:best.score};
+// Fallback: some Excapper layouts place the game link outside a TR. Inspect a bounded window around each game id.
+let m;const re=/(?:\?|&amp;|&)action=game(?:&amp;|&)id=(\d+)/gi;while((m=re.exec(html))){const part=html.slice(Math.max(0,m.index-900),Math.min(html.length,m.index+900)),text=cleanHtml(part),score=scoreRow(text,home,away);if(!best||score>best.score)best={id:m[1],score,text};}
+if(best&&best.score>=.82)return{url:`${EXCAPPER}?action=game&id=${best.id}`,matched:true,score:best.score};return{url:EXCAPPER,matched:false,score:best?.score||0}}
+module.exports=async(req,res)=>{const home=String(req.query?.home||'').trim(),away=String(req.query?.away||'').trim();if(!home||!away)return res.redirect(302,EXCAPPER);try{const out=await resolve(home,away);res.setHeader('Cache-Control','s-maxage=20, stale-while-revalidate=30');return res.redirect(302,out.url)}catch{return res.redirect(302,EXCAPPER)}};
