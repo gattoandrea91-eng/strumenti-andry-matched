@@ -1,0 +1,50 @@
+name: Apply SoccerTrend winrate odds filter
+
+on:
+  push:
+    paths:
+      - '.github/workflows/apply-winrate-odds-filter.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Patch Telegram settlement and site labels
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('api/telegram-signals.js')
+          s=p.read_text()
+          old="function n(v){const x=Number(v);return Number.isFinite(x)?x:0}\n"
+          new="const QUALIFIED_OFFSET=1000000000;\nfunction n(v){const x=Number(v);return Number.isFinite(x)?x:0}\nfunction isWinrateEligible(messageId){return n(messageId)>=QUALIFIED_OFFSET}\nfunction telegramMessageId(messageId){const x=Math.abs(n(messageId));return x>=QUALIFIED_OFFSET?x-QUALIFIED_OFFSET:x}\n"
+          assert old in s
+          s=s.replace(old,new,1)
+          old="async function markSettled(matchId,messageId){const marker=messageId?-Math.abs(n(messageId)):-1;"
+          new="async function markSettled(matchId,messageId){const marker=messageId?-Math.abs(telegramMessageId(messageId)):-1;"
+          assert old in s
+          s=s.replace(old,new,1)
+          old="if(sig.message_id)editResult=await telegramEdit(Math.abs(n(sig.message_id)),signalText(sig,result));let stats=null;if(!editResult?.notModified)stats=await addResult(result);"
+          new="if(sig.message_id)editResult=await telegramEdit(telegramMessageId(sig.message_id),signalText(sig,result));let stats=null;if(!editResult?.notModified&&isWinrateEligible(sig.message_id))stats=await addResult(result);"
+          assert old in s
+          s=s.replace(old,new,1)
+          p.write_text(s)
+
+          p=Path('soccertrend.html')
+          s=p.read_text()
+          s=s.replace('<small>Segnali totali</small>','<small>Segnali ≥ quota 1,50</small>',1)
+          s=s.replace('<small>Win rate</small>','<small>Win rate ≥ 1,50</small>',1)
+          p.write_text(s)
+          PY
+          node --check api/telegram-signals.js
+          node --check api/soccertrend-betfair-enhancer.js
+      - name: Commit patch
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add api/telegram-signals.js soccertrend.html
+          git commit -m 'Count SoccerTrend winrate only for Betfair odds 1.50+' || exit 0
+          git push
