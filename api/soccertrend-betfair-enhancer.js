@@ -1,5 +1,5 @@
 const crypto=require('crypto');
-const ENHANCER_KEY_SHA256='e94852c8bb90e8c75599c06f9975811041f155bc1239ba69b59d39210b48b2a8';
+const ENHANCER_KEY_SHA256='e85db21e497769c876fe7e5c129b2fdc31072b9e4816bb8ff02140c0b4c4eedd';
 function n(v){const x=Number(v);return Number.isFinite(x)?x:0}
 function authorized(req){const k=String(req.headers['x-enhancer-key']||'');if(!k)return false;const h=crypto.createHash('sha256').update(k).digest('hex');try{return crypto.timingSafeEqual(Buffer.from(h),Buffer.from(ENHANCER_KEY_SHA256))}catch{return false}}
 function telegramConfig(){const token=process.env.TELEGRAM_BOT_TOKEN,chatId=process.env.TELEGRAM_CHAT_ID;if(!token||!chatId)throw new Error('Telegram env mancanti');return{token,chatId}}
