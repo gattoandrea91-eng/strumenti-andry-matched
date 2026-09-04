@@ -1,0 +1,56 @@
+name: Apply real entry odds profit
+on:
+  push:
+    paths:
+      - '.github/workflows/apply-entry-odds-profit.yml'
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Patch files
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+
+          enh=Path('api/soccertrend-betfair-enhancer.js')
+          s=enh.read_text()
+          s=s.replace("function n(v){const x=Number(v);return Number.isFinite(x)?x:0}","function n(v){const x=Number(v);return Number.isFinite(x)?x:0}\nfunction scoreDisplay(v){const x=Math.abs(n(v));return x>=10000?Math.floor(x/10000):x}\nfunction encodeEntryScore(score,quote){return scoreDisplay(score)*10000+Math.round(Number(quote)*100)}")
+          s=s.replace("<b>${s.score}/100</b>","<b>${scoreDisplay(s.score)}/100</b>")
+          s=s.replace("body:JSON.stringify({message_id:messageId+QUALIFIED_OFFSET})","body:JSON.stringify({message_id:messageId+QUALIFIED_OFFSET,score:encodeEntryScore(s.score,quote)})")
+          enh.write_text(s)
+
+          tel=Path('api/telegram-signals.js')
+          s=tel.read_text()
+          s=s.replace("function n(v){const x=Number(v);return Number.isFinite(x)?x:0}","function n(v){const x=Number(v);return Number.isFinite(x)?x:0}\nfunction scoreDisplay(v){const x=Math.abs(n(v));return x>=10000?Math.floor(x/10000):x}\nfunction hasEntryQuote(v){return Math.abs(n(v))>=10000}\nfunction settledScore(v,result){const x=Math.abs(n(v));if(x<10000)return n(v);return result==='LOSS'?-x:x}")
+          s=s.replace("<b>${s.score}/100</b>","<b>${scoreDisplay(s.score)}/100</b>")
+          s=s.replace("async function markSettled(matchId,messageId){const marker=messageId?-Math.abs(telegramMessageId(messageId)):-1;await db(`soccertrend_signals?match_id=eq.${encodeURIComponent(matchId)}`,{method:'PATCH',headers:{Prefer:'return=minimal'},body:JSON.stringify({message_id:marker})})}","async function markSettled(matchId,messageId,score,result){const marker=messageId?-Math.abs(telegramMessageId(messageId)):-1;const body={message_id:marker};if(hasEntryQuote(score))body.score=settledScore(score,result);await db(`soccertrend_signals?match_id=eq.${encodeURIComponent(matchId)}`,{method:'PATCH',headers:{Prefer:'return=minimal'},body:JSON.stringify(body)})}")
+          s=s.replace("await markSettled(sig.match_id,sig.message_id);","await markSettled(sig.match_id,sig.message_id,sig.score,result);")
+          tel.write_text(s)
+
+          stats=Path('api/soccertrend-stats.js')
+          stats.write_text("""function n(v){const x=Number(v);return Number.isFinite(x)?x:0}\nconst INITIAL_CAPITAL=1000;\nconst STAKE=30;\nfunction supaConfig(){const url=process.env.SUPABASE_URL||'https://aihwrkqfzhwedqdbxbxh.supabase.co',key=process.env.SOCCERTREND_SUPABASE_SECRET_KEY;if(!key)throw new Error('Manca SOCCERTREND_SUPABASE_SECRET_KEY su Vercel');return{url,key}}\nasync function db(path){const{url,key}=supaConfig();const r=await fetch(`${url}/rest/v1/${path}`,{headers:{apikey:key,Authorization:`Bearer ${key}`,'Content-Type':'application/json'},cache:'no-store'});const text=await r.text();if(!r.ok)throw new Error(`Supabase ${r.status}: ${text.slice(0,300)}`);return text?JSON.parse(text):null}\nfunction entryQuote(score){const x=Math.abs(n(score));return x>=10000?(x%10000)/100:0}\nmodule.exports=async(req,res)=>{try{const rows=await db('soccertrend_stats?id=eq.1&select=wins,losses')||[],wins=n(rows[0]?.wins),losses=n(rows[0]?.losses),total=wins+losses,winRate=total?Math.round((wins/total)*1000)/10:0,signals=await db('soccertrend_signals?message_id=lt.0&select=score')||[];let profit=0,encodedWins=0,encodedLosses=0;for(const s of signals){const q=entryQuote(s.score);if(!q)continue;if(n(s.score)>0){encodedWins++;profit+=STAKE*(q-1)}else{encodedLosses++;profit-=STAKE}}const missingWins=Math.max(0,wins-encodedWins),missingLosses=Math.max(0,losses-encodedLosses);profit+=missingWins*STAKE*.5-missingLosses*STAKE;profit=Math.round(profit*100)/100;const capital=Math.round((INITIAL_CAPITAL+profit)*100)/100;res.setHeader('Cache-Control','no-store');return res.status(200).json({success:true,wins,losses,total,winRate,initialCapital:INITIAL_CAPITAL,stake:STAKE,profit,capital,realEntryOdds:true,encodedWins,encodedLosses})}catch(error){return res.status(500).json({success:false,error:String(error?.message||error)})}}""")
+
+          site=Path('soccertrend.html')
+          s=site.read_text()
+          s=s.replace('Simulazione: capitale 1.000 € • stake 30 € • quota ingresso 1,50','Simulazione: capitale 1.000 € • stake 30 € • quota ingresso reale ≥ 1,50')
+          site.write_text(s)
+          PY
+          node --check api/soccertrend-betfair-enhancer.js
+          node --check api/telegram-signals.js
+          node --check api/soccertrend-stats.js
+      - name: Commit
+        run: |
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add api/soccertrend-betfair-enhancer.js api/telegram-signals.js api/soccertrend-stats.js soccertrend.html
+          git commit -m "Use real Betfair entry odds for SoccerTrend profit"
+          git pull --rebase origin main
+          git push origin main
