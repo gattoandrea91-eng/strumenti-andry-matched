@@ -1,3 +1,4 @@
+const crypto = require('crypto');
 const FOTMOB_BASE = "https://www.fotmob.com/api/data";
 
 function todayYYYYMMDD() {
@@ -9,41 +10,236 @@ function todayYYYYMMDD() {
 }
 
 async function fotmobFetch(url) {
-  const response = await fetch(url, { headers: { "User-Agent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/124 Safari/537.36", "Accept":"application/json,text/plain,*/*", "Accept-Language":"it-IT,it;q=0.9,en;q=0.8", "Referer":"https://www.fotmob.com/" } });
+  const response = await fetch(url, {
+    headers: {
+      "User-Agent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/124 Safari/537.36",
+      "Accept":"application/json,text/plain,*/*",
+      "Accept-Language":"it-IT,it;q=0.9,en;q=0.8",
+      "Referer":"https://www.fotmob.com/"
+    }
+  });
   const text = await response.text();
   if (!response.ok) throw new Error(`FotMob ${response.status}: ${text.slice(0,300)}`);
   return JSON.parse(text);
 }
-function num(value){if(value===null||value===undefined||value==="")return 0;if(typeof value==="string"){const n=Number(value.replace("%","").replace(",",".").trim().split(" ")[0]);return Number.isFinite(n)?n:0}const n=Number(value);return Number.isFinite(n)?n:0}
+
+function num(value){
+  if(value===null||value===undefined||value==="") return 0;
+  if(typeof value==="string"){
+    const n=Number(value.replace("%","").replace(",",".").trim().split(" ")[0]);
+    return Number.isFinite(n)?n:0;
+  }
+  const n=Number(value);
+  return Number.isFinite(n)?n:0;
+}
 function normalizeKey(value){return String(value||"").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-z0-9]/g,"")}
 function scalar(v){if(v&&typeof v==="object")return v.value??v.stat??v.displayValue??v.total??0;return v}
 function scalarLike(v){if(v===null||v===undefined||typeof v!=="object")return true;return v.value!==undefined||v.stat!==undefined||v.displayValue!==undefined||v.total!==undefined}
-function extractPairFromNode(node){if(!node||typeof node!=="object")return null;const candidates=[node.stats,node.values,node.value,node.data];for(const c of candidates){if(Array.isArray(c)&&c.length>=2){if(!scalarLike(c[0])||!scalarLike(c[1]))continue;return [num(scalar(c[0])),num(scalar(c[1]))]}if(c&&typeof c==="object"&&(c.home!==undefined||c.away!==undefined))return [num(scalar(c.home)),num(scalar(c.away))]}if(node.home!==undefined||node.away!==undefined)return [num(scalar(node.home)),num(scalar(node.away))];if(node.homeValue!==undefined||node.awayValue!==undefined)return [num(node.homeValue),num(node.awayValue)];return null}
-function findStatFlexible(root,aliases){const wanted=aliases.map(normalizeKey).filter(Boolean),queue=[root],visited=new Set();while(queue.length){const node=queue.shift();if(!node||typeof node!=="object"||visited.has(node))continue;visited.add(node);if(!Array.isArray(node)){const names=[node.key,node.title,node.name,node.label,node.statName,node.localizedTitle].map(normalizeKey).filter(Boolean);const exact=names.some(name=>wanted.some(w=>name===w));const fuzzy=names.some(name=>wanted.some(w=>name.includes(w)||w.includes(name)));if(exact||fuzzy){const pair=extractPairFromNode(node);if(pair)return pair}for(const [k,v] of Object.entries(node)){const nk=normalizeKey(k);if(wanted.some(w=>nk===w||nk.includes(w)||w.includes(nk))){if(Array.isArray(v)&&v.length>=2&&scalarLike(v[0])&&scalarLike(v[1]))return [num(scalar(v[0])),num(scalar(v[1]))];if(v&&typeof v==="object"){const p=extractPairFromNode(v);if(p)return p}}}}if(Array.isArray(node))for(const item of node)queue.push(item);else for(const value of Object.values(node))if(value&&typeof value==="object")queue.push(value)}return [0,0]}
+function extractPairFromNode(node){
+  if(!node||typeof node!=="object")return null;
+  const candidates=[node.stats,node.values,node.value,node.data];
+  for(const c of candidates){
+    if(Array.isArray(c)&&c.length>=2){
+      if(!scalarLike(c[0])||!scalarLike(c[1]))continue;
+      return [num(scalar(c[0])),num(scalar(c[1]))];
+    }
+    if(c&&typeof c==="object"&&(c.home!==undefined||c.away!==undefined))return [num(scalar(c.home)),num(scalar(c.away))];
+  }
+  if(node.home!==undefined||node.away!==undefined)return [num(scalar(node.home)),num(scalar(node.away))];
+  if(node.homeValue!==undefined||node.awayValue!==undefined)return [num(node.homeValue),num(node.awayValue)];
+  return null;
+}
+function findStatFlexible(root,aliases){
+  const wanted=aliases.map(normalizeKey).filter(Boolean),queue=[root],visited=new Set();
+  while(queue.length){
+    const node=queue.shift();
+    if(!node||typeof node!=="object"||visited.has(node))continue;
+    visited.add(node);
+    if(!Array.isArray(node)){
+      const names=[node.key,node.title,node.name,node.label,node.statName,node.localizedTitle].map(normalizeKey).filter(Boolean);
+      const exact=names.some(name=>wanted.some(w=>name===w));
+      const fuzzy=names.some(name=>wanted.some(w=>name.includes(w)||w.includes(name)));
+      if(exact||fuzzy){const pair=extractPairFromNode(node);if(pair)return pair}
+      for(const [k,v] of Object.entries(node)){
+        const nk=normalizeKey(k);
+        if(wanted.some(w=>nk===w||nk.includes(w)||w.includes(nk))){
+          if(Array.isArray(v)&&v.length>=2&&scalarLike(v[0])&&scalarLike(v[1]))return [num(scalar(v[0])),num(scalar(v[1]))];
+          if(v&&typeof v==="object"){const p=extractPairFromNode(v);if(p)return p}
+        }
+      }
+    }
+    if(Array.isArray(node))for(const item of node)queue.push(item);
+    else for(const value of Object.values(node))if(value&&typeof value==="object")queue.push(value);
+  }
+  return [0,0];
+}
 function pairFlexible(root,aliases){const v=findStatFlexible(root,aliases);const home=num(v?.[0]),away=num(v?.[1]);return{home,away,total:home+away}}
 function teamIds(data){const g=data?.general||{},h=data?.header||{},teams=Array.isArray(h?.teams)?h.teams:[];return{home:g?.homeTeam?.id??g?.homeTeamId??teams?.[0]?.id??null,away:g?.awayTeam?.id??g?.awayTeamId??teams?.[1]?.id??null}}
 function shotSide(s,homeId,awayId){if(s?.isHome===true)return'home';if(s?.isHome===false)return'away';if(homeId!==null&&String(s?.teamId)===String(homeId))return'home';if(awayId!==null&&String(s?.teamId)===String(awayId))return'away';return null}
 function isShotOnTarget(s){const event=normalizeKey(s?.eventType||s?.result||s?.type||s?.shotType),goal=event.includes('goal');if(goal)return true;if(s?.isBlocked===true)return false;if(typeof s?.isOnTarget==='boolean')return s.isOnTarget;return event.includes('save')||event.includes('attemptsaved')||event.includes('ontarget')}
 function isBigChanceShot(s){if(s?.isBigChance===true||s?.bigChance===true)return true;if(normalizeKey(s?.situation)==='penalty')return true;return num(s?.expectedGoals)>=0.30}
-function shotmapStats(shotmap,homeId,awayId,currentMinute=0){const shots=Array.isArray(shotmap?.shots)?shotmap.shots:Array.isArray(shotmap)?shotmap:[];let hShots=0,aShots=0,hSot=0,aSot=0;const fromMinute=Math.max(0,num(currentMinute)-15);let rShots=0,rSot=0,rBig=0,rXg=0;for(const s of shots){const side=shotSide(s,homeId,awayId);if(side==='home')hShots++;else if(side==='away')aShots++;const onTarget=isShotOnTarget(s);if(onTarget){if(side==='home')hSot++;else if(side==='away')aSot++}const sm=num(s?.min)+(num(s?.minAdded)>0?num(s?.minAdded):0);if(currentMinute>0&&sm>=fromMinute&&sm<=currentMinute){rShots++;if(onTarget)rSot++;if(isBigChanceShot(s))rBig++;rXg+=num(s?.expectedGoals)}}return {totalShots:{home:hShots,away:aShots,total:hShots+aShots},shotsOnTarget:{home:hSot,away:aSot,total:hSot+aSot},recent15:{fromMinute,shots:rShots,shotsOnTarget:rSot,bigChances:rBig,xg:Math.round(rXg*100)/100}}}
+function shotmapStats(shotmap,homeId,awayId,currentMinute=0){
+  const shots=Array.isArray(shotmap?.shots)?shotmap.shots:Array.isArray(shotmap)?shotmap:[];
+  let hShots=0,aShots=0,hSot=0,aSot=0;
+  const fromMinute=Math.max(0,num(currentMinute)-15);
+  let rShots=0,rSot=0,rBig=0,rXg=0;
+  for(const s of shots){
+    const side=shotSide(s,homeId,awayId);
+    if(side==='home')hShots++;else if(side==='away')aShots++;
+    const onTarget=isShotOnTarget(s);
+    if(onTarget){if(side==='home')hSot++;else if(side==='away')aSot++}
+    const sm=num(s?.min)+(num(s?.minAdded)>0?num(s?.minAdded):0);
+    if(currentMinute>0&&sm>=fromMinute&&sm<=currentMinute){
+      rShots++;if(onTarget)rSot++;if(isBigChanceShot(s))rBig++;rXg+=num(s?.expectedGoals);
+    }
+  }
+  return {totalShots:{home:hShots,away:aShots,total:hShots+aShots},shotsOnTarget:{home:hSot,away:aSot,total:hSot+aSot},recent15:{fromMinute,shots:rShots,shotsOnTarget:rSot,bigChances:rBig,xg:Math.round(rXg*100)/100}};
+}
 function calculateRtg(s,recent15={}){const raw=s.shotsOnTarget.total*4+s.totalShots.total+s.corners.total*1.5+s.touchesBox.total*.6+s.bigChances.total*5+num(recent15.shotsOnTarget)*2+num(recent15.bigChances)*7;return Math.round(raw*10)/10}
 function normalizeMomentum(m){if(!m)return[];if(Array.isArray(m))return m;if(Array.isArray(m?.main))return m.main;if(Array.isArray(m?.data))return m.data;return[]}
 function lastMomentumValue(m){const a=normalizeMomentum(m);if(!a.length)return null;const l=a[a.length-1];if(typeof l==="number")return l;if(typeof l?.value==="number")return l.value;return null}
 function getLiveMinute(status){if(!status)return"";if(status.liveTime?.short)return String(status.liveTime.short);if(status.liveTime?.long)return String(status.liveTime.long);if(typeof status.liveTime==="string")return status.liveTime;if(status.reason&&String(status.reason).includes("'"))return String(status.reason);return""}
-function detailMinute(data){const g=data?.general||{};const candidates=[g.matchTime,g.liveTime,g?.matchStatus?.liveTime?.short,g?.status?.liveTime?.short,g?.matchStatus?.reason,g?.status?.reason];for(const v of candidates){const m=String(v||'').match(/\d+/);if(m)return Number(m[0])}const events=data?.content?.matchFacts?.events?.events||data?.content?.matchFacts?.events||[];if(Array.isArray(events)){let max=0;for(const e of events)max=Math.max(max,num(e?.timeStr??e?.time));if(max>0)return max}const shots=data?.content?.shotmap?.shots||[];if(Array.isArray(shots)){let max=0;for(const s of shots)max=Math.max(max,num(s?.min)+num(s?.minAdded));if(max>0)return max}return 0}
+function detailMinute(data){
+  const g=data?.general||{};
+  const candidates=[g.matchTime,g.liveTime,g?.matchStatus?.liveTime?.short,g?.status?.liveTime?.short,g?.matchStatus?.reason,g?.status?.reason];
+  for(const v of candidates){const m=String(v||'').match(/\d+/);if(m)return Number(m[0])}
+  const events=data?.content?.matchFacts?.events?.events||data?.content?.matchFacts?.events||[];
+  if(Array.isArray(events)){let max=0;for(const e of events)max=Math.max(max,num(e?.timeStr??e?.time));if(max>0)return max}
+  const shots=data?.content?.shotmap?.shots||[];
+  if(Array.isArray(shots)){let max=0;for(const s of shots)max=Math.max(max,num(s?.min)+num(s?.minAdded));if(max>0)return max}
+  return 0;
+}
+
+function pairFromBridge(v){
+  const home=num(v?.home),away=num(v?.away);
+  return {home,away,total:Number.isFinite(num(v?.total))&&num(v?.total)!==0?num(v.total):home+away};
+}
+function statsMeaningful(stats){
+  return num(stats?.totalShots?.total)>0 || num(stats?.shotsOnTarget?.total)>0 || num(stats?.corners?.total)>0 || num(stats?.possession?.total)>0;
+}
+function detailTeams(data){
+  const g=data?.general||{},h=data?.header||{},teams=Array.isArray(h?.teams)?h.teams:[];
+  let home=g?.homeTeam?.name||g?.homeTeamName||teams?.[0]?.name||'';
+  let away=g?.awayTeam?.name||g?.awayTeamName||teams?.[1]?.name||'';
+  if((!home||!away)&&g?.matchName){
+    const raw=String(g.matchName).split('_')[0];
+    const parts=raw.split(/-vs-/i);
+    if(parts.length===2){home=home||parts[0];away=away||parts[1]}
+  }
+  return {home:String(home||'').trim(),away:String(away||'').trim()};
+}
+async function bridgeStats(home,away){
+  const base=String(process.env.SOCCERTREND_22PLAY_BRIDGE_URL||'').replace(/\/$/,'');
+  const secret=String(process.env.SOCCERTREND_22PLAY_BRIDGE_KEY||'');
+  if(!base||!secret||!home||!away)return null;
+
+  const ts=Math.floor(Date.now()/1000);
+  const payload=`${ts}\nGET\n/stats\n${home}\n${away}`;
+  const signature=crypto.createHmac('sha256',secret).update(payload).digest('hex');
+  const url=`${base}/stats?home=${encodeURIComponent(home)}&away=${encodeURIComponent(away)}`;
+
+  const r=await fetch(url,{cache:'no-store',headers:{'X-Bridge-Timestamp':String(ts),'X-Bridge-Signature':signature}});
+  const text=await r.text();
+  if(!r.ok)throw new Error(`22Play bridge ${r.status}: ${text.slice(0,220)}`);
+  const d=JSON.parse(text);
+  if(!d?.ok||!d?.found||!d?.has_stats)return null;
+  return d;
+}
+function mergeBridgeStats(stats,d){
+  const b=d?.stats||{};
+  return {
+    ...stats,
+    possession: pairFromBridge(b.possession),
+    totalShots: pairFromBridge(b.totalShots),
+    shotsOnTarget: pairFromBridge(b.shotsOnTarget),
+    shotsOffTarget: pairFromBridge(b.shotsOffTarget),
+    corners: pairFromBridge(b.corners),
+    touchesBox: stats?.touchesBox||{home:0,away:0,total:0},
+    bigChances: stats?.bigChances||{home:0,away:0,total:0},
+    bigChancesMissed: stats?.bigChancesMissed||{home:0,away:0,total:0},
+    attacks: pairFromBridge(b.attacks),
+    dangerousAttacks: pairFromBridge(b.dangerousAttacks)
+  };
+}
 
 module.exports=async(req,res)=>{try{
- const matchId=String(req.query.matchId||"").trim();
- if(matchId){
-  const data=await fotmobFetch(`${FOTMOB_BASE}/matchDetails?matchId=${encodeURIComponent(matchId)}`),content=data?.content||{},statsRoot=content?.stats||{};
-  const shotmap=content?.shotmap||null,ids=teamIds(data),minuteNum=detailMinute(data);
-  const stats={possession:pairFlexible(statsRoot,["BallPossesion","BallPossession","Ball possession","Possession","Possesso","Possesso palla"]),totalShots:pairFlexible(statsRoot,["total_shots","TotalShots","Total shots","Shots total","Tiri","Tiri totali","Total attempts"]),shotsOnTarget:pairFlexible(statsRoot,["ShotsOnTarget","shots_on_target","Shots on target","On target","Tiri in porta","Tiri nello specchio"]),shotsOffTarget:pairFlexible(statsRoot,["ShotsOffTarget","shots_off_target","Shots off target","Tiri fuori"]),corners:pairFlexible(statsRoot,["corners","Corner","Corner kicks","Calci d'angolo"]),touchesBox:pairFlexible(statsRoot,["touches_opp_box","TouchesInOppositionBox","Touches in opposition box","Touches in box","Tocchi in area"]),bigChances:pairFlexible(statsRoot,["big_chance","BigChances","Big chances","Grandi occasioni"]),bigChancesMissed:pairFlexible(statsRoot,["big_chance_missed_title","BigChancesMissed","Big chances missed","Grandi occasioni sbagliate"])};
-  const sm=shotmapStats(shotmap,ids.home,ids.away,minuteNum);if(stats.totalShots.total===0&&sm.totalShots.total>0)stats.totalShots=sm.totalShots;if(stats.shotsOnTarget.total===0&&sm.shotsOnTarget.total>0)stats.shotsOnTarget=sm.shotsOnTarget;
-  const recent15=sm.recent15,rtg=calculateRtg(stats,recent15),momentum=content?.momentum||content?.matchMomentum||null,momentumArray=normalizeMomentum(momentum),latestMomentum=lastMomentumValue(momentum),events=content?.matchFacts?.events||[];
-  return res.status(200).json({success:true,mode:"DETAIL",matchId,matchName:data?.general?.matchName||"",status:data?.general?.matchStatus||data?.general?.status||"",minute:minuteNum||data?.general?.matchTime||data?.general?.liveTime||"",stats,recent15,rtg,momentum:{latest:latestMomentum,history:momentumArray},events,shotmap,hasStats:!!content?.stats,hasMomentum:!!momentum,hasShotmap:!!shotmap,hasEvents:Array.isArray(events)});
- }
- const date=String(req.query.date||todayYYYYMMDD()),data=await fotmobFetch(`${FOTMOB_BASE}/matches?date=${encodeURIComponent(date)}`),leagues=Array.isArray(data?.leagues)?data.leagues:[],matches=[];
- for(const league of leagues){for(const match of(Array.isArray(league.matches)?league.matches:[])){const status=match.status||{},minute=getLiveMinute(status);matches.push({matchId:match.id,leagueId:league.primaryId||league.id||match.leagueId||null,league:league.name||"",country:league.ccode||"",home:match.home?.name||"",away:match.away?.name||"",homeGoals:match.home?.score??null,awayGoals:match.away?.score??null,started:status.started===true,finished:status.finished===true,cancelled:status.cancelled===true,score:status.scoreStr||"",minute,reason:status.reason||"",utcTime:status.utcTime||null})}}
- const liveMatches=matches.filter(m=>m.started&&!m.finished&&!m.cancelled);
- return res.status(200).json({success:true,mode:"TODAY",date,totalMatches:matches.length,liveCount:liveMatches.length,liveMatches,allMatches:matches});
-}catch(error){return res.status(500).json({success:false,error:"Errore FotMob",details:String(error?.message||error)})}};
+  const matchId=String(req.query.matchId||"").trim();
+  if(matchId){
+    const data=await fotmobFetch(`${FOTMOB_BASE}/matchDetails?matchId=${encodeURIComponent(matchId)}`),content=data?.content||{},statsRoot=content?.stats||{};
+    const shotmap=content?.shotmap||null,ids=teamIds(data),minuteNum=detailMinute(data);
+    let stats={
+      possession:pairFlexible(statsRoot,["BallPossesion","BallPossession","Ball possession","Possession","Possesso","Possesso palla"]),
+      totalShots:pairFlexible(statsRoot,["total_shots","TotalShots","Total shots","Shots total","Tiri","Tiri totali","Total attempts"]),
+      shotsOnTarget:pairFlexible(statsRoot,["ShotsOnTarget","shots_on_target","Shots on target","On target","Tiri in porta","Tiri nello specchio"]),
+      shotsOffTarget:pairFlexible(statsRoot,["ShotsOffTarget","shots_off_target","Shots off target","Tiri fuori"]),
+      corners:pairFlexible(statsRoot,["corners","Corner","Corner kicks","Calci d'angolo"]),
+      touchesBox:pairFlexible(statsRoot,["touches_opp_box","TouchesInOppositionBox","Touches in opposition box","Touches in box","Tocchi in area"]),
+      bigChances:pairFlexible(statsRoot,["big_chance","BigChances","Big chances","Grandi occasioni"]),
+      bigChancesMissed:pairFlexible(statsRoot,["big_chance_missed_title","BigChancesMissed","Big chances missed","Grandi occasioni sbagliate"])
+    };
+
+    const sm=shotmapStats(shotmap,ids.home,ids.away,minuteNum);
+    if(stats.totalShots.total===0&&sm.totalShots.total>0)stats.totalShots=sm.totalShots;
+    if(stats.shotsOnTarget.total===0&&sm.shotsOnTarget.total>0)stats.shotsOnTarget=sm.shotsOnTarget;
+
+    let statsSource=statsMeaningful(stats)?'FOTMOB':'NONE';
+    let bridgeMatch=null;
+    let bridgeError=null;
+
+    if(!statsMeaningful(stats)){
+      const teams=detailTeams(data);
+      try{
+        const fallback=await bridgeStats(teams.home,teams.away);
+        if(fallback){
+          stats=mergeBridgeStats(stats,fallback);
+          statsSource='22PLAY';
+          bridgeMatch={event_id:fallback.event_id,event:fallback.event,match_score:fallback.match_score};
+        }
+      }catch(e){
+        bridgeError=String(e?.message||e);
+      }
+    }
+
+    const recent15=sm.recent15,
+      rtg=calculateRtg(stats,recent15),
+      momentum=content?.momentum||content?.matchMomentum||null,
+      momentumArray=normalizeMomentum(momentum),
+      latestMomentum=lastMomentumValue(momentum),
+      events=content?.matchFacts?.events||[];
+
+    return res.status(200).json({
+      success:true,
+      mode:"DETAIL",
+      matchId,
+      matchName:data?.general?.matchName||"",
+      status:data?.general?.matchStatus||data?.general?.status||"",
+      minute:minuteNum||data?.general?.matchTime||data?.general?.liveTime||"",
+      stats,
+      statsSource,
+      bridgeMatch,
+      bridgeError,
+      recent15,
+      rtg,
+      momentum:{latest:latestMomentum,history:momentumArray},
+      events,
+      shotmap,
+      hasStats:statsMeaningful(stats),
+      hasFotmobStats:!!content?.stats,
+      hasMomentum:!!momentum,
+      hasShotmap:!!shotmap,
+      hasEvents:Array.isArray(events)
+    });
+  }
+
+  const date=String(req.query.date||todayYYYYMMDD()),data=await fotmobFetch(`${FOTMOB_BASE}/matches?date=${encodeURIComponent(date)}`),leagues=Array.isArray(data?.leagues)?data.leagues:[],matches=[];
+  for(const league of leagues){
+    for(const match of(Array.isArray(league.matches)?league.matches:[])){
+      const status=match.status||{},minute=getLiveMinute(status);
+      matches.push({matchId:match.id,leagueId:league.primaryId||league.id||match.leagueId||null,league:league.name||"",country:league.ccode||"",home:match.home?.name||"",away:match.away?.name||"",homeGoals:match.home?.score??null,awayGoals:match.away?.score??null,started:status.started===true,finished:status.finished===true,cancelled:status.cancelled===true,score:status.scoreStr||"",minute,reason:status.reason||"",utcTime:status.utcTime||null});
+    }
+  }
+  const liveMatches=matches.filter(m=>m.started&&!m.finished&&!m.cancelled);
+  return res.status(200).json({success:true,mode:"TODAY",date,totalMatches:matches.length,liveCount:liveMatches.length,liveMatches,allMatches:matches});
+}catch(error){
+  return res.status(500).json({success:false,error:"Errore FotMob",details:String(error?.message||error)});
+}};
