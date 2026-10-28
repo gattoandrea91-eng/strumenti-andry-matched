@@ -96,8 +96,63 @@ function shotmapStats(shotmap,homeId,awayId,currentMinute=0){
   return {totalShots:{home:hShots,away:aShots,total:hShots+aShots},shotsOnTarget:{home:hSot,away:aSot,total:hSot+aSot},recent15:{fromMinute,shots:rShots,shotsOnTarget:rSot,bigChances:rBig,xg:Math.round(rXg*100)/100}};
 }
 function calculateRtg(s,recent15={}){const raw=s.shotsOnTarget.total*4+s.totalShots.total+s.corners.total*1.5+s.touchesBox.total*.6+s.bigChances.total*5+num(recent15.shotsOnTarget)*2+num(recent15.bigChances)*7;return Math.round(raw*10)/10}
-function normalizeMomentum(m){if(!m)return[];if(Array.isArray(m))return m;if(Array.isArray(m?.main))return m.main;if(Array.isArray(m?.data))return m.data;return[]}
-function lastMomentumValue(m){const a=normalizeMomentum(m);if(!a.length)return null;const l=a[a.length-1];if(typeof l==="number")return l;if(typeof l?.value==="number")return l.value;return null}
+function normalizeMomentum(m){
+  if(!m)return[];
+  if(Array.isArray(m))return m;
+  const direct=[m?.main,m?.data,m?.values,m?.points,m?.momentum,m?.graph];
+  for(const v of direct){
+    if(Array.isArray(v))return v;
+    if(v&&typeof v==="object"){
+      for(const vv of [v.data,v.values,v.points,v.main])if(Array.isArray(vv))return vv;
+    }
+  }
+  const q=[m],seen=new Set();
+  while(q.length){
+    const x=q.shift();
+    if(!x||typeof x!=="object"||seen.has(x))continue;
+    seen.add(x);
+    for(const v of Object.values(x)){
+      if(Array.isArray(v)&&v.length&&v.some(z=>typeof z==="number"||(z&&typeof z==="object"&&(z.value!==undefined||z.minute!==undefined||z.min!==undefined))))return v;
+      if(v&&typeof v==="object")q.push(v);
+    }
+  }
+  return[];
+}
+function momentumPointValue(x){
+  if(typeof x==="number")return x;
+  if(!x||typeof x!=="object")return 0;
+  if(Number.isFinite(Number(x.value)))return Number(x.value);
+  if(Number.isFinite(Number(x.momentum)))return Number(x.momentum);
+  if(Number.isFinite(Number(x.pressure)))return Number(x.pressure);
+  const h=num(x.home??x.homeValue??x.homeMomentum),a=num(x.away??x.awayValue??x.awayMomentum);
+  if(h||a)return h-a;
+  return 0;
+}
+function momentumPointMinute(x,i){if(x&&typeof x==="object"){for(const v of [x.minute,x.min,x.time,x.matchMinute,x.x]){const m=String(v??'').match(/\d+/);if(m)return Number(m[0])}}return i+1}
+function normalizedMomentumPoints(m){return normalizeMomentum(m).map((x,i)=>({minute:momentumPointMinute(x,i),value:momentumPointValue(x)})).filter(p=>Number.isFinite(p.value))}
+function derivedMomentumFromShots(shotmap,homeId,awayId,currentMinute=0){
+  const shots=Array.isArray(shotmap?.shots)?shotmap.shots:Array.isArray(shotmap)?shotmap:[];
+  const by=new Map();
+  for(const s of shots){
+    const side=shotSide(s,homeId,awayId);if(!side)continue;
+    const minute=Math.max(1,num(s?.min)+num(s?.minAdded));
+    let weight=1+Math.min(4,num(s?.expectedGoals)*4);
+    if(isShotOnTarget(s))weight+=2;
+    if(isBigChanceShot(s))weight+=3;
+    if(normalizeKey(s?.eventType||s?.result||s?.type).includes('goal'))weight+=2;
+    const signed=side==='home'?weight:-weight;
+    by.set(minute,(by.get(minute)||0)+signed);
+  }
+  const end=Math.max(currentMinute,...by.keys(),1),points=[];
+  for(let minute=1;minute<=end;minute++){
+    let value=0,den=0;
+    for(let k=Math.max(1,minute-2);k<=minute;k++){const w=k===minute?1:k===minute-1?.7:.45;value+=(by.get(k)||0)*w;den+=w}
+    value=den?value/den:0;
+    points.push({minute,value:Math.round(value*10)/10});
+  }
+  return points;
+}
+function lastMomentumValue(m){const a=Array.isArray(m)?m:normalizedMomentumPoints(m);if(!a.length)return null;const l=a[a.length-1];return typeof l==="number"?l:Number(l?.value??0)}
 function getLiveMinute(status){if(!status)return"";if(status.liveTime?.short)return String(status.liveTime.short);if(status.liveTime?.long)return String(status.liveTime.long);if(typeof status.liveTime==="string")return status.liveTime;if(status.reason&&String(status.reason).includes("'"))return String(status.reason);return""}
 function detailMinute(data){
   const g=data?.general||{};
@@ -203,8 +258,11 @@ module.exports=async(req,res)=>{try{
     const recent15=sm.recent15,
       rtg=calculateRtg(stats,recent15),
       momentum=content?.momentum||content?.matchMomentum||null,
-      momentumArray=normalizeMomentum(momentum),
-      latestMomentum=lastMomentumValue(momentum),
+      providerMomentum=normalizedMomentumPoints(momentum),
+      derivedMomentum=derivedMomentumFromShots(shotmap,ids.home,ids.away,minuteNum),
+      momentumArray=providerMomentum.length?providerMomentum:derivedMomentum,
+      latestMomentum=lastMomentumValue(momentumArray),
+      momentumSource=providerMomentum.length?'FOTMOB':'SOCCERTREND_DERIVED',
       events=content?.matchFacts?.events||[];
 
     return res.status(200).json({
@@ -220,7 +278,7 @@ module.exports=async(req,res)=>{try{
       bridgeError,
       recent15,
       rtg,
-      momentum:{latest:latestMomentum,history:momentumArray},
+      momentum:{latest:latestMomentum,history:momentumArray,source:momentumSource},
       events,
       shotmap,
       hasStats:statsMeaningful(stats),
