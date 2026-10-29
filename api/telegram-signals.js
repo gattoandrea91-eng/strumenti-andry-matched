@@ -30,7 +30,42 @@ async function cleanupLateQueued(){try{await db(`soccertrend_signals?created_at=
 async function latestDailyMarker(){const rows=await db('soccertrend_signals?match_id=like.DAILY_REPORT_*&select=match_id,score,created_at&order=created_at.desc&limit=1')||[];return rows[0]||null}
 async function dailyMarker(day){const rows=await db(`soccertrend_signals?match_id=eq.${encodeURIComponent('DAILY_REPORT_'+day)}&select=match_id&limit=1`)||[];return rows[0]||null}
 async function dailyRows(day){const start=zonedMidnightUtc(day).toISOString(),end=zonedMidnightUtc(nextDayString(day)).toISOString();return await db(`soccertrend_signals?select=*&created_at=gte.${encodeURIComponent(start)}&created_at=lt.${encodeURIComponent(end)}&signal_minute=lt.80&limit=1000`)||[]}
-async function sendDailyReport(day,force=false){if(day<DAILY_TRACKING_START)return null;if(!force&&await dailyMarker(day))return null;const rows=await dailyRows(day),settled=rows.filter(r=>n(r.message_id)<0&&hasEntryQuote(r.score)&&String(r.market)!=='DAILY_REPORT'),open=rows.filter(r=>n(r.message_id)>=QUALIFIED_OFFSET);let wins=0,losses=0,pl=0;for(const r of settled){const q=entryQuote(r.score);if(n(r.score)<0){losses++;pl-=DAILY_STAKE}else{wins++;pl+=DAILY_STAKE*(q-1)}}const markers=await db(`soccertrend_signals?match_id=like.DAILY_REPORT_*&created_at=lt.${encodeURIComponent(zonedMidnightUtc(nextDayString(day)).toISOString())}&select=match_id,score,created_at&order=created_at.desc&limit=20`)||[],prev=markers.find(r=>String(r.match_id)!=='DAILY_REPORT_'+day),startBankroll=prev?Math.abs(n(prev.score))/100:DAILY_START_BANKROLL,endBankroll=startBankroll+pl,totalProgress=endBankroll-DAILY_START_BANKROLL,pct=DAILY_START_BANKROLL?totalProgress/DAILY_START_BANKROLL*100:0;const text=`📊 <b>ADF Academy — BILANCIO GIORNALIERO</b>\n\n📅 ${day.split('-').reverse().join('/')}\n💼 Cassa iniziale giornata: <b>${euro(startBankroll)}</b>\n🎯 Puntata fissa: <b>${euro(DAILY_STAKE)}</b>\n\n🎟 Giocate chiuse: <b>${settled.length}</b>\n✅ WIN: <b>${wins}</b>\n❌ LOSS: <b>${losses}</b>\n⏳ Ancora aperte: <b>${open.length}</b>\n\n💰 P/L giornata: <b>${pl>=0?'+':''}${euro(pl)}</b>\n🏦 Cassa attuale: <b>${euro(endBankroll)}</b>\n📈 Progresso dal 27/10/2026: <b>${totalProgress>=0?'+':''}${euro(totalProgress)} (${pct>=0?'+':''}${pct.toFixed(2)}%)</b>\n\n<i>Calcolo basato sulle quote d’ingresso registrate da SoccerTrend e stake fisso da 20 €.</i>`;const sent=await telegramSend(text);if(!(await dailyMarker(day)))await claimSignal({match_id:'DAILY_REPORT_'+day,message_id:-Math.abs(n(sent.message_id)||1),home:'SOCCERTREND',away:day,start_home_goals:0,start_away_goals:0,start_goals:0,signal_minute:0,market:'DAILY_REPORT',score:Math.round(endBankroll*100),corners:0,touches:0,big_chances:0,shots:0,sot:0});return{day,wins,losses,pl,startBankroll,endBankroll,open:open.length}}
+function quoteBand(q){return q<2?'1.50-1.99':q<3?'2.00-2.99':'3.00+'}
+function kellyStake(bankroll,quote,sample){if(sample.length<30)return 0;const wins=sample.filter(x=>x.win).length,count=sample.length,z=1.96,p=wins/count,den=1+z*z/count;const lower=(p+z*z/(2*count)-z*Math.sqrt(p*(1-p)/count+z*z/(4*count*count)))/den;const full=(lower*quote-1)/(quote-1);return Math.round(Math.min(bankroll*.02,bankroll*Math.max(0,full)*.25)*100)/100}
+function romeDate(iso){return romeParts(new Date(iso)).date}
+async function cycleRows(day){const start=zonedMidnightUtc(DAILY_TRACKING_START).toISOString(),end=zonedMidnightUtc(nextDayString(day)).toISOString();return await db(`soccertrend_signals?select=match_id,created_at,message_id,score,market,signal_minute&created_at=gte.${encodeURIComponent(start)}&created_at=lt.${encodeURIComponent(end)}&signal_minute=lt.80&order=created_at.asc&limit=1000`)||[]}
+async function sendDailyReport(day,force=false){
+if(!/^\d{4}-\d{2}-\d{2}$/.test(day)||day<DAILY_TRACKING_START)throw Error('Invalid report day');
+if(!force&&await dailyMarker(day))return null;
+const all=await cycleRows(day),byDay={};
+for(const r of all){const d=romeDate(r.created_at);if(d>day||String(r.market)==='DAILY_REPORT')continue;(byDay[d]??=[]).push(r)}
+const groups=Object.keys(byDay).sort();
+let fixedBank=DAILY_START_BANKROLL,kellyBank=DAILY_START_BANKROLL,dayFixedStart=fixedBank,dayKellyStart=kellyBank;
+let dayWins=0,dayLosses=0,dayBets=0,dayPending=0,dayKellyBets=0,dayKellyInsufficient=0;
+const history={};
+for(const d of groups){
+ if(d===day){dayFixedStart=fixedBank;dayKellyStart=kellyBank}
+ const completed=[];
+ for(const r of byDay[d]){
+  const q=entryQuote(r.score),msg=n(r.message_id);
+  if(msg>=0){if(d===day&&msg>=QUALIFIED_OFFSET)dayPending++;continue}
+  if(!hasEntryQuote(r.score)||q<=1)continue;
+  const win=n(r.score)>0,band=quoteBand(q),stake=kellyStake(kellyBank,q,history[band]||[]);
+  if(d===day){dayBets++;if(win)dayWins++;else dayLosses++;if(stake>0)dayKellyBets++;else dayKellyInsufficient++}
+  fixedBank=Math.round((fixedBank+(win?DAILY_STAKE*(q-1):-DAILY_STAKE))*100)/100;
+  kellyBank=Math.round((kellyBank+(win?stake*(q-1):-stake))*100)/100;
+  completed.push({band,win});
+ }
+ for(const bet of completed)(history[bet.band]??=[]).push(bet)
+}
+if(!groups.includes(day)){dayFixedStart=fixedBank;dayKellyStart=kellyBank}
+const fixedPl=Math.round((fixedBank-dayFixedStart)*100)/100,kellyPl=Math.round((kellyBank-dayKellyStart)*100)/100;
+const fTotal=Math.round((fixedBank-DAILY_START_BANKROLL)*100)/100,kTotal=Math.round((kellyBank-DAILY_START_BANKROLL)*100)/100;
+const message=`📊 <b>ADF Academy — DOPPIO BILANCIO</b>\n\n📅 ${day.split('-').reverse().join('/')}\n🎟 Giocate concluse: <b>${dayBets}</b> | ✅ ${dayWins} WIN • ❌ ${dayLosses} LOSS\n⏳ Ingressi aperti: <b>${dayPending}</b>\n\n💶 <b>SIMULAZIONE A — STAKE FISSO 20 €</b>\n🏦 Inizio: <b>${euro(dayFixedStart)}</b>\n📈 Giorno: <b>${fixedPl>=0?'+':''}${euro(fixedPl)}</b>\n💰 Cassa: <b>${euro(fixedBank)}</b>\n📊 Da 27/10: <b>${fTotal>=0?'+':''}${euro(fTotal)}</b>\n\n🧮 <b>SIMULAZIONE B — ¼ KELLY</b>\n🏦 Inizio: <b>${euro(dayKellyStart)}</b>\n📈 Giorno: <b>${kellyPl>=0?'+':''}${euro(kellyPl)}</b>\n💰 Cassa: <b>${euro(kellyBank)}</b>\n📊 Da 27/10: <b>${kTotal>=0?'+':''}${euro(kTotal)}</b>\n🎯 Puntate Kelly non nulle: <b>${dayKellyBets}</b> | Senza campione: <b>${dayKellyInsufficient}</b>\n\n<i>Kelly prudente: 25% Kelly, max 2% cassa; stima conservativa con limite inferiore Wilson sui soli risultati dei giorni precedenti nella stessa fascia quota (min. 30). Senza campione, puntata virtuale 0 €. Entrambe le simulazioni sono teoriche, non puntate reali. Esclusi segnali dall'80'.</i>`;
+const sent=await telegramSend(message);
+if(!(await dailyMarker(day)))await claimSignal({match_id:'DAILY_REPORT_'+day,message_id:-Math.abs(n(sent.message_id)||1),home:'SOCCERTREND',away:day,start_home_goals:0,start_away_goals:0,start_goals:0,signal_minute:0,market:'DAILY_REPORT',score:Math.round(fixedBank*100),corners:Math.round(kellyBank*100),touches:0,big_chances:0,shots:0,sot:0});
+return{day,wins:dayWins,losses:dayLosses,closed:dayBets,open:dayPending,fixed:{start:dayFixedStart,profit:fixedPl,bankroll:fixedBank},kelly:{start:dayKellyStart,profit:kellyPl,bankroll:kellyBank,bets:dayKellyBets,insufficientSample:dayKellyInsufficient}}
+}
 async function maybeSendDailyReport(){const now=romeParts();if(now.date<DAILY_TRACKING_START)return null;if(now.hour<23||(now.hour===23&&now.minute<55))return null;return await sendDailyReport(now.date,false)}
 async function claimSignal(row){try{const d=await db('soccertrend_signals',{method:'POST',headers:{Prefer:'return=representation'},body:JSON.stringify(row)});return Array.isArray(d)&&d[0]?d[0]:row}catch(e){if(String(e.message).includes('23505')||String(e.message).includes('409'))return null;throw e}}
 async function setMessageId(matchId,messageId){await db(`soccertrend_signals?match_id=eq.${encodeURIComponent(matchId)}`,{method:'PATCH',headers:{Prefer:'return=minimal'},body:JSON.stringify({message_id:messageId})})}
