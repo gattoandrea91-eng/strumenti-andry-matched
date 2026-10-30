@@ -1,0 +1,9 @@
+const assert=require('node:assert/strict');
+const handler=require('./nba-matrix-handler');
+process.env.NBA_MATRIX_SYNC_SECRET='test-only';process.env.SOCCERTREND_SUPABASE_SECRET_KEY='fake';
+const row={chat_id:'-4640857365',message_id:1,created_at:'2026-10-28T12:00:00+01:00',match:'A @ B',player:'Player',selection:'Over 7.5 rimbalzi',book:'Sisal',odds:2.4,stake_units:1,result:'WIN'};
+const t=handler._test;assert(t.valid(row));assert(!t.valid({...row,created_at:'2026-10-27T22:59:59Z'}));assert(t.valid({...row,created_at:'2026-10-27T23:00:00Z'}));assert(!t.valid({...row,chat_id:'other'}));
+let d=t.summary({bets:[row,{...row,message_id:2,result:'LOSS',stake_units:.5},{...row,message_id:3,result:'PENDING'},{...row,message_id:4,result:'PUSH'}]});assert.equal(d.profit,.9);assert.equal(d.winRate,50);assert.equal(d.roi,60);assert.equal(d.turnover,1.5);assert.equal(d.pending,1);
+let saved={bets:[row]};let writes=0;global.fetch=async(url,opts)=>{if(url.includes('/bucket/'))return new Response('{}');if(opts.method==='POST'){saved=JSON.parse(opts.body);writes++;return new Response('{}');}return new Response(JSON.stringify(saved));};
+async function call(method,body,auth='Bearer test-only'){let code;let data;await handler({method,body,headers:{authorization:auth}},{setHeader(){},status(c){code=c;return this},json(d){data=d;return this}});return {code,data};}
+(async()=>{assert.equal((await call('POST',{bets:[row]},'bad')).code,403);assert.equal(writes,0);assert.equal((await call('POST',{bets:[row,row]})).code,400);assert.equal((await call('POST',{bets:[{...row,result:'PENDING'}]})).code,200);assert.equal(saved.bets.length,1);assert.equal(saved.bets[0].result,'WIN');await call('POST',{bets:[row]});assert.equal(saved.bets.length,1);assert.equal((await call('GET')).data.wins,1);console.log('NBA Matrix API tests passed: auth, cutoff, deduplication, outcomes, units, ROI.');})();
