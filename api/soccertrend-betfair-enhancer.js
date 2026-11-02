@@ -18,7 +18,7 @@ async function progressiveStake(){
   const rows=await db(`soccertrend_signals?select=match_id,score,message_id,market,created_at&created_at=gte.${encodeURIComponent(PROGRESSION_START_UTC)}&message_id=lt.0&signal_minute=lt.80&order=created_at.asc&limit=1000`)||[];
   let consecutiveLosses=0;
   for(const r of rows){
-    if(!/^\\d+$/.test(String(r.match_id))||quoteFromScore(r.score)<=1)continue;
+    if(!/^\d+$/.test(String(r.match_id))||quoteFromScore(r.score)<=1)continue;
     if(n(r.score)>0)consecutiveLosses=0;
     else consecutiveLosses++;
   }
