@@ -2,6 +2,7 @@ const nbaMatrixHandler=require('../nba-matrix-handler');
 function n(v){const x=Number(v);return Number.isFinite(x)?x:0}
 const INITIAL_CAPITAL=1000;
 const STAKE=50;
+const PROGRESSION_START_UTC='2026-11-02T15:03:00.000Z';
 const STAKE_CHANGE_UTC='2026-11-01T23:00:00.000Z'; // 02/11/2026 00:00 Europe/Rome
 function stakeForDate(iso){return String(iso||'')>=STAKE_CHANGE_UTC?50:20}
 const TRACKING_START_UTC='2026-10-26T23:00:00.000Z'; // 27/10/2026 00:00 Europe/Rome
@@ -11,13 +12,16 @@ async function db(path){const{url,key}=supaConfig();const r=await fetch(`${url}/
 function entryQuote(score){const x=Math.abs(n(score));return x>=10000?(x%10000)/100:0}
 module.exports=async(req,res)=>{if(String(req.query?.nba||'')==='1')return nbaMatrixHandler(req,res);try{
 const signals=await db(`soccertrend_signals?message_id=lt.0&created_at=gte.${encodeURIComponent(TRACKING_START_UTC)}&signal_minute=lt.80&select=score,signal_minute,match_id,home,away,market,created_at&order=created_at.asc&limit=1000`)||[];
+const savedStakes=await db('soccertrend_signals?market=eq.PROGRESSION_STAKE&select=match_id,corners&limit=1000')||[];
+const stakeByMatch=new Map(savedStakes.map(r=>[String(r.match_id).replace(/^STAKE_/,''),n(r.corners)/100]));
 let profit=0,wins=0,losses=0;const bets=[];
 for(const s of signals){
   if(String(s.market||'')==='DAILY_REPORT')continue;
   const q=entryQuote(s.score);
   if(!q)continue;
   const result=n(s.score)>0?'WIN':'LOSS';
-  const betStake=stakeForDate(s.created_at);
+  const savedStake=stakeByMatch.get(String(s.match_id));
+  const betStake=String(s.created_at||'')>=PROGRESSION_START_UTC&&savedStake>0?savedStake:stakeForDate(s.created_at);
   if(result==='WIN'){wins++;profit+=betStake*(q-1)}else{losses++;profit-=betStake}
   bets.push({match_id:String(s.match_id),match:`${s.home||''} - ${s.away||''}`,market:s.market||'',minute:n(s.signal_minute),quote:q,result,stake:betStake,created_at:s.created_at})
 }
@@ -26,5 +30,5 @@ const total=wins+losses;
 const winRate=total?Math.round((wins/total)*1000)/10:0;
 const capital=Math.round((INITIAL_CAPITAL+profit)*100)/100;
 res.setHeader('Cache-Control','no-store');
-return res.status(200).json({success:true,wins,losses,total,winRate,initialCapital:INITIAL_CAPITAL,stake:STAKE,stakeChangedOn:'2026-11-02',previousStake:20,maxSignalMinute:MAX_SIGNAL_MINUTE,trackingFrom:'2026-10-27',profit,capital,source:'NEW_CYCLE_FROM_2026_10_27',bets});
+return res.status(200).json({success:true,wins,losses,total,winRate,initialCapital:INITIAL_CAPITAL,stake:STAKE,stakeChangedOn:'2026-11-02',previousStake:20,stakingStrategy:'50_EUR_THEN_70_AFTER_TWO_CONSECUTIVE_LOSSES_UNTIL_WIN',maxSignalMinute:MAX_SIGNAL_MINUTE,trackingFrom:'2026-10-27',profit,capital,source:'NEW_CYCLE_FROM_2026_10_27',bets});
 }catch(error){return res.status(500).json({success:false,error:String(error?.message||error)})}};
