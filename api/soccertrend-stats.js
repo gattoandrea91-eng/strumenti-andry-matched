@@ -1,7 +1,9 @@
 const nbaMatrixHandler=require('../nba-matrix-handler');
 function n(v){const x=Number(v);return Number.isFinite(x)?x:0}
 const INITIAL_CAPITAL=1000;
-const STAKE=20;
+const STAKE=50;
+const STAKE_CHANGE_UTC='2026-11-01T23:00:00.000Z'; // 02/11/2026 00:00 Europe/Rome
+function stakeForDate(iso){return String(iso||'')>=STAKE_CHANGE_UTC?50:20}
 const TRACKING_START_UTC='2026-10-26T23:00:00.000Z'; // 27/10/2026 00:00 Europe/Rome
 const MAX_SIGNAL_MINUTE=79;
 function supaConfig(){const url=process.env.SUPABASE_URL||'https://aihwrkqfzhwedqdbxbxh.supabase.co',key=process.env.SOCCERTREND_SUPABASE_SECRET_KEY;if(!key)throw new Error('Manca SOCCERTREND_SUPABASE_SECRET_KEY su Vercel');return{url,key}}
@@ -15,13 +17,14 @@ for(const s of signals){
   const q=entryQuote(s.score);
   if(!q)continue;
   const result=n(s.score)>0?'WIN':'LOSS';
-  if(result==='WIN'){wins++;profit+=STAKE*(q-1)}else{losses++;profit-=STAKE}
-  bets.push({match_id:String(s.match_id),match:`${s.home||''} - ${s.away||''}`,market:s.market||'',minute:n(s.signal_minute),quote:q,result,stake:STAKE,created_at:s.created_at})
+  const betStake=stakeForDate(s.created_at);
+  if(result==='WIN'){wins++;profit+=betStake*(q-1)}else{losses++;profit-=betStake}
+  bets.push({match_id:String(s.match_id),match:`${s.home||''} - ${s.away||''}`,market:s.market||'',minute:n(s.signal_minute),quote:q,result,stake:betStake,created_at:s.created_at})
 }
 profit=Math.round(profit*100)/100;
 const total=wins+losses;
 const winRate=total?Math.round((wins/total)*1000)/10:0;
 const capital=Math.round((INITIAL_CAPITAL+profit)*100)/100;
 res.setHeader('Cache-Control','no-store');
-return res.status(200).json({success:true,wins,losses,total,winRate,initialCapital:INITIAL_CAPITAL,stake:STAKE,maxSignalMinute:MAX_SIGNAL_MINUTE,trackingFrom:'2026-10-27',profit,capital,source:'NEW_CYCLE_FROM_2026_10_27',bets});
+return res.status(200).json({success:true,wins,losses,total,winRate,initialCapital:INITIAL_CAPITAL,stake:STAKE,stakeChangedOn:'2026-11-02',previousStake:20,maxSignalMinute:MAX_SIGNAL_MINUTE,trackingFrom:'2026-10-27',profit,capital,source:'NEW_CYCLE_FROM_2026_10_27',bets});
 }catch(error){return res.status(500).json({success:false,error:String(error?.message||error)})}};
