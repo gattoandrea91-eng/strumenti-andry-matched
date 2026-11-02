@@ -63,18 +63,15 @@ async function dailyRows(day){const start=zonedMidnightUtc(day).toISOString(),en
 function romeDate(iso){return romeParts(new Date(iso)).date}
 async function cycleRows(day){const start=zonedMidnightUtc(DAILY_TRACKING_START).toISOString(),end=zonedMidnightUtc(nextDayString(day)).toISOString();return await db(`soccertrend_signals?select=match_id,created_at,message_id,score,market,signal_minute&created_at=gte.${encodeURIComponent(start)}&created_at=lt.${encodeURIComponent(end)}&signal_minute=lt.80&order=created_at.asc&limit=1000`)||[]}
 async function sendDailyReport(day,force=false){
-if(!/^\\d{4}-\\d{2}-\\d{2}$/.test(day)||day<DAILY_TRACKING_START)throw Error('Invalid report day');
+if(!/^\d{4}-\d{2}-\d{2}$/.test(day)||day<DAILY_TRACKING_START)throw Error('Invalid report day');
 if(!force&&await dailyMarker(day))return null;
 const all=await cycleRows(day),saved=await db('soccertrend_signals?market=eq.PROGRESSION_STAKE&select=match_id,corners&limit=1000')||[];
 const stakeByMatch=new Map(saved.map(r=>[String(r.match_id).replace(/^STAKE_/,''),n(r.corners)/100]));
 const bets=all.filter(r=>String(r.market)!=='DAILY_REPORT'&&String(r.market)!=='PROGRESSION_STAKE'&&hasEntryQuote(r.score)&&entryQuote(r.score)>1);
-const start=zonedMidnightUtc(day).toISOString(),end=zonedMidnightUtc(nextDayString(day)).toISOString();
 let bank=DAILY_START_BANKROLL,dayStartBank=bank,dayWins=0,dayLosses=0,dayPending=0,dayBets=0;
 for(const r of bets){
  const iso=String(r.created_at||'');
- if(iso>=start&&dayStartBank===null)dayStartBank=bank;
  const isToday=romeDate(r.created_at)===day;
- if(isToday&&dayBets===0&&dayPending===0)dayStartBank=bank;
  if(n(r.message_id)>=0){if(isToday&&n(r.message_id)>=QUALIFIED_OFFSET)dayPending++;continue}
  const savedStake=stakeByMatch.get(String(r.match_id));
  const stake=iso>=PROGRESSION_START_UTC&&savedStake>0?savedStake:fixedStakeForDay(romeDate(r.created_at));
