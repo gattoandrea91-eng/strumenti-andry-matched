@@ -1,5 +1,5 @@
 const QUALIFIED_OFFSET=1000000000;
-const MAX_SIGNAL_MINUTE=79;
+const MAX_SIGNAL_MINUTE=99; // includes stoppage-time opportunities
 const DAILY_START_BANKROLL=1000;
 const DAILY_STAKE=50;
 const STAKE_CHANGE_DAY='2026-11-02';
@@ -59,9 +59,9 @@ async function settlementMatches(base,existing,currentMatches){
 async function cleanupLateQueued(){try{await db(`soccertrend_signals?created_at=lt.${encodeURIComponent('2026-10-26T23:00:00.000Z')}`,{method:'DELETE',headers:{Prefer:'return=minimal'}});await db(`soccertrend_signals?signal_minute=gte.80&message_id=is.null`,{method:'DELETE',headers:{Prefer:'return=minimal'}});const cutoff=new Date(Date.now()-6*60*60*1000).toISOString();await db(`soccertrend_signals?message_id=is.null&created_at=lt.${encodeURIComponent(cutoff)}`,{method:'DELETE',headers:{Prefer:'return=minimal'}})}catch(e){console.error('cleanupLateQueued',e)}}
 async function latestDailyMarker(){const rows=await db('soccertrend_signals?match_id=like.DAILY_REPORT_*&select=match_id,score,created_at&order=created_at.desc&limit=1')||[];return rows[0]||null}
 async function dailyMarker(day){const rows=await db(`soccertrend_signals?match_id=eq.${encodeURIComponent('DAILY_REPORT_'+day)}&select=match_id&limit=1`)||[];return rows[0]||null}
-async function dailyRows(day){const start=zonedMidnightUtc(day).toISOString(),end=zonedMidnightUtc(nextDayString(day)).toISOString();return await db(`soccertrend_signals?select=*&created_at=gte.${encodeURIComponent(start)}&created_at=lt.${encodeURIComponent(end)}&signal_minute=lt.80&limit=1000`)||[]}
+async function dailyRows(day){const start=zonedMidnightUtc(day).toISOString(),end=zonedMidnightUtc(nextDayString(day)).toISOString();return await db(`soccertrend_signals?select=*&created_at=gte.${encodeURIComponent(start)}&created_at=lt.${encodeURIComponent(end)}&signal_minute=lte.${MAX_SIGNAL_MINUTE}&limit=1000`)||[]}
 function romeDate(iso){return romeParts(new Date(iso)).date}
-async function cycleRows(day){const start=zonedMidnightUtc(DAILY_TRACKING_START).toISOString(),end=zonedMidnightUtc(nextDayString(day)).toISOString();return await db(`soccertrend_signals?select=match_id,created_at,message_id,score,market,signal_minute&created_at=gte.${encodeURIComponent(start)}&created_at=lt.${encodeURIComponent(end)}&signal_minute=lt.80&order=created_at.asc&limit=1000`)||[]}
+async function cycleRows(day){const start=zonedMidnightUtc(DAILY_TRACKING_START).toISOString(),end=zonedMidnightUtc(nextDayString(day)).toISOString();return await db(`soccertrend_signals?select=match_id,created_at,message_id,score,market,signal_minute&created_at=gte.${encodeURIComponent(start)}&created_at=lt.${encodeURIComponent(end)}&signal_minute=lte.${MAX_SIGNAL_MINUTE}&order=created_at.asc&limit=1000`)||[]}
 async function sendDailyReport(day,force=false){
 if(!/^\d{4}-\d{2}-\d{2}$/.test(day)||day<DAILY_TRACKING_START)throw Error('Invalid report day');
 if(!force&&await dailyMarker(day))return null;
@@ -84,7 +84,7 @@ let prevBank=DAILY_START_BANKROLL;
 for(const r of dayBetsBefore){const savedStake=stakeByMatch.get(String(r.match_id));const stake=String(r.created_at||'')>=PROGRESSION_START_UTC&&savedStake>0?savedStake:fixedStakeForDay(romeDate(r.created_at));prevBank=Math.round((prevBank+(n(r.score)>0?stake*(entryQuote(r.score)-1):-stake))*100)/100}
 dayStartBank=prevBank;
 const dayProfit=Math.round((bank-dayStartBank)*100)/100,totalProfit=Math.round((bank-DAILY_START_BANKROLL)*100)/100;
-const message=`📊 <b>ADF Academy — BILANCIO SOCCERTREND</b>\\n\\n📅 ${day.split('-').reverse().join('/')}\\n🎟 Giocate concluse: <b>${dayBets}</b> | ✅ ${dayWins} WIN • ❌ ${dayLosses} LOSS\\n⏳ Ingressi aperti: <b>${dayPending}</b>\\n\\n💶 <b>STAKE BASE 50 € — 70 € DOPO 2 LOSS CONSECUTIVE</b>\\n🏦 Inizio giornata: <b>${euro(dayStartBank)}</b>\\n📈 Giorno: <b>${dayProfit>=0?'+':''}${euro(dayProfit)}</b>\\n💰 Cassa simulata: <b>${euro(bank)}</b>\\n📊 Da 27/10: <b>${totalProfit>=0?'+':''}${euro(totalProfit)}</b>\\n\\n<i>Dal 2 novembre: base 50 €. Dal cambio strategia: dopo 2 LOSS concluse consecutive, 70 € fino alla prima WIN, poi 50 €. Lo storico precedente conserva lo stake originale. Simulazione teorica, nessuna puntata automatica.</i>`;
+const message=`📊 <b>ADF Academy — BILANCIO SOCCERTREND</b>\\n\\n📅 ${day.split('-').reverse().join('/')}\\n🎟 Giocate concluse: <b>${dayBets}</b> | ✅ ${dayWins} WIN • ❌ ${dayLosses} LOSS\\n⏳ Ingressi aperti: <b>${dayPending}</b>\\n\\n💶 <b>STAKE BASE 50 € — 70 € DOPO 2 LOSS (80'+ SEMPRE 50 €)</b>\\n🏦 Inizio giornata: <b>${euro(dayStartBank)}</b>\\n📈 Giorno: <b>${dayProfit>=0?'+':''}${euro(dayProfit)}</b>\\n💰 Cassa simulata: <b>${euro(bank)}</b>\\n📊 Da 27/10: <b>${totalProfit>=0?'+':''}${euro(totalProfit)}</b>\\n\\n<i>Dal 2 novembre: base 50 €. Dopo 2 LOSS concluse consecutive, 70 € fino alla prima WIN, poi 50 €. Dal minuto 80 in poi lo stake resta sempre 50 €. Lo storico precedente conserva lo stake originale. Simulazione teorica, nessuna puntata automatica.</i>`;
 const sent=await telegramSend(message);
 if(!(await dailyMarker(day)))await claimSignal({match_id:'DAILY_REPORT_'+day,message_id:-Math.abs(n(sent.message_id)||1),home:'SOCCERTREND',away:day,start_home_goals:0,start_away_goals:0,start_goals:0,signal_minute:0,market:'DAILY_REPORT',score:Math.round(bank*100),corners:0,touches:0,big_chances:0,shots:0,sot:0});
 return{day,wins:dayWins,losses:dayLosses,closed:dayBets,open:dayPending,bankroll:bank,profit:dayProfit,stake:50,lossStreakStake:70};
