@@ -1,11 +1,36 @@
 {
   "redirects": [
-    { "source": "/", "destination": "/home-odds.html", "permanent": false },
-    { "source": "/index.html", "destination": "/home-odds.html", "permanent": false }
+    {
+      "source": "/",
+      "destination": "/home-odds.html",
+      "permanent": false
+    },
+    {
+      "source": "/index.html",
+      "destination": "/home-odds.html",
+      "permanent": false
+    }
   ],
   "rewrites": [
-    { "source": "/trackergatto.html", "destination": "/trackergatto-v2.html" },
-    { "source": "/soccertrend.html", "destination": "/soccertrend-pro.html" },
-    { "source": "/legacy-tools", "destination": "/index.html" }
+    {
+      "source": "/mbrain-tracker",
+      "destination": "/trackergatto-v2.html"
+    },
+    {
+      "source": "/mbrain-tools",
+      "destination": "/tool.html"
+    },
+    {
+      "source": "/trackergatto.html",
+      "destination": "/trackergatto-v2.html"
+    },
+    {
+      "source": "/soccertrend.html",
+      "destination": "/soccertrend-pro.html"
+    },
+    {
+      "source": "/legacy-tools",
+      "destination": "/index.html"
+    }
   ]
 }
