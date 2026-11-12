@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>TrackerGatto</title>
+<title>MBrain Tracker</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 html,body{margin:0;height:100%;background:#070809;font-family:Arial,sans-serif}
@@ -15,7 +15,7 @@ iframe{width:100%;height:100%;border:0;display:block}
 </style>
 </head>
 <body>
-<iframe id="trackerFrame" src="/trackergatto-v2.html" title="TrackerGatto"></iframe>
+<iframe id="trackerFrame" src="/trackergatto-v2.html" title="MBrain Tracker"></iframe>
 <div id="bar"><div id="status"></div><button id="importBtn" type="button">📥 Importa conti CSV</button><input id="csvFile" type="file" accept=".csv,text/csv" hidden></div>
 <script>
 const SUPA = window.supabase.createClient('https://aihwrkqfzhwedqdbxbxh.supabase.co','sb_publishable_G_glT9ld2cqENlVSup38NQ_q8HWyZPd');
@@ -23,7 +23,7 @@ const btn=document.getElementById('importBtn'), input=document.getElementById('c
 function setStatus(msg){statusEl.textContent=msg;statusEl.style.display=msg?'block':'none'}
 btn.addEventListener('click', async()=>{
   const {data}=await SUPA.auth.getSession();
-  if(!data?.session){alert('Accedi prima al TrackerGatto, poi premi di nuovo Importa conti CSV.');return}
+  if(!data?.session){alert('Accedi prima al MBrain Tracker, poi premi di nuovo Importa conti CSV.');return}
   input.click();
 });
 input.addEventListener('change', async()=>{
