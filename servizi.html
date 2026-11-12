@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Servizi</title>
+  <title>MBrain Servizi</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     body{font-family:Arial,sans-serif;background:#0b1220;color:white;margin:0;padding:20px}
@@ -14,13 +14,13 @@
     .green{background:#22c55e;color:#052e16}.gray{background:#334155;color:white}.red{background:#b91c1c;color:white}.yellow{background:#facc15;color:#422006}.hidden{display:none}.msg{margin-top:10px;color:#cbd5e1}
     .service{background:#1e293b;padding:12px;border-radius:10px;margin-top:10px}
     table{width:100%;border-collapse:collapse;margin-top:15px}th,td{border-bottom:1px solid #334155;padding:10px;text-align:left;font-size:14px}.pos{color:#4ade80;font-weight:bold}.neg{color:#f87171;font-weight:bold}.pending{color:#facc15;font-weight:bold}.row-actions{display:flex;gap:5px;flex-wrap:wrap}.row-actions button{width:auto;margin:0;padding:7px 9px;font-size:12px}
-  </style>
+  .mbrain-heading{display:flex;align-items:center;gap:15px;margin-bottom:24px}.mbrain-heading img{width:72px;height:72px;object-fit:cover;border-radius:50%;border:2px solid #35dc73;box-shadow:0 0 22px #24c96955}.mbrain-heading h1{margin:0;color:#64ef96}.mbrain-heading small{color:#a8cbb4;text-transform:uppercase;font-weight:bold;letter-spacing:1px}body{background:linear-gradient(180deg,#051009,#0b1710);color:#f1fff4}.box{background:#101c15;border:1px solid #235438;box-shadow:0 8px 24px #0004}button{cursor:pointer}button.green,.green{background:#1eaf55;color:#fff}.gray{background:#1a3322;color:#f2fff5}h2{color:#92f5b1} </style>
 </head>
 <body>
-<h1>Servizi</h1>
+<div class="mbrain-heading"><img src="/assets/mbrain-logo.png" alt="MBrain"><div><h1>MBrain Servizi</h1><small>Analizza · Organizza · Cresci</small></div></div>
 <div id="loginBox" class="box"><h2>Login</h2><input id="email" type="email" placeholder="Email"><input id="password" type="password" placeholder="Password"><button class="green" onclick="login()">Login</button><div id="loginMsg" class="msg">—</div></div>
 <div id="appBox" class="hidden">
-  <div class="box"><h2>Area Servizi</h2><div id="userInfo" class="msg"></div><button class="gray" onclick="window.location.href='index.html'">← Torna a index</button><button class="gray" onclick="logout()">Logout</button></div>
+  <div class="box"><h2>Area Servizi</h2><div id="userInfo" class="msg"></div><button class="gray" onclick="window.location.href='/'">← Dashboard MBrain</button><button class="gray" onclick="logout()">Logout</button></div>
   <div class="box"><h2>Totale servizi</h2><div id="totalProfit" style="font-size:30px;font-weight:bold;">€ 0,00</div></div>
   <div class="box"><h2>Crea servizio</h2><input id="serviceName" placeholder="Nome servizio"><button class="green" onclick="createService()">Crea servizio</button><div id="serviceMsg" class="msg">—</div></div>
   <div class="box"><h2>Lista servizi</h2><div id="servicesList">Nessun servizio</div></div>
