@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="it">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="dark"><title>Promemoria — MBrain Tracker</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+*{box-sizing:border-box}html,body{margin:0;min-height:100%;font-family:Inter,Arial,sans-serif;color:#f4fff5;background-color:#050c08}
+body{background-image:linear-gradient(90deg,rgba(3,11,6,.94),rgba(4,17,9,.85) 52%,rgba(4,13,7,.93)),url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%221200%22%20height%3D%22300%22%20viewBox%3D%220%200%201200%20300%22%3E%3Cdefs%3E%3ClinearGradient%20id%3D%22fade%22%20x1%3D%220%22%20x2%3D%221%22%3E%3Cstop%20stop-color%3D%22%2307200e%22%20stop-opacity%3D%22.28%22%2F%3E%3Cstop%20offset%3D%22.5%22%20stop-color%3D%22%230c4822%22%20stop-opacity%3D%22.55%22%2F%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%230a331c%22%20stop-opacity%3D%22.9%22%2F%3E%3C%2FlinearGradient%3E%3C%2Fdefs%3E%3Crect%20width%3D%221200%22%20height%3D%22300%22%20fill%3D%22url(%23fade)%22%2F%3E%3Ctext%20x%3D%2216%22%20y%3D%22-55%22%20fill%3D%22%2360ff85%22%20opacity%3D%220.38%22%20font-family%3D%22monospace%22%20font-size%3D%2216%22%20letter-spacing%3D%223%22%20writing-mode%3D%22tb%22%3E010011010101101010011010101101010011010101101%3C%2Ftext%3E%3Ctext%20x%3D%2267%22%20y%3D%22-37%22%20fill%3D%22%2335c76b%22%20opacity%3D%220.22%22%20font-family%3D%22monospace%22%20font-size%3D%2214%22%20letter-spacing%3D%223%22%20writing-mode%3D%22tb%22%3E101101001101001101101001101001101101001101001%3C%2Ftext%3E%3Ctext%20x%3D%22118%22%20y%3D%22-19%22%20fill%3D%22%2335c76b%22%20opacity%3D%220.22%22%20font-family%3D%22monospace%22%20font-size%3D%2214%22%20letter-spacing%3D%223%22%20writing-mode%3D%22tb%22%3E001011011010110001011011010110001011011010110%3C%2Ftext%3E%3Ctext%20x%3D%22169%22%20y%3D%22-1%22%20fill%3D%22%2335c76b%22%20opacity%3D%220.38%22%20font-family%3D%22monospace%22%20font-size%3D%2216%22%20letter-spacing%3D%223%22%20writing-mode%3D%22tb%22%3E110010101101010110010101101010110010101101010%3C%2Ftext%3E%3Ctext%20x%3D%22220%22%20y%3D%2217%22%20fill%3D%22%2360ff85%22%20opacity%3D%220.22%22%20font-family%3D%22monospace%22%20font-size%3D%2214%22%20letter-spacing%3D%223%22%20writing-mode%3D%22tb%22%3E011001110101001011001110101001011001110101001%3C%2Ftext%3E%3Ctext%20x%3D%22271%22%20y%3D%22-55%22%20fill%3D%22%2335c76b%22%20opacity%3D%220.22%22%20font-family%3D%22monospace%22%20font-size%3D%2214%22%20letter-spacing%3D%223%22%20writing-mode%3D%22tb%22%3E100110101110010100110101110010100110101110010%3C%2Ftext%3E%3Ctext%20x%3D%22322%22%20y%3D%22-37%22%20fill%3D%22%2335c76b%22%20opacity%3D%220.38%22%20font-family%3D%22monospace%22%20font-size%3D%2216%22%20letter-spacing%3D%223%22%20writing-mode%3D%22tb%22%3E010101100101101010101100101101010101100101101%3C%2Ftext%3E%3Ctext%20x%3D%22373%22%20y%3D%22-19%22%20fill%3D%22%2335c76b%22%20opacity%3D%220.22%22%20font-family%3D%22monospace%22%20font-size%3D%2214%22%20letter-spacing%3D%223%22%20writing-mode%3D%22tb%22%3E111001001011010111001001011010111001001011010%3C%2Ftext%3E%3Ctext%20x%3D%22424%22%20y%3D%22-1%22%20fill%3D%22%2360ff85%22%20opacity%3D%220.22%22%20font-family%3D%22monospace%22%20font-size%3D%2214%22%20letter-spacing%3D%223%22%20writing-mode%3D%22tb%22%3E001101010110101001101010110101001101010110101%3C%2Ftext%3E%3Ctext%20x%3D%22475%22%20y%3D%2217%22%20fill%3D%22%2335c76b%22%20opacity%3D%220.38%22%20font-family%3D%22monospace%22%20font-size%3D%2216%22%20letter-spacing%3D%223%22%20writing-mode%3D%22tb%22%3E101011001010111101011001010111101011001010111%3C%2Ftext%3E%3Ctext%20x%3D%22526%22%20y%3D%22-55%22%20fill%3D%22%2335c76b%22%20opacity%3D%220.22%22%20font-family%3D%22monospace%22%20font-size%3D%2214%22%20letter-spacing%3D%223%22%20writing-mode%3D%22tb%22%3E010010110110100010010110110100010010110110100%3C%2Ftext%3E%3Ctext%20x%3D%22577%22%20y%3D%22-37%22%20fill%3D%22%2335c76b%22%20opacity%3D%220.22%22%20font-family%3D%22monospace%22%20font-size%3D%2214%22%20letter-spacing%3D%223%22%20writing-mode%3D%22tb%22%3E110101001101010110101001101010110101001101010%3C%2Ftext%3E%3Ctext%20x%3D%22628%22%20y%3D%22-19%22%20fill%3D%22%2360ff85%22%20opacity%3D%220.38%22%20font-family%3D%22monospace%22%20font-size%3D%2216%22%20letter-spacing%3D%223%22%20writing-mode%3D%22tb%22%3E001011101001101001011101001101001011101001101%3C%2Ftext%3E%3Ctext%20x%3D%22679%22%20y%3D%22-1%22%20fill%3D%22%2335c76b%22%20opacity%3D%220.22%22%20font-family%3D%22monospace%22%20font-size%3D%2214%22%20letter-spacing%3D%223%22%20writing-mode%3D%22tb%22%3E101100110101001101100110101001101100110101001%3C%2Ftext%3E%3Ctext%20x%3D%22730%22%20y%3D%2217%22%20fill%3D%22%2335c76b%22%20opacity%3D%220.22%22%20font-family%3D%22monospace%22%20font-size%3D%2214%22%20letter-spacing%3D%223%22%20writing-mode%3D%22tb%22%3E010101101011010010101101011010010101101011010%3C%2Ftext%3E%3Ctext%20x%3D%22781%22%20y%3D%22-55%22%20fill%3D%22%2335c76b%22%20opacity%3D%220.38%22%20font-family%3D%22monospace%22%20font-size%3D%2216%22%20letter-spacing%3D%223%22%20writing-mode%3D%22tb%22%3E110011010010101110011010010101110011010010101%3C%2Ftext%3E%3Ctext%20x%3D%22832%22%20y%3D%22-37%22%20fill%3D%22%2360ff85%22%20opacity%3D%220.22%22%20font-family%3D%22monospace%22%20font-size%3D%2214%22%20letter-spacing%3D%223%22%20writing-mode%3D%22tb%22%3E001010111001011001010111001011001010111001011%3C%2Ftext%3E%3Ctext%20x%3D%22883%22%20y%3D%22-19%22%20fill%3D%22%2335c76b%22%20opacity%3D%220.22%22%20font-family%3D%22monospace%22%20font-size%3D%2214%22%20letter-spacing%3D%223%22%20writing-mode%3D%22tb%22%3E101101011010010101101011010010101101011010010%3C%2Ftext%3E%3Ctext%20x%3D%22934%22%20y%3D%22-1%22%20fill%3D%22%2335c76b%22%20opacity%3D%220.38%22%20font-family%3D%22monospace%22%20font-size%3D%2216%22%20letter-spacing%3D%223%22%20writing-mode%3D%22tb%22%3E010011101100101010011101100101010011101100101%3C%2Ftext%3E%3Ctext%20x%3D%22985%22%20y%3D%2217%22%20fill%3D%22%2335c76b%22%20opacity%3D%220.22%22%20font-family%3D%22monospace%22%20font-size%3D%2214%22%20letter-spacing%3D%223%22%20writing-mode%3D%22tb%22%3E110100101011001110100101011001110100101011001%3C%2Ftext%3E%3Ctext%20x%3D%221036%22%20y%3D%22-55%22%20fill%3D%22%2360ff85%22%20opacity%3D%220.22%22%20font-family%3D%22monospace%22%20font-size%3D%2214%22%20letter-spacing%3D%223%22%20writing-mode%3D%22tb%22%3E010110010110101010110010110101010110010110101%3C%2Ftext%3E%3Ctext%20x%3D%221087%22%20y%3D%22-37%22%20fill%3D%22%2335c76b%22%20opacity%3D%220.38%22%20font-family%3D%22monospace%22%20font-size%3D%2216%22%20letter-spacing%3D%223%22%20writing-mode%3D%22tb%22%3E101001110101001101001110101001101001110101001%3C%2Ftext%3E%3Ctext%20x%3D%221138%22%20y%3D%22-19%22%20fill%3D%22%2335c76b%22%20opacity%3D%220.22%22%20font-family%3D%22monospace%22%20font-size%3D%2214%22%20letter-spacing%3D%223%22%20writing-mode%3D%22tb%22%3E001101101010110001101101010110001101101010110%3C%2Ftext%3E%3Ctext%20x%3D%221189%22%20y%3D%22-1%22%20fill%3D%22%2335c76b%22%20opacity%3D%220.22%22%20font-family%3D%22monospace%22%20font-size%3D%2214%22%20letter-spacing%3D%223%22%20writing-mode%3D%22tb%22%3E110010101100101110010101100101110010101100101%3C%2Ftext%3E%3C%2Fsvg%3E");background-size:cover,1100px 280px;background-repeat:no-repeat,repeat;background-attachment:fixed,fixed}
+button,input,textarea{font:inherit}button{cursor:pointer}button:disabled{opacity:.6;cursor:wait}
+.wrap{max-width:920px;margin:0 auto;padding:24px 18px 65px}
+.top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:25px}
+.brand{display:flex;align-items:center;gap:12px;font-size:20px;font-weight:900}.brand img{width:56px;height:56px;object-fit:cover;border-radius:12px}.brand span{color:#62ee92}
+.home{display:inline-flex;align-items:center;gap:8px;text-decoration:none;color:#adffc7;background:#11331e;border:1px solid #318b53;padding:12px 17px;border-radius:12px;font-weight:800}.home:hover{background:#1c5030}
+.hero,.panel{border:1px solid #285139;background:linear-gradient(150deg,rgba(13,28,19,.96),rgba(7,17,12,.95));box-shadow:0 20px 45px #0006;border-radius:20px;padding:24px;margin-bottom:17px}
+.hero{display:flex;align-items:center;gap:17px}.hero img{width:78px;height:78px}.hero h1{font-size:32px;margin:0 0 7px}.hero p{margin:0;color:#b0c9b8;line-height:1.55}
+label{display:block;margin:0 0 9px;font-size:14px;font-weight:700;color:#b5ecc9}
+input,textarea{background:#07140c;border:1px solid #3a6347;color:#fff;border-radius:11px;width:100%;padding:14px 15px;outline:none}input:focus,textarea:focus{border-color:#6dfaa1;box-shadow:0 0 0 2px #3bba6c33}textarea{resize:vertical;min-height:70px}
+form{display:grid;gap:14px}.actions{display:flex;gap:10px;justify-content:space-between;align-items:center;flex-wrap:wrap}
+.primary{border:0;border-radius:11px;background:#5be888;color:#06200f;font-weight:900;padding:13px 22px}.primary:hover{background:#8bffad}
+.muted{color:#9fb6a7;font-size:13px}.count{color:#9bffc0;font-weight:800}
+.headline{display:flex;justify-content:space-between;align-items:center;gap:15px;margin:5px 0 17px}
+h2{margin:0;font-size:21px}
+.list{display:grid;gap:12px}.item{background:#0b1b11f0;border:1px solid #2c5339;border-radius:15px;padding:17px;display:flex;gap:14px;justify-content:space-between;align-items:center;flex-wrap:wrap}
+.itemTitle{font-weight:800;font-size:17px;overflow-wrap:anywhere}.itemNotes{color:#b6cbbd;white-space:pre-wrap;overflow-wrap:anywhere;margin-top:8px;line-height:1.45;font-size:14px}.itemMeta{font-size:12px;color:#8da995;margin-top:9px}
+.btns{display:flex;gap:8px;flex-shrink:0;flex-wrap:wrap}
+.done,.delete{border-radius:10px;padding:10px 12px;font-weight:700}.done{color:#b1ffcd;background:#123822;border:1px solid #368e53}.delete{color:#ffbcc2;background:#37191d;border:1px solid #9c4650}
+.empty{border:1px dashed #38654a;border-radius:16px;padding:36px 15px;text-align:center;color:#b7cfbf}.empty strong{color:#e9ffed;display:block;margin-bottom:8px}
+.notice{min-height:22px;font-size:14px;margin-top:13px}.notice.err{color:#ffb4b4}.notice.ok{color:#9bffc0}.hidden{display:none!important}
+@media(max-width:600px){.wrap{padding:14px 12px 40px}.hero,.panel{padding:18px}.hero h1{font-size:26px}.hero img{width:58px;height:58px}.home{width:100%;justify-content:center}.item{align-items:flex-start}.btns{width:100%}.btns button{flex:1}}
+</style></head>
+<body><main class="wrap">
+<div class="top"><div class="brand"><img src="/assets/mbrain-logo.png" alt="MBrain"> MBrain <span>Tracker</span></div><a class="home" href="/">🏠 Torna alla Home</a></div>
+<div class="hero"><img src="/assets/mbrain-promemoria.svg" alt="" aria-hidden="true"><div><h1>📝 Promemoria</h1><p>Annota le promo da completare. Quando ne hai fatta una, eliminala dalla tua lista.</p></div></div>
+<section id="app" class="hidden">
+<div class="panel"><form id="addForm"><div><label for="promo">Promo da fare</label><input id="promo" maxlength="160" placeholder="Es. Promo rimborso del venerdì" autocomplete="off" required></div><div><label for="note">Note (facoltative)</label><textarea id="note" maxlength="800" placeholder="Bookmaker, scadenza, requisiti o altre informazioni utili…"></textarea></div><div class="actions"><span class="muted">I tuoi promemoria sono privati e legati al tuo account.</span><button id="addBtn" class="primary" type="submit">+ Salva promemoria</button></div></form><div id="message" class="notice" role="status" aria-live="polite"></div></div>
+<div class="panel"><div class="headline"><h2>Le promo da fare</h2><span id="counter" class="count">0 promemoria</span></div><div id="list" class="list"></div></div>
+</section>
+<div id="loading" class="panel" role="status">Caricamento dei tuoi promemoria…</div>
+</main>
+<script>
+const SB=window.supabase.createClient('https://aihwrkqfzhwedqdbxbxh.supabase.co','sb_publishable_G_glT9ld2cqENlVSup38NQ_q8HWyZPd');
+const $=id=>document.getElementById(id);
+const KEY='mbrain_promemoria_v1';
+const MAX_REMINDERS=60;
+let user=null,items=[],saving=false;
+const escapeHtml=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function setMessage(msg,bad=false){$('message').textContent=msg;$('message').className='notice '+(bad?'err':'ok')}
+function clean(raw){return Array.isArray(raw)?raw.filter(x=>x&&typeof x.id==='string'&&typeof x.title==='string').slice(0,MAX_REMINDERS).map(x=>({id:x.id,title:x.title.slice(0,160),notes:String(x.notes||'').slice(0,800),created_at:x.created_at||new Date().toISOString()})):[]}
+function render(){
+ $('counter').textContent=items.length+' '+(items.length===1?'promemoria':'promemoria');
+ $('list').replaceChildren();
+ if(!items.length){$('list').innerHTML='<div class="empty"><strong>✨ Tutto in ordine!</strong>Nessuna promo da fare. Aggiungi il tuo primo promemoria qui sopra.</div>';return}
+ for(const x of items){
+   const el=document.createElement('article');el.className='item';
+   const left=document.createElement('div');left.style.flex='1';left.style.minWidth='180px';
+   const title=document.createElement('div');title.className='itemTitle';title.textContent=x.title;left.append(title);
+   if(x.notes){const note=document.createElement('div');note.className='itemNotes';note.textContent=x.notes;left.append(note)}
+   const meta=document.createElement('div');meta.className='itemMeta';
+   const d=new Date(x.created_at);meta.textContent='Aggiunta il '+(Number.isNaN(d.getTime())?'—':d.toLocaleDateString('it-IT'));left.append(meta);
+   const buttons=document.createElement('div');buttons.className='btns';
+   const done=document.createElement('button');done.type='button';done.className='done';done.textContent='✓ Fatta, elimina';done.addEventListener('click',()=>remove(x.id,false));
+   const del=document.createElement('button');del.type='button';del.className='delete';del.textContent='Elimina';del.addEventListener('click',()=>remove(x.id,true));
+   buttons.append(done,del);el.append(left,buttons);$('list').append(el)
+ }
+}
+async function persist(next){
+ if(saving)return false;
+ saving=true;document.querySelectorAll('button').forEach(b=>b.disabled=true);
+ try{
+   const {data,error}=await SB.auth.updateUser({data:{[KEY]:next}});
+   if(error)throw error;
+   const saved=clean(data?.user?.user_metadata?.[KEY]);
+   items=saved;render();setMessage('✅ Promemoria salvati.');return true
+ }catch(e){setMessage('Salvataggio non riuscito: '+(e?.message||'riprovare'),true);return false}
+ finally{saving=false;document.querySelectorAll('button').forEach(b=>b.disabled=false)}
+}
+$('addForm').addEventListener('submit',async e=>{
+ e.preventDefault();if(saving)return;
+ const title=$('promo').value.trim(),notes=$('note').value.trim();
+ if(!title){setMessage('Scrivi il nome della promo.',true);return}
+ if(items.length>=MAX_REMINDERS){setMessage('Hai raggiunto il limite di '+MAX_REMINDERS+' promemoria.',true);return}
+ const item={id:crypto.randomUUID?crypto.randomUUID():Date.now().toString(36)+Math.random().toString(36).slice(2),title,notes,created_at:new Date().toISOString()};
+ if(await persist([item,...items])){$('promo').value='';$('note').value='';$('promo').focus()}
+});
+async function remove(id,ask){if(saving)return;const item=items.find(x=>x.id===id);if(!item)return;if(ask&&!confirm('Eliminare "'+item.title+'"?'))return;await persist(items.filter(x=>x.id!==id))}
+(async function boot(){
+ try{
+   const {data,error}=await SB.auth.getUser();
+   if(error||!data?.user){location.replace('/');return}
+   user=data.user;items=clean(user.user_metadata?.[KEY]);render();$('loading').classList.add('hidden');$('app').classList.remove('hidden')
+ }catch(e){$('loading').textContent='Impossibile caricare i promemoria. Ricarica la pagina.'}
+})();
+</script></body></html>
