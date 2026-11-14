@@ -16,7 +16,7 @@ main{padding-top:25px}.hero{display:flex;align-items:end;justify-content:space-b
 .section-title{font-size:17px;font-weight:800;margin:0 0 18px}
 .segment{display:flex;gap:5px;padding:5px;background:#07130b;border:1px solid #284633;border-radius:13px;width:max-content;max-width:100%;margin:0 0 20px}.segment button{border:0;background:transparent;color:#b6c9ba;border-radius:10px;padding:12px 19px;cursor:pointer;font-weight:800}.segment button.active{background:#1f5231;color:#d9ffe4;box-shadow:inset 0 0 0 1px #459b61}
 .filters{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}.field label{display:block;font-size:12px;color:#c6e5ce;margin-bottom:9px;font-weight:800}.field select,.field input{display:block;width:100%;background:#08140c;color:#f6fff7;border:1px solid #385b43;border-radius:11px;padding:13px 14px;font:inherit;outline:none;height:48px}.field select:focus,.field input:focus{border-color:var(--green)}.actions{margin-top:22px;display:flex;align-items:center;gap:15px;justify-content:space-between;flex-wrap:wrap}.search{cursor:pointer;border:0;border-radius:12px;background:#62e994;color:#061b0e;font-weight:900;font-size:15px;padding:14px 29px;min-height:48px}.search:hover{background:#99ffb8}.search:disabled{opacity:.55;cursor:wait}.hint{font-size:12px;color:#8ba796}
-.resultsTop{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:16px}.resultsTop .section-title{margin:0}.count{font-size:13px;color:var(--muted)}.empty{padding:45px 15px;text-align:center;border:1px dashed #345641;border-radius:15px;color:#b1cabb}.empty .symbol{font-size:39px;display:block;margin-bottom:10px}.empty strong{font-size:18px;color:#e2ffeb;display:block;margin-bottom:8px}.empty p{margin:0 auto;max-width:490px;line-height:1.55;font-size:14px}.notice{font-size:13px;color:#b6cabc;line-height:1.5}.error{color:#ffc2b9}.hidden{display:none!important}
+.resultsTop{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:16px}.resultsTop .section-title{margin:0}.count{font-size:13px;color:var(--muted)}.empty{padding:45px 15px;text-align:center;border:1px dashed #345641;border-radius:15px;color:#b1cabb}.empty .symbol{font-size:39px;display:block;margin-bottom:10px}.empty strong{font-size:18px;color:#e2ffeb;display:block;margin-bottom:8px}.empty p{margin:0 auto;max-width:490px;line-height:1.55;font-size:14px}.notice{font-size:13px;color:#b6cabc;line-height:1.5}.error{color:#ffc2b9}.hidden{display:none!important}.resultCard{border:1px solid #30513a;background:#0b170f;border-radius:13px;padding:17px;margin-bottom:11px}.resultHead{display:flex;justify-content:space-between;align-items:start;gap:10px;flex-wrap:wrap}.resultEvent{font-size:17px;font-weight:800}.resultTime,.resultSub{font-size:12px;color:#a9c3b0;margin-top:6px}.resultRating{font-size:23px;font-weight:900;color:#72f59e}.resultGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:13px}.resultGrid div{background:#112318;padding:10px;border-radius:9px}.resultGrid small{display:block;font-size:11px;color:#a8bcad;margin-bottom:6px}.resultGrid strong{font-size:15px}.sourceTime{font-size:12px;color:#a7c4b1;margin:0 0 15px}.stale{color:#ffc68f}
 footer{font-size:12px;color:#748979;text-align:center;padding:18px 5px}
 @media(max-width:650px){.wrap{padding:16px 12px 42px}.panel{padding:17px}.filters{grid-template-columns:1fr}.segment{width:100%}.segment button{flex:1;padding:11px 6px;font-size:13px}.search{width:100%}.brand h1{font-size:22px}.hero h2{font-size:23px}.actions{flex-direction:column;align-items:stretch}.home{width:100%;justify-content:center}}
 </style></head>
@@ -41,22 +41,59 @@ footer{font-size:12px;color:#748979;text-align:center;padding:18px 5px}
 <div class="field"><label for="minimum">Rating minimo</label><select id="minimum"><option value="0">Tutti i rating</option><option value="95">95% o superiore</option><option value="97">97% o superiore</option><option value="98">98% o superiore</option><option value="99">99% o superiore</option><option value="100">100% o superiore</option></select></div>
 <div class="field"><label for="window">Quando si gioca</label><select id="window"><option value="24">Prossime 24 ore</option><option value="48">Prossime 48 ore</option><option value="168">Prossimi 7 giorni</option></select></div>
 </div>
-<div class="actions"><div class="hint">Le quote effettive verranno mostrate soltanto dopo il collegamento dello scanner.</div><button class="search" id="searchBtn" type="submit">⌕ Cerca quote</button></div>
+<div class="actions"><div class="hint">Risultati dalla cache VPS. Nessuna nuova chiamata OddsPapi per la ricerca.</div><button class="search" id="searchBtn" type="submit">⌕ Cerca quote</button></div>
 </form>
 </section>
-<section class="panel"><div class="resultsTop"><h3 class="section-title">Risultati</h3><span id="count" class="count">0 risultati</span></div><div id="results" class="empty" role="status" aria-live="polite"><span class="symbol">📊</span><strong>La ricerca è pronta</strong><p>Seleziona gli operatori e premi Cerca quote. Stiamo collegando il motore VPS per mostrare opportunità reali.</p></div></section>
+<section class="panel"><div class="resultsTop"><h3 class="section-title">Risultati</h3><span id="count" class="count">0 risultati</span></div><div id="results" class="empty" role="status" aria-live="polite"><span class="symbol">📊</span><strong>La ricerca è pronta</strong><p>Seleziona i due operatori e premi Cerca quote per consultare i risultati dell'ultima scansione VPS.</p></div></section>
 <footer>OddsMBrain · Confronto informativo delle quote · Nessun piazzamento automatico</footer>
 </main></div>
 <script>
 const SB=window.supabase.createClient('https://aihwrkqfzhwedqdbxbxh.supabase.co','sb_publishable_G_glT9ld2cqENlVSup38NQ_q8HWyZPd');
 const $=id=>document.getElementById(id);
 let token='',mode='lay';
-const sportsbook=['Bet365','Snai','Sisal','Eurobet','Goldbet','Planetwin365','William Hill','Betfair Sportsbook','Altro'];
+const sportsbook=['Bet365','Snai','Sisal','Eurobet','Goldbet','Planetwin365','William Hill','Betfair Sportsbook','Pinnacle','Altro'];
 function setOptions(id,arr,placeholder){const s=$(id);s.replaceChildren();const p=document.createElement('option');p.value='';p.textContent=placeholder;s.append(p);for(const name of arr){const opt=document.createElement('option');opt.value=name;opt.textContent=name;s.append(opt)}}
 function setMode(value){mode=value;for(const [id,active] of [['modeLay',value==='lay'],['modeBack',value==='back']]){$(id).classList.toggle('active',active);$(id).setAttribute('aria-pressed',String(active))}const first=$('book1').value;const second=$('book2').value;$('book2Label').textContent=value==='lay'?'Exchange banca':'Bookmaker punta 2';setOptions('book2',value==='lay'?['Betfair Exchange']:sportsbook,value==='lay'?'Seleziona exchange':'Seleziona secondo bookmaker');$('book2').value=value==='lay'?'Betfair Exchange':(second!==first?second:'');if(value==='back'&&$('book2').value===$('book1').value)$('book2').value='';}
 $('modeLay').onclick=()=>setMode('lay');$('modeBack').onclick=()=>setMode('back');
 function showEmpty(title,description,error=false){$('count').textContent='0 risultati';$('results').innerHTML='';$('results').className='empty'+(error?' error':'');const i=document.createElement('span');i.className='symbol';i.textContent=error?'⚠️':'📊';const t=document.createElement('strong');t.textContent=title;const p=document.createElement('p');p.textContent=description;$('results').append(i,t,p)}
-$('searchForm').addEventListener('submit',e=>{e.preventDefault();const first=$('book1').value,second=$('book2').value;if(!first||!second){showEmpty('Seleziona gli operatori','Scegli un bookmaker per ogni lato del confronto.',true);return}if(mode==='back'&&first===second){showEmpty('Seleziona due bookmaker diversi','Per Punta / Punta scegli due operatori differenti.',true);return}const filters={mode,first,second,sport:$('sport').value,market:$('market').value,minimum:$('minimum').value,window:$('window').value};try{localStorage.setItem('oddsmbrain_filters_v1',JSON.stringify(filters))}catch{}showEmpty('Ricerca automatica in preparazione','Filtri impostati: '+first+' / '+second+'. La connessione allo scanner VPS non è ancora attiva: nessuna quota live è stata recuperata.')});
+const bookmakerSlug={'Bet365':'bet365','Pinnacle':'pinnacle','Betfair Exchange':'betfair-ex','Betfair Sportsbook':'betfair','Snai':'snai','Sisal':'sisal','Eurobet':'eurobet','Goldbet':'goldbet','Planetwin365':'planetwin365','William Hill':'williamhill','Altro':'altro'};
+const euro=v=>Number(v||0).toLocaleString('it-IT',{minimumFractionDigits:2,maximumFractionDigits:2});
+const betPrice=v=>Number(v||0).toLocaleString('it-IT',{minimumFractionDigits:2,maximumFractionDigits:2});
+const addText=(parent,tag,value,cls)=>{const el=document.createElement(tag);el.textContent=value;if(cls)el.className=cls;parent.appendChild(el);return el};
+function renderRatings(data){
+ const root=$('results');root.replaceChildren();root.className='';
+ const when=data.updatedAt?new Date(data.updatedAt).toLocaleString('it-IT',{timeZone:'Europe/Rome',dateStyle:'short',timeStyle:'short'}):'—';
+ const sub=addText(root,'p','Ultima scansione: '+when+(data.stale?' · Quote potenzialmente non aggiornate':''),'sourceTime'+(data.stale?' stale':''));
+ $('count').textContent=(data.rows||[]).length+' risultati';
+ for(const r of data.rows||[]){
+  const card=addText(root,'div','','resultCard'),head=addText(card,'div','','resultHead');
+  const left=addText(head,'div',''),right=addText(head,'div',betPrice(r.rating)+'%','resultRating');
+  addText(left,'div',r.event||'Partita','resultEvent');
+  addText(left,'div',(r.marketLabel||r.market||'Mercato')+' · '+(r.selection||'Selezione'),'resultSub');
+  addText(left,'div',r.kickoff?new Date(r.kickoff).toLocaleString('it-IT',{timeZone:'Europe/Rome',dateStyle:'short',timeStyle:'short'}):'','resultTime');
+  const grid=addText(card,'div','','resultGrid');
+  const first=addText(grid,'div','');addText(first,'small','Punta · '+r.book1);addText(first,'strong',betPrice(r.odds?.[0]));
+  const second=addText(grid,'div','');addText(second,'small',(r.mode==='lay'?'Banca · ':'Copertura · ')+r.book2);addText(second,'strong',(r.mode==='lay'?betPrice(r.odds?.[1]):(r.odds||[]).slice(1).map(betPrice).join(' / ')));
+  addText(card,'div',r.mode==='lay'?('Puntata '+euro(r.stakes?.[0])+' € · Banca '+euro(r.stakes?.[1])+' € · Responsabilità '+euro(r.liability)+' €'):('Suddivisione stake: '+(r.stakes||[]).map(x=>euro(x)+' €').join(' / ')),'resultSub');
+ }
+ if(!(data.rows||[]).length){showEmpty('Nessuna quota comparabile','Lo scanner ha analizzato '+(data.fixturesExamined||0)+' partite nell’ultima scansione, ma non ha trovato rating con questi filtri. Prova altri operatori o un rating minimo più basso.');$('results').prepend(sub)}
+}
+$('searchForm').addEventListener('submit',async e=>{
+ e.preventDefault();const first=$('book1').value,second=$('book2').value;
+ if(!first||!second){showEmpty('Seleziona gli operatori','Scegli un bookmaker per ogni lato del confronto.',true);return}
+ if(mode==='back'&&first===second){showEmpty('Seleziona due bookmaker diversi','Per Punta / Punta scegli due operatori differenti.',true);return}
+ const filters={mode,first,second,sport:$('sport').value,market:$('market').value,minimum:$('minimum').value,window:$('window').value};
+ try{localStorage.setItem('oddsmbrain_filters_v1',JSON.stringify(filters))}catch{}
+ const button=$('searchBtn');button.disabled=true;showEmpty('Ricerca nella cache','Caricamento risultati dalla VPS…');
+ try{
+  const params=new URLSearchParams({oddsMBrain:'1',action:'matches',mode,book1:bookmakerSlug[first]||first.toLowerCase(),book2:bookmakerSlug[second]||second.toLowerCase(),market:filters.market,minimum:filters.minimum,window:filters.window});
+  const response=await fetch('/api/soccertrend-stats?'+params.toString(),{headers:{Authorization:'Bearer '+token},cache:'no-store'});
+  const data=await response.json();if(!response.ok||!data.success)throw Error(data.error||'Servizio non disponibile');
+  if(!data.connected){showEmpty('In attesa della prima sincronizzazione','Il sito è pronto. Il programma Windows deve ancora inviare la cache dalla VPS.');return}
+  renderRatings(data);
+ }catch(err){showEmpty('Impossibile caricare le quote','Verifica che lo scanner sia collegato e riprova. '+String(err.message||''),true)}
+ finally{button.disabled=false}
+});
 (async()=>{try{const {data}=await SB.auth.getSession();if(!data?.session){location.replace('/');return}token=data.session.access_token;const r=await fetch('/api/soccertrend-stats?oddsMBrain=1&action=status',{headers:{Authorization:'Bearer '+token},cache:'no-store'});if(!r.ok)throw Error('Accesso non autorizzato');const d=await r.json();if(!d.success)throw Error('Accesso non autorizzato');$('loading').classList.add('hidden');$('app').classList.remove('hidden');setMode('lay');try{const saved=JSON.parse(localStorage.getItem('oddsmbrain_filters_v1')||'null');if(saved){setMode(saved.mode==='back'?'back':'lay');for(const [id,value] of [['book1',saved.first],['book2',saved.second],['sport',saved.sport],['market',saved.market],['minimum',saved.minimum],['window',saved.window]]){if($(id)&&[...$(id).options].some(o=>o.value===value))$(id).value=value}}}catch{}}
 catch(e){$('loading').textContent='🔒 Area riservata. Torna alla Home ed effettua l’accesso con il tuo account.'}})();
 </script>
