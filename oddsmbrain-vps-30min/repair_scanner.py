@@ -12,6 +12,31 @@ if 'def scan():' not in s or 'def api(path,**params):' not in s:
 s=s.replace("INTERVAL = max(1800,int(os.getenv('ODDSMBRAIN_SCAN_INTERVAL','1800')))","INTERVAL = max(21600,int(os.getenv('ODDSMBRAIN_SCAN_INTERVAL','86400')))")
 s=s.replace("MAX_DAILY = max(1,int(os.getenv('ODDSMBRAIN_MAX_REQUESTS_DAY','24')))","MAX_DAILY = max(1,min(8,int(os.getenv('ODDSMBRAIN_MAX_REQUESTS_DAY','6'))))\nMAX_MONTHLY = max(1,min(180,int(os.getenv('ODDSMBRAIN_MAX_REQUESTS_MONTH','120'))))")
 s=s.replace("USAGE = {'date':None,'requests':0}","USAGE = {'date':None,'requests':0,'month':None,'monthRequests':0}")
+# Add automatic sync even if user's VPS has the original no-sync package.
+if 'def push_cache_to_site():' not in s:
+    sync_init="""\nSYNC_FILE=ROOT/'.env.sync'\nif SYNC_FILE.exists():\n    for raw in SYNC_FILE.read_text(encoding='utf-8-sig').splitlines():\n        if '=' in raw and not raw.lstrip().startswith('#'):\n            k,v=raw.split('=',1)\n            os.environ.setdefault(k.strip(),v.strip().strip('\\\"').strip(\"'\"))\n"""
+    s=s.replace('load_dotenv()\nlogging.basicConfig', 'load_dotenv()\n'+sync_init+'\nlogging.basicConfig')
+    sync_function='''def push_cache_to_site():
+    url=os.getenv('ODDSMBRAIN_SYNC_URL','https://mbrain-tracker.vercel.app/api/soccertrend-stats?oddsMBrain=1&action=push').strip()
+    token=os.getenv('ODDSMBRAIN_SYNC_SECRET','').strip()
+    if len(token)<32:
+        logging.warning('Sync sito disattivata: crea .env.sync con ODDSMBRAIN_SYNC_SECRET')
+        return False
+    try:
+        data=json.loads(CACHE.read_text(encoding='utf-8'))
+        data={k:data.get(k) for k in ('updatedAt','fixturesReceived','fixturesExamined','rows')}
+        payload=json.dumps(data,ensure_ascii=False).encode('utf-8')
+        req=request.Request(url,data=payload,method='POST',headers={'Authorization':'Bearer '+token,'Content-Type':'application/json; charset=utf-8'})
+        with request.urlopen(req,timeout=25) as response:result=json.load(response)
+        if not result.get('success'):raise ValueError('Sync non confermata')
+        logging.info('Cache inviata al sito: %d rating',result.get('saved',0))
+        return True
+    except (OSError,ValueError,TimeoutError,error.URLError) as exc:
+        logging.warning('Invio cache non riuscito: %s',type(exc).__name__)
+        return False
+
+'''
+    s=s.replace('def api(path,**params):',sync_function+'def api(path,**params):',1)
 a=s.index('def api(path,**params):')
 b=s.index('\ndef fixtures(',a)
 s=s[:a]+'''def api(path,**params):
