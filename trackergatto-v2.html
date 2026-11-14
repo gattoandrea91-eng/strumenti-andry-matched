@@ -17,20 +17,20 @@ async function toggleRecapChecked(id,checked){
 const WALLET_RECAP_MARKER='[[MBRAIN_WALLET_CHECKED]]';
 function isWalletChecked(wallet){return String(wallet?.note||'').includes(WALLET_RECAP_MARKER)}
 function cleanWalletNote(value){return String(value||'').split(WALLET_RECAP_MARKER).join('').trim()}
-const WALLET_OWNER_RE=/\\[\\[MBRAIN_WALLET_OWNER:([0-9a-f-]{36})\\]\\]/i;
+const WALLET_OWNER_RE=/\[\[MBRAIN_WALLET_OWNER:([0-9a-f-]{36})\]\]/i;
 function walletOwnerId(w){
  const explicit=String(w?.note||'').match(WALLET_OWNER_RE);
  if(explicit){return holders.some(h=>h.id===explicit[1])?explicit[1]:null}
  if(w?.holder_id&&holders.some(h=>h.id===w.holder_id))return w.holder_id;
  const note=cleanWalletNote(w?.note).replace(WALLET_OWNER_RE,'').trim();
- const match=note.match(/^Intestatario:\\s*([^|\\n]+)(?:\\s*\\||$)/i);
+ const match=note.match(/^Intestatario:\s*([^|\n]+)(?:\s*\||$)/i);
  if(!match)return null;
  const name=match[1].trim().toLocaleLowerCase('it');
  return holders.find(h=>String(h.name||'').trim().toLocaleLowerCase('it')===name)?.id||null;
 }
 function walletDisplayNote(note){return cleanWalletNote(note).replace(WALLET_OWNER_RE,'').trim()}
 function walletNoteWithOwner(note,ownerId,checked){
- const visible=walletDisplayNote(note).replace(/^Intestatario:\\s*[^|\\n]+(?:\\s*\\|\\s*)?/i,'').trim();
+ const visible=walletDisplayNote(note).replace(/^Intestatario:\s*[^|\n]+(?:\s*\|\s*)?/i,'').trim();
  const owner=holders.some(h=>h.id===ownerId)?' [[MBRAIN_WALLET_OWNER:'+ownerId+']]':'';
  return storedWalletNote((visible+owner).trim(),checked);
 }
