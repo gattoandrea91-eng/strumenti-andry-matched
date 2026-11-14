@@ -10,26 +10,8 @@ async function getAdmin(req){
  const user=await response.json();
  return Boolean(user?.id&&String(user.email||'').toLowerCase()===ADMIN_EMAIL&&user.email_confirmed_at);
 }
-async function oddsmbrainHandler(req,res){
- if(req.method!=='GET')return json(res,405,{success:false,error:'Metodo non consentito'});
- try{if(!(await getAdmin(req)))return json(res,403,{success:false,error:'Accesso riservato all’amministratore'});
- const apiKey=process.env.ODDSPAPI_API_KEY;
- const mode=String(req.query?.action||'status');
- if(mode==='status')return json(res,200,{success:true,configured:Boolean(apiKey),mode:'PRIVATE_BETA',dataSource:'OddsPapi v4',message:apiKey?'Chiave disponibile. Inserisci un fixtureId per un test dati.':'In attesa della chiave OddsPapi e del collegamento VPS. Calcolatore manuale disponibile.'});
- if(mode==='odds'){
-   if(!apiKey)return json(res,503,{success:false,error:'Chiave OddsPapi non ancora configurata sulla piattaforma.'});
-   const fixtureId=String(req.query?.fixtureId||'').trim();
-   if(!/^id[0-9]{6,22}$/.test(fixtureId))return json(res,400,{success:false,error:'Fixture ID non valido (es. id1000003969653792)'});
-   const url=new URL('https://api.oddspapi.io/v4/odds');url.searchParams.set('fixtureId',fixtureId);url.searchParams.set('apiKey',apiKey);url.searchParams.set('oddsFormat','decimal');url.searchParams.set('verbosity','2');
-   const controller=new AbortController();const timeout=setTimeout(()=>controller.abort(),12000);
-   let response;
-   try{response=await fetch(url,{cache:'no-store',signal:controller.signal})}finally{clearTimeout(timeout)}
-   if(!response.ok)return json(res,502,{success:false,error:'OddsPapi ha restituito HTTP '+response.status});
-   const data=await response.json();return json(res,200,{success:true,fixtureId,data});
- }
- return json(res,400,{success:false,error:'Azione sconosciuta'});
- }catch(error){return json(res,500,{success:false,error:'Impossibile contattare il servizio: '+String(error?.name==='AbortError'?'timeout':error?.message||'errore')})}
-};
+const oddsCacheHandler=require('../oddsmbrain-cache-handler');
+
 const nbaMatrixHandler=require('../nba-matrix-handler');
 function n(v){const x=Number(v);return Number.isFinite(x)?x:0}
 const INITIAL_CAPITAL=1000;
@@ -42,7 +24,7 @@ const MAX_SIGNAL_MINUTE=99;
 function supaConfig(){const url=process.env.SUPABASE_URL||'https://aihwrkqfzhwedqdbxbxh.supabase.co',key=process.env.SOCCERTREND_SUPABASE_SECRET_KEY;if(!key)throw new Error('Manca SOCCERTREND_SUPABASE_SECRET_KEY su Vercel');return{url,key}}
 async function db(path){const{url,key}=supaConfig();const r=await fetch(`${url}/rest/v1/${path}`,{headers:{apikey:key,Authorization:`Bearer ${key}`,'Content-Type':'application/json'},cache:'no-store'});const text=await r.text();if(!r.ok)throw new Error(`Supabase ${r.status}: ${text.slice(0,300)}`);return text?JSON.parse(text):null}
 function entryQuote(score){const x=Math.abs(n(score));return x>=10000?(x%10000)/100:0}
-module.exports=async(req,res)=>{if(String(req.query?.oddsMBrain||'')==='1')return oddsmbrainHandler(req,res);if(String(req.query?.nba||'')==='1')return nbaMatrixHandler(req,res);try{
+module.exports=async(req,res)=>{if(String(req.query?.oddsMBrain||'')==='1')return oddsCacheHandler(req,res,getAdmin);if(String(req.query?.nba||'')==='1')return nbaMatrixHandler(req,res);try{
 const signals=await db(`soccertrend_signals?message_id=lt.0&created_at=gte.${encodeURIComponent(TRACKING_START_UTC)}&signal_minute=lte.${MAX_SIGNAL_MINUTE}&select=score,signal_minute,match_id,home,away,market,created_at&order=created_at.asc&limit=1000`)||[];
 const savedStakes=await db('soccertrend_signals?market=eq.PROGRESSION_STAKE&select=match_id,corners&limit=1000')||[];
 const stakeByMatch=new Map(savedStakes.map(r=>[String(r.match_id).replace(/^STAKE_/,''),n(r.corners)/100]));
