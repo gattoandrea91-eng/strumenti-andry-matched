@@ -1,0 +1,29 @@
+'use strict';
+const crypto=require('node:crypto');
+const BUCKET='oddsmbrain-cache',FILE='latest.json',URL='https://aihwrkqfzhwedqdbxbxh.supabase.co';
+const okMode=new Set(['lay','back']),okMarket=new Set(['1x2','overunder','btts']);
+const reply=(res,status,data)=>{res.setHeader('Cache-Control','private, no-store');res.setHeader('X-Content-Type-Options','nosniff');return res.status(status).json(data)};
+const key=()=>process.env.SOCCERTREND_SUPABASE_SECRET_KEY||process.env.SUPABASE_SERVICE_ROLE_KEY||'';
+const authed=req=>{const secret=process.env.ODDSMBRAIN_SYNC_SECRET||'',header=String(req.headers.authorization||'');if(secret.length<32||!header.startsWith('Bearer '))return false;const a=Buffer.from(secret),b=Buffer.from(header.slice(7));return a.length===b.length&&crypto.timingSafeEqual(a,b)};
+async function store(path,opts={}){const k=key();if(!k)throw Error('Storage non configurato');const r=await fetch(URL+'/storage/v1/'+path,{...opts,headers:{apikey:k,Authorization:'Bearer '+k,...opts.headers},cache:'no-store'});if(!r.ok){const e=Error('Storage '+r.status);e.status=r.status;throw e}const t=await r.text();try{return t?JSON.parse(t):null}catch{return null}}
+async function bucket(){try{await store('bucket/'+BUCKET);return}catch(e){if(e.status!==400&&e.status!==404)throw e}try{await store('bucket',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:BUCKET,name:BUCKET,public:false,file_size_limit:1048576,allowed_mime_types:['application/json']})})}catch(e){if(e.status!==409)throw e}}
+async function read(){try{return await store('object/'+BUCKET+'/'+FILE)}catch(e){if(e.status===400||e.status===404)return null;throw e}}
+const txt=(s,max)=>String(s??'').trim().slice(0,max),date=s=>typeof s==='string'&&s.length<=35&&Number.isFinite(Date.parse(s)),num=n=>typeof n==='number'&&Number.isFinite(n);
+function clean(r){if(!r||!okMode.has(r.mode)||!okMarket.has(r.market)||!num(r.rating)||r.rating<0||r.rating>300||!date(r.kickoff)||!date(r.updatedAt))return null;
+if(!Array.isArray(r.odds)||r.odds.length<2||r.odds.length>3||r.odds.some(n=>!num(n)||n<=1||n>10000)||!Array.isArray(r.stakes)||r.stakes.length!==r.odds.length||r.stakes.some(n=>!num(n)||n<0||n>10000000))return null;
+const b1=txt(r.book1,60).toLowerCase(),b2=txt(r.book2,60).toLowerCase();if(!b1||!b2)return null;
+return{fixtureId:txt(r.fixtureId,65),event:txt(r.event,180),kickoff:r.kickoff,tournament:txt(r.tournament,100),market:r.market,marketLabel:txt(r.marketLabel,90),selection:txt(r.selection,60),mode:r.mode,book1:b1,book2:b2,odds:r.odds,stakes:r.stakes,rating:r.rating,liability:num(r.liability)?r.liability:0,layLiquidity:num(r.layLiquidity)?r.layLiquidity:null,updatedAt:r.updatedAt}}
+function validate(payload){if(!payload||!Array.isArray(payload.rows)||payload.rows.length>1000||!date(payload.updatedAt))throw Error('Cache non valida');const rows=payload.rows.map(clean);if(rows.some(x=>!x))throw Error('Quote non valide');const stamp=Date.parse(payload.updatedAt);if(stamp>Date.now()+600000||stamp<Date.now()-31*86400000)throw Error('Data non valida');return{version:1,updatedAt:payload.updatedAt,receivedAt:new Date().toISOString(),fixturesExamined:Math.max(0,Math.floor(Number(payload.fixturesExamined)||0)),fixturesReceived:Math.max(0,Math.floor(Number(payload.fixturesReceived)||0)),rows}}
+module.exports=async(req,res,isAdmin)=>{try{const action=String(req.query?.action||'');
+if(action==='push'){if(req.method!=='POST')return reply(res,405,{success:false,error:'Metodo non consentito'});if(!authed(req))return reply(res,403,{success:false,error:'Accesso negato'});if(Number(req.headers['content-length']||0)>750000)return reply(res,413,{success:false,error:'Cache troppo grande'});
+let data;try{data=validate(req.body)}catch(e){return reply(res,400,{success:false,error:e.message})}await bucket();const prev=await read();if(prev&&Date.parse(data.updatedAt)<Date.parse(prev.updatedAt))return reply(res,409,{success:false,error:'Cache meno recente'});await store('object/'+BUCKET+'/'+FILE,{method:'POST',headers:{'Content-Type':'application/json','x-upsert':'true'},body:JSON.stringify(data)});return reply(res,200,{success:true,saved:data.rows.length,updatedAt:data.updatedAt})}
+if(req.method!=='GET')return reply(res,405,{success:false,error:'Metodo non consentito'});if(!(await isAdmin(req)))return reply(res,403,{success:false,error:'Area privata'});
+if(action==='status')return reply(res,200,{success:true,configured:!!process.env.ODDSMBRAIN_SYNC_SECRET,mode:'PRIVATE_BETA',dataSource:'VPS cache'});
+if(action!=='matches')return reply(res,400,{success:false,error:'Azione sconosciuta'});
+const q=req.query||{},mode=String(q.mode||''),market=String(q.market||''),window=String(q.window||''),minimum=Number(q.minimum);
+if(!okMode.has(mode)||!(okMarket.has(market)||market==='all')||!['24','48','168'].includes(window)||!Number.isFinite(minimum)||minimum<0||minimum>200)return reply(res,400,{success:false,error:'Filtri non validi'});
+const data=await read();if(!data)return reply(res,200,{success:true,connected:false,rows:[],total:0,updatedAt:null,message:'In attesa della prima sincronizzazione dalla VPS'});
+const now=Date.now(),cutoff=now+Number(window)*3600000,book1=txt(q.book1,60).toLowerCase(),book2=txt(q.book2,60).toLowerCase(),ageMinutes=Math.max(0,Math.floor((now-Date.parse(data.updatedAt))/60000));
+const rows=data.rows.filter(r=>r.mode===mode&&r.book1===book1&&r.book2===book2&&(market==='all'||r.market===market)&&r.rating>=minimum&&Date.parse(r.kickoff)>=now&&Date.parse(r.kickoff)<=cutoff).sort((a,b)=>b.rating-a.rating).slice(0,200);
+return reply(res,200,{success:true,connected:true,stale:ageMinutes>90,ageMinutes,updatedAt:data.updatedAt,fixturesExamined:data.fixturesExamined,total:rows.length,rows});
+}catch(e){return reply(res,503,{success:false,error:'Cache temporaneamente non disponibile'})}};
