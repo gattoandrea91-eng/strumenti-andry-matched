@@ -51,6 +51,19 @@ footer{font-size:12px;color:#748979;text-align:center;padding:18px 5px}
 const SB=window.supabase.createClient('https://aihwrkqfzhwedqdbxbxh.supabase.co','sb_publishable_G_glT9ld2cqENlVSup38NQ_q8HWyZPd');
 const $=id=>document.getElementById(id);
 let token='',mode='lay';
+async function authorizedFetch(url){
+  const current=await SB.auth.getSession();
+  if(!current.data?.session)throw Error('SESSIONE_SCADUTA');
+  token=current.data.session.access_token;
+  let response=await fetch(url,{headers:{Authorization:'Bearer '+token},cache:'no-store'});
+  if(response.status===401||response.status===403){
+    const refreshed=await SB.auth.refreshSession();
+    if(refreshed.error||!refreshed.data?.session)throw Error('SESSIONE_SCADUTA');
+    token=refreshed.data.session.access_token;
+    response=await fetch(url,{headers:{Authorization:'Bearer '+token},cache:'no-store'});
+  }
+  return response;
+}
 const sportsbook=['Bet365','Snai','Sisal','Eurobet','Goldbet','Planetwin365','William Hill','Betfair Sportsbook','Pinnacle','Altro'];
 function setOptions(id,arr,placeholder){const s=$(id);s.replaceChildren();const p=document.createElement('option');p.value='';p.textContent=placeholder;s.append(p);for(const name of arr){const opt=document.createElement('option');opt.value=name;opt.textContent=name;s.append(opt)}}
 function setMode(value){mode=value;for(const [id,active] of [['modeLay',value==='lay'],['modeBack',value==='back']]){$(id).classList.toggle('active',active);$(id).setAttribute('aria-pressed',String(active))}const first=$('book1').value;const second=$('book2').value;$('book2Label').textContent=value==='lay'?'Exchange banca':'Bookmaker punta 2';setOptions('book2',value==='lay'?['Betfair Exchange']:sportsbook,value==='lay'?'Seleziona exchange':'Seleziona secondo bookmaker');$('book2').value=value==='lay'?'Betfair Exchange':(second!==first?second:'');if(value==='back'&&$('book2').value===$('book1').value)$('book2').value='';}
@@ -87,14 +100,14 @@ $('searchForm').addEventListener('submit',async e=>{
  const button=$('searchBtn');button.disabled=true;showEmpty('Ricerca nella cache','Caricamento risultati dalla VPS…');
  try{
   const params=new URLSearchParams({oddsMBrain:'1',action:'matches',mode,book1:bookmakerSlug[first]||first.toLowerCase(),book2:bookmakerSlug[second]||second.toLowerCase(),market:filters.market,minimum:filters.minimum,window:filters.window});
-  const response=await fetch('/api/soccertrend-stats?'+params.toString(),{headers:{Authorization:'Bearer '+token},cache:'no-store'});
+  const response=await authorizedFetch('/api/soccertrend-stats?'+params.toString());
   const data=await response.json();if(!response.ok||!data.success)throw Error(data.error||'Servizio non disponibile');
   if(!data.connected){showEmpty('In attesa della prima sincronizzazione','Il sito è pronto. Il programma Windows deve ancora inviare la cache dalla VPS.');return}
   renderRatings(data);
- }catch(err){showEmpty('Impossibile caricare le quote','Verifica che lo scanner sia collegato e riprova. '+String(err.message||''),true)}
+ }catch(err){const auth=String(err.message||'').includes('SESSIONE_SCADUTA')||String(err.message||'').includes('Area privata');showEmpty(auth?'Accesso non autorizzato':'Impossibile caricare le quote',auth?'La sessione potrebbe essere scaduta oppure questo account non ha i permessi per OddsMBrain. Torna alla Home, esegui nuovamente l’accesso e riprova.':'Problema durante il caricamento dalla cache. '+String(err.message||''),true)}
  finally{button.disabled=false}
 });
-(async()=>{try{const {data}=await SB.auth.getSession();if(!data?.session){location.replace('/');return}token=data.session.access_token;const r=await fetch('/api/soccertrend-stats?oddsMBrain=1&action=status',{headers:{Authorization:'Bearer '+token},cache:'no-store'});if(!r.ok)throw Error('Accesso non autorizzato');const d=await r.json();if(!d.success)throw Error('Accesso non autorizzato');$('loading').classList.add('hidden');$('app').classList.remove('hidden');setMode('lay');try{const saved=JSON.parse(localStorage.getItem('oddsmbrain_filters_v1')||'null');if(saved){setMode(saved.mode==='back'?'back':'lay');for(const [id,value] of [['book1',saved.first],['book2',saved.second],['sport',saved.sport],['market',saved.market],['minimum',saved.minimum],['window',saved.window]]){if($(id)&&[...$(id).options].some(o=>o.value===value))$(id).value=value}}}catch{}}
+(async()=>{try{const {data}=await SB.auth.getSession();if(!data?.session){location.replace('/');return}token=data.session.access_token;const r=await authorizedFetch('/api/soccertrend-stats?oddsMBrain=1&action=status');if(!r.ok)throw Error('Accesso non autorizzato');const d=await r.json();if(!d.success)throw Error('Accesso non autorizzato');$('loading').classList.add('hidden');$('app').classList.remove('hidden');setMode('lay');try{const saved=JSON.parse(localStorage.getItem('oddsmbrain_filters_v1')||'null');if(saved){setMode(saved.mode==='back'?'back':'lay');for(const [id,value] of [['book1',saved.first],['book2',saved.second],['sport',saved.sport],['market',saved.market],['minimum',saved.minimum],['window',saved.window]]){if($(id)&&[...$(id).options].some(o=>o.value===value))$(id).value=value}}}catch{}}
 catch(e){$('loading').textContent='🔒 Area riservata. Torna alla Home ed effettua l’accesso con il tuo account.'}})();
 </script>
 </body></html>
