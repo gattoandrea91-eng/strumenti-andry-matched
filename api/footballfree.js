@@ -158,7 +158,7 @@ function liveMinuteNumber(v){
   if(typeof v==='number')return Number.isInteger(v)&&v>0&&v<=130?v:0;
   if(typeof v!=='string')return 0;
   // Accept minute strings (e.g. "48’", "45+2'"), never arbitrary API objects.
-  const m=v.match(/^(\\d{1,3})(?:\\s*\\+\\s*(\\d{1,2}))?\\s*['’′\\u200e\\u200f\\s]*$/);
+  const m=v.match(/^(\d{1,3})(?:\s*\+\s*(\d{1,2}))?\s*['’′\u200e\u200f\s]*$/);
   if(!m)return 0;
   const n=Number(m[1])+Number(m[2]||0);
   return n>0&&n<=130?n:0;
