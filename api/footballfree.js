@@ -154,14 +154,23 @@ function derivedMomentumFromShots(shotmap,homeId,awayId,currentMinute=0){
 }
 function lastMomentumValue(m){const a=Array.isArray(m)?m:normalizedMomentumPoints(m);if(!a.length)return null;const l=a[a.length-1];return typeof l==="number"?l:Number(l?.value??0)}
 function getLiveMinute(status){if(!status)return"";if(status.liveTime?.short)return String(status.liveTime.short);if(status.liveTime?.long)return String(status.liveTime.long);if(typeof status.liveTime==="string")return status.liveTime;if(status.reason&&String(status.reason).includes("'"))return String(status.reason);return""}
+function liveMinuteNumber(v){
+  if(typeof v==='number')return Number.isInteger(v)&&v>0&&v<=130?v:0;
+  if(typeof v!=='string')return 0;
+  // Accept minute strings (e.g. "48’", "45+2'"), never arbitrary API objects.
+  const m=v.match(/^(\\d{1,3})(?:\\s*\\+\\s*(\\d{1,2}))?\\s*['’′\\u200e\\u200f\\s]*$/);
+  if(!m)return 0;
+  const n=Number(m[1])+Number(m[2]||0);
+  return n>0&&n<=130?n:0;
+}
 function detailMinute(data){
-  const g=data?.general||{};
-  const candidates=[g.matchTime,g.liveTime,g?.matchStatus?.liveTime?.short,g?.status?.liveTime?.short,g?.matchStatus?.reason,g?.status?.reason];
-  for(const v of candidates){const m=String(v||'').match(/\d+/);if(m)return Number(m[0])}
-  const events=data?.content?.matchFacts?.events?.events||data?.content?.matchFacts?.events||[];
-  if(Array.isArray(events)){let max=0;for(const e of events)max=Math.max(max,num(e?.timeStr??e?.time));if(max>0)return max}
-  const shots=data?.content?.shotmap?.shots||[];
-  if(Array.isArray(shots)){let max=0;for(const s of shots)max=Math.max(max,num(s?.min)+num(s?.minAdded));if(max>0)return max}
+  const g=data?.general||{},header=data?.header||{};
+  const candidates=[g.matchTime,g?.liveTime?.short,g?.liveTime?.long,g.liveTime,
+    g?.matchStatus?.liveTime?.short,g?.status?.liveTime?.short,
+    header?.status?.liveTime?.short,header?.status?.liveTime?.long,
+    header?.status?.liveTime,header?.status?.reason,g?.matchStatus?.reason,g?.status?.reason];
+  for(const v of candidates){const n=liveMinuteNumber(v);if(n)return n}
+  // An event minute is not a live clock: an uneventful game may have no new events.
   return 0;
 }
 
@@ -221,7 +230,7 @@ module.exports=async(req,res)=>{try{
   const matchId=String(req.query.matchId||"").trim();
   if(matchId){
     const data=await fotmobFetch(`${FOTMOB_BASE}/matchDetails?matchId=${encodeURIComponent(matchId)}`),content=data?.content||{},statsRoot=content?.stats||{};
-    const shotmap=content?.shotmap||null,ids=teamIds(data),minuteNum=detailMinute(data);
+    const shotmap=content?.shotmap||null,ids=teamIds(data),reportedMinute=detailMinute(data),listMinute=liveMinuteNumber(String(req.query.liveMinute||'')),minuteNum=listMinute||reportedMinute;
     let stats={
       possession:pairFlexible(statsRoot,["BallPossesion","BallPossession","Ball possession","Possession","Possesso","Possesso palla"]),
       totalShots:pairFlexible(statsRoot,["total_shots","TotalShots","Total shots","Shots total","Tiri","Tiri totali","Total attempts"]),
@@ -271,7 +280,7 @@ module.exports=async(req,res)=>{try{
       matchId,
       matchName:data?.general?.matchName||"",
       status:data?.general?.matchStatus||data?.general?.status||"",
-      minute:minuteNum||data?.general?.matchTime||data?.general?.liveTime||"",
+      minute:minuteNum||"",minuteSource:listMinute?'LIVE_LIST':reportedMinute?'DETAIL_STATUS':'UNAVAILABLE',
       stats,
       statsSource,
       bridgeMatch,
