@@ -916,7 +916,16 @@ body{background-image:linear-gradient(90deg,rgba(3,11,6,.91),rgba(4,17,9,.83) 52
                 <option>Altro</option>
               </select>
             </div>
-            <div class="field"><label>Provider slot (facoltativo)</label><select id="slotProvider" onchange="resetSlotSuggestions()"><option value="">Seleziona provider</option><option value="NetEnt">NetEnt</option><option value="Pragmatic Play">Pragmatic Play</option><option value="Play\u0027n GO">Play\u0027n GO</option><option value="Red Tiger">Red Tiger</option><option value="Altro">Altro / non presente</option></select></div><button class="action" onclick="calcola()">Calcola</button>
+            <div class="field"><label>Provider slot (facoltativo)</label>
+              <select id="slotProvider" onchange="resetSlotSuggestions()">
+                <option value="">Seleziona provider</option>
+                <option value="ALL">Tutti i provider con slot in catalogo</option>
+                <option>NetEnt</option><option>Red Tiger</option><option>Pragmatic Play</option><option>Play'n GO</option><option>Relax Gaming</option><option>Big Time Gaming</option><option>Microgaming</option><option>Games Global</option><option>Hacksaw Gaming</option><option>Push Gaming</option><option>ELK Studios</option><option>Quickspin</option><option>Yggdrasil</option><option>Blueprint Gaming</option><option>Thunderkick</option><option>Endorphina</option><option>Amusnet</option><option>Novomatic</option><option>IGT</option><option>Wazdan</option><option>Playtech</option><option>BGaming</option><option>Playson</option><option>Betsoft</option><option>iSoftBet</option><option>Spinomenal</option><option>3 Oaks Gaming</option><option>RubyPlay</option><option>Nolimit City</option>
+                <option value="OTHER">Altro provider (da inserire)</option>
+              </select>
+              <input id="slotOtherProvider" type="text" placeholder="Nome del provider" style="display:none;margin-top:9px" oninput="resetSlotSuggestions()">
+              <div style="font-size:12px;color:#bac7d2;margin-top:6px">Il catalogo non equivale a una ricerca in tempo reale nel bookmaker: i titoli disponibili variano per operatore.</div>
+            </div><button class="action" onclick="calcola()">Calcola</button>
           </div>
 
           <div class="result-box">
@@ -928,7 +937,7 @@ body{background-image:linear-gradient(90deg,rgba(3,11,6,.91),rgba(4,17,9,.83) 52
               <strong>Spin</strong>
               <div class="result-value" id="spin">—</div>
             </div>
-            <div class="result" style="text-align:left"><strong>🎰 Slot da verificare</strong><div id="slotSuggestion" style="margin-top:12px;line-height:1.6;color:#d6e7df">Seleziona un provider per visualizzare i titoli con dati verificabili.</div><button id="nextSlotBtn" class="action" type="button" onclick="nextSlotSuggestion()" style="margin-top:12px;display:none">Non disponibile, proponine un’altra</button><div style="margin-top:10px;font-size:12px;color:#aebdca">Controlla nel bookmaker RTP effettivo e requisiti del bonus. RTP e volatilità sono caratteristiche teoriche, non garanzie di vincita o di conservazione del saldo.</div></div>
+            <div class="result" style="text-align:left"><strong>🎰 Slot da verificare</strong><div id="slotSuggestion" style="margin-top:12px;line-height:1.45;color:#d6e7df;font-size:16px;overflow-wrap:anywhere">Seleziona un provider per visualizzare i titoli con dati verificabili.</div><button id="nextSlotBtn" class="action" type="button" onclick="nextSlotSuggestion()" style="margin-top:12px;display:none">Non disponibile, proponine un’altra</button><div style="margin-top:10px;font-size:12px;color:#aebdca">Controlla nel bookmaker RTP effettivo e requisiti del bonus. RTP e volatilità sono caratteristiche teoriche, non garanzie di vincita o di conservazione del saldo.</div></div>
           </div>
         </div>
 
@@ -1562,8 +1571,8 @@ body{background-image:linear-gradient(90deg,rgba(3,11,6,.91),rgba(4,17,9,.83) 52
       document.getElementById("menu").style.display = "grid";
     }
 
-    // Catalogo iniziale: RTP/volatilità pubblicati dal produttore Evolution/NetEnt.
-    // Non aggiungere altri giochi senza fonte attendibile e dati per la versione effettiva.
+    // Schede informative da fonti del produttore: non garantiscono esiti favorevoli.
+    // RTP alternativo nei singoli casinò, dove previsto, può differire.
     const slotCatalog = [
       {provider:"NetEnt",name:"Blood Suckers",rtp:98.00,vol:"Bassa",source:"https://games.evolution.com/slots/blood-suckers/"},
       {provider:"NetEnt",name:"Blood Suckers 2",rtp:96.94,vol:"Bassa",source:"https://games.evolution.com/slots/blood-suckers-2/"},
@@ -1571,21 +1580,50 @@ body{background-image:linear-gradient(90deg,rgba(3,11,6,.91),rgba(4,17,9,.83) 52
       {provider:"NetEnt",name:"Aloha! Cluster Pays",rtp:96.42,vol:"Bassa",source:"https://games.evolution.com/slots/aloha-cluster-pays/"},
       {provider:"NetEnt",name:"Starburst",rtp:96.09,vol:"Bassa",source:"https://games.evolution.com/it/slot/starburst/"},
       {provider:"NetEnt",name:"Lock and Pop",rtp:96.09,vol:"Bassa / media",source:"https://games.evolution.com/slots/lock-and-pop/"},
-      {provider:"NetEnt",name:"Twin Spin",rtp:96.06,vol:"Media",source:"https://games.evolution.com/it/slot/twin-spin/"}
+      {provider:"NetEnt",name:"Twin Spin",rtp:96.06,vol:"Media",source:"https://games.evolution.com/it/slot/twin-spin/"},
+      {provider:"Red Tiger",name:"Spin Town",rtp:96.23,vol:"Bassa",source:"https://games.evolution.com/slots/spin-town/"},
+      {provider:"Red Tiger",name:"Reel King Mega",rtp:96.17,vol:"Bassa",source:"https://games.evolution.com/slots/reel-king-mega/"},
+      {provider:"Red Tiger",name:"Three Kingdoms",rtp:96.15,vol:"Bassa",source:"https://games.evolution.com/slots/three-kingdoms/"},
+      {provider:"Red Tiger",name:"Arcade Bomb",rtp:96.15,vol:"Bassa",source:"https://games.evolution.com/slots/arcade-bomb/"},
+      {provider:"Red Tiger",name:"Magic Gate",rtp:96.11,vol:"Media",source:"https://games.evolution.com/slots/magic-gate/"},
+      {provider:"Red Tiger",name:"Casino Spin",rtp:96.01,vol:"Bassa",source:"https://games.evolution.com/slots/casino-spin/"},
+      {provider:"Red Tiger",name:"Farmtastic",rtp:null,vol:"Bassa",source:"https://games.evolution.com/slots/farmtastic/",note:"RTP disponibile in più varianti: controllare quello effettivo"},
+      {provider:"Pragmatic Play",name:"Greedy Wolf",rtp:null,vol:"Media",source:"https://www.pragmaticplay.com/en/games/greedy-wolf/",note:"RTP non verificato; controllare la scheda della versione installata"},
+      {provider:"Play'n GO",name:"Lady of Fortune",rtp:null,vol:"Media",source:"https://www.playngo.com/post/igaming-next-valletta-operator-retention",note:"Volatilità dichiarata dal provider; RTP da verificare"},
+      {provider:"Relax Gaming",name:"Frequent Flyer",rtp:null,vol:"Bassa",source:"https://www.relax-gaming.com/news/2020/12/relax-gaming-offers-a-passport-to-slot-paradise-in-frequent-flyer",note:"Volatilità dichiarata dal provider; RTP da verificare"},
+      {provider:"Relax Gaming",name:"The Great Pigsby",rtp:null,vol:"Media",source:"https://www.relax-gaming.com/products/casino/thegreatpigsby",note:"RTP da verificare nella versione del casinò"},
+      {provider:"Big Time Gaming",name:"Who Wants to Be a Millionaire Megaways",rtp:null,vol:"Media",source:"https://games.evolution.com/slots/millionaire-megaways/",note:"RTP da verificare nella versione del casinò"}
     ];
     let suggestedSlotIndex=0;
-    function resetSlotSuggestions(){suggestedSlotIndex=0;renderSlotSuggestion()}
+    function resetSlotSuggestions(){
+      const provider=document.getElementById("slotProvider")?.value;
+      const other=document.getElementById("slotOtherProvider");
+      if(other)other.style.display=provider==="OTHER"?"block":"none";
+      suggestedSlotIndex=0;renderSlotSuggestion();
+    }
     function nextSlotSuggestion(){suggestedSlotIndex++;renderSlotSuggestion()}
     function renderSlotSuggestion(){
       const el=document.getElementById("slotSuggestion"),btn=document.getElementById("nextSlotBtn"),select=document.getElementById("slotProvider");
       if(!el||!btn||!select)return;
       const provider=select.value;
-      const candidates=slotCatalog.filter(slot=>slot.provider===provider).sort((a,b)=>b.rtp-a.rtp || a.name.localeCompare(b.name));
-      if(!provider){el.textContent="Seleziona un provider per visualizzare i titoli con dati verificabili.";btn.style.display="none";return}
-      if(!candidates.length){el.textContent="Nessuna slot del provider con RTP e volatilità verificati nel catalogo attuale. Nessun suggerimento automatico.";btn.style.display="none";return}
-      if(suggestedSlotIndex>=candidates.length){el.textContent="Hai esaurito le slot verificate per questo provider. Non ci sono altri titoli da proporre.";btn.style.display="none";return}
+      const custom=(document.getElementById("slotOtherProvider")?.value||"").trim();
+      const filterName=provider==="OTHER"?custom:provider;
+      const candidates=slotCatalog.filter(slot=>provider==="ALL" || (filterName && slot.provider.toLocaleLowerCase("it")===filterName.toLocaleLowerCase("it")))
+        .sort((a,b)=>(a.vol.includes("Bassa")?0:1)-(b.vol.includes("Bassa")?0:1) || (b.rtp??0)-(a.rtp??0) || a.name.localeCompare(b.name));
+      if(!provider){el.textContent="Seleziona un provider (oppure Tutti i provider) per visualizzare il catalogo.";btn.style.display="none";return}
+      if(provider==="OTHER"&&!custom){el.textContent="Inserisci il nome del provider.";btn.style.display="none";return}
+      if(!candidates.length){
+        el.innerHTML='<div style="font-size:15px">Non abbiamo ancora dati sufficienti per mostrare una scheda affidabile di questo provider. Puoi selezionare “Tutti i provider” per vedere le alternative documentate.</div>';
+        btn.style.display="none";return;
+      }
+      if(suggestedSlotIndex>=candidates.length){el.textContent="Titoli del catalogo esauriti per questo provider. Nessun altro risultato verificato.";btn.style.display="none";return}
       const slot=candidates[suggestedSlotIndex];
-      el.innerHTML=`<div style="font-weight:800;color:#7bf0aa;font-size:18px">${slot.name}</div><div>RTP teorico pubblicato: <b>${slot.rtp.toFixed(2).replace(".",",")}%</b> · Volatilità: <b>${slot.vol}</b></div><div style="font-size:12px">Titolo ${suggestedSlotIndex+1} di ${candidates.length} · <a href="${slot.source}" target="_blank" rel="noopener noreferrer" style="color:#8cd2ff">Scheda del provider</a></div>`;
+      const rtp=slot.rtp===null?"da verificare":slot.rtp.toFixed(2).replace(".",",")+"% (versione indicata)";
+      el.innerHTML='<div style="font-weight:800;color:#7bf0aa;font-size:19px">'+slot.name+'</div>'+
+        '<div style="font-size:14px;margin-top:7px">Provider: <b>'+slot.provider+'</b></div>'+
+        '<div style="font-size:14px">RTP: <b>'+rtp+'</b> · Volatilità: <b>'+slot.vol+'</b></div>'+
+        (slot.note?'<div style="font-size:12px;color:#eecb89">'+slot.note+'</div>':'')+
+        '<div style="font-size:12px;margin-top:8px">'+(suggestedSlotIndex+1)+' di '+candidates.length+' · <a href="'+slot.source+'" target="_blank" rel="noopener noreferrer" style="color:#8cd2ff">Fonte del produttore</a></div>';
       btn.style.display=suggestedSlotIndex+1<candidates.length?"block":"none";
     }
     function calcola(){
