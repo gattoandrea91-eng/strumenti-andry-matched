@@ -1536,6 +1536,7 @@ body{background-image:linear-gradient(90deg,rgba(3,11,6,.91),rgba(4,17,9,.83) 52
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
+  <script src="slot-registry-20261120.js"></script>
   <script>
     let usedCardsMemory = [];
     let bjPlayerCards = [];
@@ -1607,6 +1608,16 @@ body{background-image:linear-gradient(90deg,rgba(3,11,6,.91),rgba(4,17,9,.83) 52
       {provider:"Giocaonline",name:"Pharaoh s Secret",payout:"Ampio",paylines:"20"}
     ];
     const unifiedSlotCatalog=[...slotCatalog,...additionalSlotCatalog];
+    let importedSlotRows=[];
+    function populateImportedSlotOptions(rows){
+      for(const [elementId,field] of [["slotBook","book"],["slotProvider","provider"]]){
+        const select=document.getElementById(elementId);if(!select)continue;
+        const known=new Set(Array.from(select.options,o=>o.value.toLocaleLowerCase("it")));
+        const values=[...new Set(rows.map(r=>r[field]).filter(v=>v&&v!=="default"&&v!=="(vuoto)"))].sort((a,b)=>a.localeCompare(b,"it"));
+        for(const name of values){if(known.has(name.toLocaleLowerCase("it")))continue;const option=document.createElement("option");option.value=name;option.textContent=name;select.insertBefore(option,select.querySelector('option[value="OTHER"]'));known.add(name.toLocaleLowerCase("it"))}
+      }
+    }
+    window.MBrainImportedSlots?.then(rows=>{importedSlotRows=Array.isArray(rows)?rows:[];populateImportedSlotOptions(importedSlotRows);renderSlotSuggestion()});
     let suggestedSlotIndex=0;
     let visibleSlot=null;
     function selectedSlotBook(){const value=document.getElementById("slotBook")?.value||"";return value==="OTHER"?(document.getElementById("slotOtherBook")?.value||"").trim():value;}
@@ -1629,22 +1640,26 @@ body{background-image:linear-gradient(90deg,rgba(3,11,6,.91),rgba(4,17,9,.83) 52
       const sisal=book==="Sisal";if(bookInfo){bookInfo.innerHTML=book?(sisal?'Bookmaker: <b>Sisal</b> · <a href="https://www.sisal.it/slot/probabilita-di-vincita" target="_blank" rel="noopener noreferrer" style="color:#8cd2ff">Verifica i dati sul sito ufficiale</a>':'Bookmaker scelto: <b>'+book.replace(/[&<>"\']/g,"")+'</b> · verifica i dati nel regolamento della slot'):"Catalogo generale: non conosciamo l’RTP effettivo del bookmaker."}if(rtpEntry)rtpEntry.style.display="none";visibleSlot=null;
       const custom=(document.getElementById("slotOtherProvider")?.value||"").trim();
       const filterName=provider==="OTHER"?custom:provider;
-      const candidates=unifiedSlotCatalog.filter(slot=>provider==="ALL" || (filterName && slot.provider.toLocaleLowerCase("it")===filterName.toLocaleLowerCase("it")))
-        .sort((a,b)=> ((provider==="Capecod" || (provider==="OTHER"&&filterName.toLocaleLowerCase("it")==="capecod"))?Number(!!b.userSuggested)-Number(!!a.userSuggested):0) || (a.vol?.includes("Bassa")?0:1)-(b.vol?.includes("Bassa")?0:1) || (b.rtp??0)-(a.rtp??0) || a.name.localeCompare(b.name));
-      if(!provider){el.textContent="Seleziona un provider (oppure Tutti i provider) per visualizzare il catalogo.";btn.style.display="none";return}
+      const candidates=(book?importedSlotRows.filter(slot=>slot.book.toLocaleLowerCase("it")===book.toLocaleLowerCase("it")):unifiedSlotCatalog)
+        .filter(slot=>provider===""||provider==="ALL" || (filterName && slot.provider.toLocaleLowerCase("it")===filterName.toLocaleLowerCase("it")))
+        .sort((a,b)=>book?((a.vol??7)-(b.vol??7) || (b.rtp??0)-(a.rtp??0) || a.name.localeCompare(b.name)):(((provider==="Capecod" || (provider==="OTHER"&&filterName.toLocaleLowerCase("it")==="capecod"))?Number(!!b.userSuggested)-Number(!!a.userSuggested):0) || (a.vol?.includes("Bassa")?0:1)-(b.vol?.includes("Bassa")?0:1) || (b.rtp??0)-(a.rtp??0) || a.name.localeCompare(b.name)));
+      if(!provider&&!book){el.textContent="Seleziona un bookmaker o un provider per visualizzare il catalogo.";btn.style.display="none";return}
       if(provider==="OTHER"&&!custom){el.textContent="Inserisci il nome del provider.";btn.style.display="none";return}
       if(!candidates.length){
-        el.innerHTML='<div style="font-size:15px">Non abbiamo ancora dati sufficienti per mostrare una scheda affidabile di questo provider. Puoi selezionare “Tutti i provider” per vedere le alternative documentate.</div>';
+        el.textContent=book?"Nessuna slot di questo provider registrata per "+book+" nel file importato. Non significa che la slot non sia disponibile sul sito.":"Non ci sono slot registrate per questo provider nel catalogo.";
         btn.style.display="none";return;
       }
-      if(suggestedSlotIndex>=candidates.length){el.textContent="Titoli del catalogo esauriti per questo provider. Nessun altro risultato verificato.";btn.style.display="none";return}
+      if(suggestedSlotIndex>=candidates.length){el.textContent="Hai consultato tutte le slot registrate per questa selezione.";btn.style.display="none";return}
       const slot=candidates[suggestedSlotIndex];visibleSlot=slot;
       const override=book?knownBookRtp(book,slot):null;
       if(rtpEntry&&book){rtpEntry.style.display="block";const input=document.getElementById("bookRtpValue");if(input)input.value=override===null?"":String(override)}
-      const rtp=override!==null?override.toFixed(2).replace(".",",")+"% (inserito per "+book+")":slot.rtp==null?"da verificare":slot.rtp.toFixed(2).replace(".",",")+"% (teorico del catalogo, non verificato sul bookmaker)";
+      const rtp=override!==null?override.toFixed(2).replace(".",",")+"% (inserito da te per "+book+")":slot.rtp==null?"da verificare":slot.rtp.toFixed(2).replace(".",",")+"% "+(slot.book?"(riportato nel file per "+book+")":"(teorico del catalogo, non verificato sul bookmaker)");
+      const volatility=typeof slot.vol==="number"?slot.vol+"/6 (scala del file)":slot.vol||"da verificare";
+      const provenance=slot.sourceType?(slot.sourceType==="book"?"Rilevato sul bookmaker secondo il file":slot.sourceType==="marco"?"Segnalato da un collaboratore":"Dato di terzi")+(slot.date?" · "+slot.date:""):"";
       el.innerHTML='<div style="font-weight:800;color:#7bf0aa;font-size:19px">'+slot.name+'</div>'+
         '<div style="font-size:14px;margin-top:7px">Provider: <b>'+slot.provider+'</b></div>'+
-        '<div style="font-size:14px">RTP: <b>'+rtp+'</b> · Volatilità: <b>'+(slot.vol||"da verificare")+'</b></div>'+
+        '<div style="font-size:14px">RTP: <b>'+rtp+'</b> · Volatilità: <b>'+volatility+'</b></div>'+
+        (provenance?'<div style="font-size:12px;color:#eecb89">'+provenance+' · non ricontrollato automaticamente</div>':'')+
         (slot.payout?'<div style="font-size:14px">Payout indicato in tabella: <b>'+slot.payout+'</b> · Linee: <b>'+slot.paylines+'</b></div><div style="font-size:12px;color:#eecb89">Dati dalla tabella fornita dall’utente; RTP e volatilità non verificati.</div>':'')+
         (slot.note?'<div style="font-size:12px;color:#eecb89">'+slot.note+'</div>':'')+
         '<div style="font-size:12px;margin-top:8px">'+(suggestedSlotIndex+1)+' di '+candidates.length+(slot.source?' · <a href="'+slot.source+'" target="_blank" rel="noopener noreferrer" style="color:#8cd2ff">Fonte del produttore</a>':'')+'</div>';
