@@ -916,7 +916,6 @@ body{background-image:linear-gradient(90deg,rgba(3,11,6,.91),rgba(4,17,9,.83) 52
                 <option>Altro</option>
               </select>
             </div>
-            <div class="field"><label>Tipo elenco slot</label><select id="slotPurpose" onchange="resetSlotSuggestions()"><option value="rollover">Catalogo RTP / volatilità</option><option value="target">Slot della tabella Target</option></select></div>
             <div class="field"><label>Provider slot (facoltativo)</label>
               <select id="slotProvider" onchange="resetSlotSuggestions()">
                 <option value="">Seleziona provider</option>
@@ -1595,7 +1594,7 @@ body{background-image:linear-gradient(90deg,rgba(3,11,6,.91),rgba(4,17,9,.83) 52
       {provider:"Relax Gaming",name:"The Great Pigsby",rtp:null,vol:"Media",source:"https://www.relax-gaming.com/products/casino/thegreatpigsby",note:"RTP da verificare nella versione del casinò"},
       {provider:"Big Time Gaming",name:"Who Wants to Be a Millionaire Megaways",rtp:null,vol:"Media",source:"https://games.evolution.com/slots/millionaire-megaways/",note:"RTP da verificare nella versione del casinò"}
     ];
-    const targetSlotCatalog = [
+    const additionalSlotCatalog = [
       {provider:"Pragmatic Play",name:"Sweet Bonanza Xmas",payout:"Medio",paylines:"A cascata"},
       {provider:"Habanero",name:"Egyptian Dreams",payout:"Ampio",paylines:"25"},
       {provider:"Habanero",name:"Happiest Christmas Tree",payout:"Ampio",paylines:"40"},
@@ -1605,6 +1604,7 @@ body{background-image:linear-gradient(90deg,rgba(3,11,6,.91),rgba(4,17,9,.83) 52
       {provider:"Capecod",name:"Genius",payout:"Ampio",paylines:"25"},
       {provider:"Giocaonline",name:"Pharaoh s Secret",payout:"Ampio",paylines:"20"}
     ];
+    const unifiedSlotCatalog=[...slotCatalog,...additionalSlotCatalog];
     let suggestedSlotIndex=0;
     function resetSlotSuggestions(){
       const provider=document.getElementById("slotProvider")?.value;
@@ -1617,11 +1617,10 @@ body{background-image:linear-gradient(90deg,rgba(3,11,6,.91),rgba(4,17,9,.83) 52
       const el=document.getElementById("slotSuggestion"),btn=document.getElementById("nextSlotBtn"),select=document.getElementById("slotProvider");
       if(!el||!btn||!select)return;
       const provider=select.value;
-      const purpose=document.getElementById("slotPurpose")?.value||"rollover";
       const custom=(document.getElementById("slotOtherProvider")?.value||"").trim();
       const filterName=provider==="OTHER"?custom:provider;
-      const candidates=(purpose==="target"?targetSlotCatalog:slotCatalog).filter(slot=>provider==="ALL" || (filterName && slot.provider.toLocaleLowerCase("it")===filterName.toLocaleLowerCase("it")))
-        .sort((a,b)=>purpose==="target"?a.name.localeCompare(b.name):((a.vol.includes("Bassa")?0:1)-(b.vol.includes("Bassa")?0:1) || (b.rtp??0)-(a.rtp??0) || a.name.localeCompare(b.name)));
+      const candidates=unifiedSlotCatalog.filter(slot=>provider==="ALL" || (filterName && slot.provider.toLocaleLowerCase("it")===filterName.toLocaleLowerCase("it")))
+        .sort((a,b)=> (a.vol?.includes("Bassa")?0:1)-(b.vol?.includes("Bassa")?0:1) || (b.rtp??0)-(a.rtp??0) || a.name.localeCompare(b.name));
       if(!provider){el.textContent="Seleziona un provider (oppure Tutti i provider) per visualizzare il catalogo.";btn.style.display="none";return}
       if(provider==="OTHER"&&!custom){el.textContent="Inserisci il nome del provider.";btn.style.display="none";return}
       if(!candidates.length){
@@ -1630,20 +1629,13 @@ body{background-image:linear-gradient(90deg,rgba(3,11,6,.91),rgba(4,17,9,.83) 52
       }
       if(suggestedSlotIndex>=candidates.length){el.textContent="Titoli del catalogo esauriti per questo provider. Nessun altro risultato verificato.";btn.style.display="none";return}
       const slot=candidates[suggestedSlotIndex];
-      if(purpose==="target"){
-        el.innerHTML='<div style="font-weight:800;color:#7bf0aa;font-size:19px">'+slot.name+'</div>'+
-          '<div style="font-size:14px;margin-top:7px">Provider: <b>'+slot.provider+'</b></div>'+
-          '<div style="font-size:14px">Payout indicato in tabella: <b>'+slot.payout+'</b> · Linee: <b>'+slot.paylines+'</b></div>'+
-          '<div style="font-size:12px;color:#eecb89;margin-top:6px">Fonte: tabella fornita dall’utente. RTP, volatilità e disponibilità non verificati. Il payout descritto non garantisce il raggiungimento del target.</div>'+
-          '<div style="font-size:12px;margin-top:8px">'+(suggestedSlotIndex+1)+' di '+candidates.length+'</div>';
-        btn.style.display=suggestedSlotIndex+1<candidates.length?"block":"none";return;
-      }
-      const rtp=slot.rtp===null?"da verificare":slot.rtp.toFixed(2).replace(".",",")+"% (versione indicata)";
+      const rtp=slot.rtp==null?"da verificare":slot.rtp.toFixed(2).replace(".",",")+"% (versione indicata)";
       el.innerHTML='<div style="font-weight:800;color:#7bf0aa;font-size:19px">'+slot.name+'</div>'+
         '<div style="font-size:14px;margin-top:7px">Provider: <b>'+slot.provider+'</b></div>'+
-        '<div style="font-size:14px">RTP: <b>'+rtp+'</b> · Volatilità: <b>'+slot.vol+'</b></div>'+
+        '<div style="font-size:14px">RTP: <b>'+rtp+'</b> · Volatilità: <b>'+(slot.vol||"da verificare")+'</b></div>'+
+        (slot.payout?'<div style="font-size:14px">Payout indicato in tabella: <b>'+slot.payout+'</b> · Linee: <b>'+slot.paylines+'</b></div><div style="font-size:12px;color:#eecb89">Dati dalla tabella fornita dall’utente; RTP e volatilità non verificati.</div>':'')+
         (slot.note?'<div style="font-size:12px;color:#eecb89">'+slot.note+'</div>':'')+
-        '<div style="font-size:12px;margin-top:8px">'+(suggestedSlotIndex+1)+' di '+candidates.length+' · <a href="'+slot.source+'" target="_blank" rel="noopener noreferrer" style="color:#8cd2ff">Fonte del produttore</a></div>';
+        '<div style="font-size:12px;margin-top:8px">'+(suggestedSlotIndex+1)+' di '+candidates.length+(slot.source?' · <a href="'+slot.source+'" target="_blank" rel="noopener noreferrer" style="color:#8cd2ff">Fonte del produttore</a>':'')+'</div>';
       btn.style.display=suggestedSlotIndex+1<candidates.length?"block":"none";
     }
     function calcola(){
