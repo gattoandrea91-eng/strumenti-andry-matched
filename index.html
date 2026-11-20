@@ -916,11 +916,12 @@ body{background-image:linear-gradient(90deg,rgba(3,11,6,.91),rgba(4,17,9,.83) 52
                 <option>Altro</option>
               </select>
             </div>
+            <div class="field"><label>Tipo elenco slot</label><select id="slotPurpose" onchange="resetSlotSuggestions()"><option value="rollover">Catalogo RTP / volatilità</option><option value="target">Slot della tabella Target</option></select></div>
             <div class="field"><label>Provider slot (facoltativo)</label>
               <select id="slotProvider" onchange="resetSlotSuggestions()">
                 <option value="">Seleziona provider</option>
                 <option value="ALL">Tutti i provider con slot in catalogo</option>
-                <option>NetEnt</option><option>Red Tiger</option><option>Pragmatic Play</option><option>Play'n GO</option><option>Relax Gaming</option><option>Big Time Gaming</option><option>Microgaming</option><option>Games Global</option><option>Hacksaw Gaming</option><option>Push Gaming</option><option>ELK Studios</option><option>Quickspin</option><option>Yggdrasil</option><option>Blueprint Gaming</option><option>Thunderkick</option><option>Endorphina</option><option>Amusnet</option><option>Novomatic</option><option>IGT</option><option>Wazdan</option><option>Playtech</option><option>BGaming</option><option>Playson</option><option>Betsoft</option><option>iSoftBet</option><option>Spinomenal</option><option>3 Oaks Gaming</option><option>RubyPlay</option><option>Nolimit City</option>
+                <option>NetEnt</option><option>Red Tiger</option><option>Pragmatic Play</option><option>Habanero</option><option>Capecod</option><option>Giocaonline</option><option>Play'n GO</option><option>Relax Gaming</option><option>Big Time Gaming</option><option>Microgaming</option><option>Games Global</option><option>Hacksaw Gaming</option><option>Push Gaming</option><option>ELK Studios</option><option>Quickspin</option><option>Yggdrasil</option><option>Blueprint Gaming</option><option>Thunderkick</option><option>Endorphina</option><option>Amusnet</option><option>Novomatic</option><option>IGT</option><option>Wazdan</option><option>Playtech</option><option>BGaming</option><option>Playson</option><option>Betsoft</option><option>iSoftBet</option><option>Spinomenal</option><option>3 Oaks Gaming</option><option>RubyPlay</option><option>Nolimit City</option>
                 <option value="OTHER">Altro provider (da inserire)</option>
               </select>
               <input id="slotOtherProvider" type="text" placeholder="Nome del provider" style="display:none;margin-top:9px" oninput="resetSlotSuggestions()">
@@ -1594,6 +1595,16 @@ body{background-image:linear-gradient(90deg,rgba(3,11,6,.91),rgba(4,17,9,.83) 52
       {provider:"Relax Gaming",name:"The Great Pigsby",rtp:null,vol:"Media",source:"https://www.relax-gaming.com/products/casino/thegreatpigsby",note:"RTP da verificare nella versione del casinò"},
       {provider:"Big Time Gaming",name:"Who Wants to Be a Millionaire Megaways",rtp:null,vol:"Media",source:"https://games.evolution.com/slots/millionaire-megaways/",note:"RTP da verificare nella versione del casinò"}
     ];
+    const targetSlotCatalog = [
+      {provider:"Pragmatic Play",name:"Sweet Bonanza Xmas",payout:"Medio",paylines:"A cascata"},
+      {provider:"Habanero",name:"Egyptian Dreams",payout:"Ampio",paylines:"25"},
+      {provider:"Habanero",name:"Happiest Christmas Tree",payout:"Ampio",paylines:"40"},
+      {provider:"Capecod",name:"Immortal Blood",payout:"Ampio",paylines:"25"},
+      {provider:"Capecod",name:"Black Gold Texas Riches",payout:"Ampio",paylines:"25"},
+      {provider:"Capecod",name:"Chicken Hatch",payout:"Ampio",paylines:"20"},
+      {provider:"Capecod",name:"Genius",payout:"Ampio",paylines:"25"},
+      {provider:"Giocaonline",name:"Pharaoh s Secret",payout:"Ampio",paylines:"20"}
+    ];
     let suggestedSlotIndex=0;
     function resetSlotSuggestions(){
       const provider=document.getElementById("slotProvider")?.value;
@@ -1606,10 +1617,11 @@ body{background-image:linear-gradient(90deg,rgba(3,11,6,.91),rgba(4,17,9,.83) 52
       const el=document.getElementById("slotSuggestion"),btn=document.getElementById("nextSlotBtn"),select=document.getElementById("slotProvider");
       if(!el||!btn||!select)return;
       const provider=select.value;
+      const purpose=document.getElementById("slotPurpose")?.value||"rollover";
       const custom=(document.getElementById("slotOtherProvider")?.value||"").trim();
       const filterName=provider==="OTHER"?custom:provider;
-      const candidates=slotCatalog.filter(slot=>provider==="ALL" || (filterName && slot.provider.toLocaleLowerCase("it")===filterName.toLocaleLowerCase("it")))
-        .sort((a,b)=>(a.vol.includes("Bassa")?0:1)-(b.vol.includes("Bassa")?0:1) || (b.rtp??0)-(a.rtp??0) || a.name.localeCompare(b.name));
+      const candidates=(purpose==="target"?targetSlotCatalog:slotCatalog).filter(slot=>provider==="ALL" || (filterName && slot.provider.toLocaleLowerCase("it")===filterName.toLocaleLowerCase("it")))
+        .sort((a,b)=>purpose==="target"?a.name.localeCompare(b.name):((a.vol.includes("Bassa")?0:1)-(b.vol.includes("Bassa")?0:1) || (b.rtp??0)-(a.rtp??0) || a.name.localeCompare(b.name)));
       if(!provider){el.textContent="Seleziona un provider (oppure Tutti i provider) per visualizzare il catalogo.";btn.style.display="none";return}
       if(provider==="OTHER"&&!custom){el.textContent="Inserisci il nome del provider.";btn.style.display="none";return}
       if(!candidates.length){
@@ -1618,6 +1630,14 @@ body{background-image:linear-gradient(90deg,rgba(3,11,6,.91),rgba(4,17,9,.83) 52
       }
       if(suggestedSlotIndex>=candidates.length){el.textContent="Titoli del catalogo esauriti per questo provider. Nessun altro risultato verificato.";btn.style.display="none";return}
       const slot=candidates[suggestedSlotIndex];
+      if(purpose==="target"){
+        el.innerHTML='<div style="font-weight:800;color:#7bf0aa;font-size:19px">'+slot.name+'</div>'+
+          '<div style="font-size:14px;margin-top:7px">Provider: <b>'+slot.provider+'</b></div>'+
+          '<div style="font-size:14px">Payout indicato in tabella: <b>'+slot.payout+'</b> · Linee: <b>'+slot.paylines+'</b></div>'+
+          '<div style="font-size:12px;color:#eecb89;margin-top:6px">Fonte: tabella fornita dall’utente. RTP, volatilità e disponibilità non verificati. Il payout descritto non garantisce il raggiungimento del target.</div>'+
+          '<div style="font-size:12px;margin-top:8px">'+(suggestedSlotIndex+1)+' di '+candidates.length+'</div>';
+        btn.style.display=suggestedSlotIndex+1<candidates.length?"block":"none";return;
+      }
       const rtp=slot.rtp===null?"da verificare":slot.rtp.toFixed(2).replace(".",",")+"% (versione indicata)";
       el.innerHTML='<div style="font-weight:800;color:#7bf0aa;font-size:19px">'+slot.name+'</div>'+
         '<div style="font-size:14px;margin-top:7px">Provider: <b>'+slot.provider+'</b></div>'+
