@@ -916,6 +916,7 @@ body{background-image:linear-gradient(90deg,rgba(3,11,6,.91),rgba(4,17,9,.83) 52
                 <option>Altro</option>
               </select>
             </div>
+            <div class="field"><label>Bookmaker / sito</label><select id="slotBook" onchange="resetSlotSuggestions()"><option value="">Nessuno (catalogo generale)</option><option value="Sisal">Sisal</option><option value="Snai">Snai</option><option value="Goldbet">Goldbet</option><option value="Betflag">Betflag</option><option value="Eurobet">Eurobet</option><option value="OTHER">Altro (scrivi il nome)</option></select><input id="slotOtherBook" type="text" placeholder="Nome bookmaker" style="display:none;margin-top:9px" oninput="resetSlotSuggestions()"><div style="font-size:12px;color:#bac7d2;margin-top:6px">L’RTP effettivo dipende dalla versione offerta sul sito. Il calcolatore non può leggere automaticamente le slot dietro il login.</div></div>
             <div class="field"><label>Provider slot (facoltativo)</label>
               <select id="slotProvider" onchange="resetSlotSuggestions()">
                 <option value="">Seleziona provider</option>
@@ -937,7 +938,7 @@ body{background-image:linear-gradient(90deg,rgba(3,11,6,.91),rgba(4,17,9,.83) 52
               <strong>Spin</strong>
               <div class="result-value" id="spin">—</div>
             </div>
-            <div class="result" style="text-align:left"><strong>🎰 Slot da verificare</strong><div id="slotSuggestion" style="margin-top:12px;line-height:1.45;color:#d6e7df;font-size:16px;overflow-wrap:anywhere">Seleziona un provider per visualizzare i titoli con dati verificabili.</div><button id="nextSlotBtn" class="action" type="button" onclick="nextSlotSuggestion()" style="margin-top:12px;display:none">Non disponibile, proponine un’altra</button><div style="margin-top:10px;font-size:12px;color:#aebdca">Controlla nel bookmaker RTP effettivo e requisiti del bonus. RTP e volatilità sono caratteristiche teoriche, non garanzie di vincita o di conservazione del saldo.</div></div>
+            <div class="result" style="text-align:left"><strong>🎰 Slot da verificare</strong><div id="slotBookInfo" style="font-size:12px;color:#b7c8d3;margin-top:8px"></div><div id="slotSuggestion" style="margin-top:12px;line-height:1.45;color:#d6e7df;font-size:16px;overflow-wrap:anywhere">Seleziona un provider per visualizzare i titoli con dati verificabili.</div><div id="bookRtpEntry" style="display:none;margin-top:10px;padding:12px;background:#172633;border-radius:10px"><label for="bookRtpValue" style="font-size:12px">RTP rilevato nel bookmaker per questa slot (%)</label><div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap"><input id="bookRtpValue" type="number" min="0" max="100" step="0.01" placeholder="Es. 96,09" style="width:128px"><button type="button" onclick="saveBookSlotRtp()">Salva RTP</button></div><div style="font-size:12px;margin-top:6px">Valore inserito dall’utente, salvato solo in questo browser; non verificato automaticamente.</div></div><button id="nextSlotBtn" class="action" type="button" onclick="nextSlotSuggestion()" style="margin-top:12px;display:none">Non disponibile, proponine un’altra</button><div style="margin-top:10px;font-size:12px;color:#aebdca">Controlla nel bookmaker RTP effettivo e requisiti del bonus. RTP e volatilità sono caratteristiche teoriche, non garanzie di vincita o di conservazione del saldo.</div></div>
           </div>
         </div>
 
@@ -1607,17 +1608,25 @@ body{background-image:linear-gradient(90deg,rgba(3,11,6,.91),rgba(4,17,9,.83) 52
     ];
     const unifiedSlotCatalog=[...slotCatalog,...additionalSlotCatalog];
     let suggestedSlotIndex=0;
+    let visibleSlot=null;
+    function selectedSlotBook(){const value=document.getElementById("slotBook")?.value||"";return value==="OTHER"?(document.getElementById("slotOtherBook")?.value||"").trim():value;}
+    function knownBookRtp(book,slot){try{const raw=localStorage.getItem("mbrain-slot-rtp-v1");const items=raw?JSON.parse(raw):{};const v=items[(book+"|"+slot.provider+"|"+slot.name).toLocaleLowerCase("it")];return Number.isFinite(v)&&v>0&&v<=100?v:null}catch(e){return null}}
+    function saveBookSlotRtp(){const book=selectedSlotBook(),slot=visibleSlot,input=document.getElementById("bookRtpValue");if(!book||!slot)return;const value=Number(String(input?.value||"").replace(",","."));if(!Number.isFinite(value)||value<=0||value>100)return alert("Inserisci un RTP valido da 0 a 100");try{const raw=localStorage.getItem("mbrain-slot-rtp-v1");const items=raw?JSON.parse(raw):{};items[(book+"|"+slot.provider+"|"+slot.name).toLocaleLowerCase("it")]=value;localStorage.setItem("mbrain-slot-rtp-v1",JSON.stringify(items));renderSlotSuggestion()}catch(e){alert("Impossibile salvare RTP in questo browser")}}
+
     function resetSlotSuggestions(){
       const provider=document.getElementById("slotProvider")?.value;
       const other=document.getElementById("slotOtherProvider");
       if(other)other.style.display=provider==="OTHER"?"block":"none";
+      const bookOther=document.getElementById("slotOtherBook");if(bookOther)bookOther.style.display=document.getElementById("slotBook")?.value==="OTHER"?"block":"none";
       suggestedSlotIndex=0;renderSlotSuggestion();
     }
     function nextSlotSuggestion(){suggestedSlotIndex++;renderSlotSuggestion()}
     function renderSlotSuggestion(){
       const el=document.getElementById("slotSuggestion"),btn=document.getElementById("nextSlotBtn"),select=document.getElementById("slotProvider");
       if(!el||!btn||!select)return;
-      const provider=select.value;
+      const provider=select.value,book=selectedSlotBook();
+      const bookInfo=document.getElementById("slotBookInfo"),rtpEntry=document.getElementById("bookRtpEntry");
+      const sisal=book==="Sisal";if(bookInfo){bookInfo.innerHTML=book?(sisal?'Bookmaker: <b>Sisal</b> · <a href="https://www.sisal.it/slot/probabilita-di-vincita" target="_blank" rel="noopener noreferrer" style="color:#8cd2ff">Verifica i dati sul sito ufficiale</a>':'Bookmaker scelto: <b>'+book.replace(/[&<>"\']/g,"")+'</b> · verifica i dati nel regolamento della slot'):"Catalogo generale: non conosciamo l’RTP effettivo del bookmaker."}if(rtpEntry)rtpEntry.style.display="none";visibleSlot=null;
       const custom=(document.getElementById("slotOtherProvider")?.value||"").trim();
       const filterName=provider==="OTHER"?custom:provider;
       const candidates=unifiedSlotCatalog.filter(slot=>provider==="ALL" || (filterName && slot.provider.toLocaleLowerCase("it")===filterName.toLocaleLowerCase("it")))
@@ -1629,8 +1638,10 @@ body{background-image:linear-gradient(90deg,rgba(3,11,6,.91),rgba(4,17,9,.83) 52
         btn.style.display="none";return;
       }
       if(suggestedSlotIndex>=candidates.length){el.textContent="Titoli del catalogo esauriti per questo provider. Nessun altro risultato verificato.";btn.style.display="none";return}
-      const slot=candidates[suggestedSlotIndex];
-      const rtp=slot.rtp==null?"da verificare":slot.rtp.toFixed(2).replace(".",",")+"% (versione indicata)";
+      const slot=candidates[suggestedSlotIndex];visibleSlot=slot;
+      const override=book?knownBookRtp(book,slot):null;
+      if(rtpEntry&&book){rtpEntry.style.display="block";const input=document.getElementById("bookRtpValue");if(input)input.value=override===null?"":String(override)}
+      const rtp=override!==null?override.toFixed(2).replace(".",",")+"% (inserito per "+book+")":slot.rtp==null?"da verificare":slot.rtp.toFixed(2).replace(".",",")+"% (teorico del catalogo, non verificato sul bookmaker)";
       el.innerHTML='<div style="font-weight:800;color:#7bf0aa;font-size:19px">'+slot.name+'</div>'+
         '<div style="font-size:14px;margin-top:7px">Provider: <b>'+slot.provider+'</b></div>'+
         '<div style="font-size:14px">RTP: <b>'+rtp+'</b> · Volatilità: <b>'+(slot.vol||"da verificare")+'</b></div>'+
