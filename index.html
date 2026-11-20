@@ -1598,7 +1598,8 @@ body{background-image:linear-gradient(90deg,rgba(3,11,6,.91),rgba(4,17,9,.83) 52
       {provider:"Pragmatic Play",name:"Sweet Bonanza Xmas",payout:"Medio",paylines:"A cascata"},
       {provider:"Habanero",name:"Egyptian Dreams",payout:"Ampio",paylines:"25"},
       {provider:"Habanero",name:"Happiest Christmas Tree",payout:"Ampio",paylines:"40"},
-      {provider:"Capecod",name:"Immortal Blood",payout:"Ampio",paylines:"25"},
+      {provider:"Capecod",name:"Immortal Blood",payout:"Ampio",paylines:"25",source:"https://www.capecodgaming.com/games/immortal-blood/",note:"Tra le slot Capecod segnalate dall’utente; RTP e volatilità della versione in uso da verificare",userSuggested:true},
+      {provider:"Capecod",name:"Klondike Fever",rtp:null,vol:"Da verificare",paylines:"25",source:"https://www.capecodgaming.com/games/klondike-fever/",note:"Tra le slot Capecod segnalate dall’utente; RTP e volatilità della versione in uso da verificare",userSuggested:true},
       {provider:"Capecod",name:"Black Gold Texas Riches",payout:"Ampio",paylines:"25"},
       {provider:"Capecod",name:"Chicken Hatch",payout:"Ampio",paylines:"20"},
       {provider:"Capecod",name:"Genius",payout:"Ampio",paylines:"25"},
@@ -1620,7 +1621,7 @@ body{background-image:linear-gradient(90deg,rgba(3,11,6,.91),rgba(4,17,9,.83) 52
       const custom=(document.getElementById("slotOtherProvider")?.value||"").trim();
       const filterName=provider==="OTHER"?custom:provider;
       const candidates=unifiedSlotCatalog.filter(slot=>provider==="ALL" || (filterName && slot.provider.toLocaleLowerCase("it")===filterName.toLocaleLowerCase("it")))
-        .sort((a,b)=> (a.vol?.includes("Bassa")?0:1)-(b.vol?.includes("Bassa")?0:1) || (b.rtp??0)-(a.rtp??0) || a.name.localeCompare(b.name));
+        .sort((a,b)=> ((provider==="Capecod" || (provider==="OTHER"&&filterName.toLocaleLowerCase("it")==="capecod"))?Number(!!b.userSuggested)-Number(!!a.userSuggested):0) || (a.vol?.includes("Bassa")?0:1)-(b.vol?.includes("Bassa")?0:1) || (b.rtp??0)-(a.rtp??0) || a.name.localeCompare(b.name));
       if(!provider){el.textContent="Seleziona un provider (oppure Tutti i provider) per visualizzare il catalogo.";btn.style.display="none";return}
       if(provider==="OTHER"&&!custom){el.textContent="Inserisci il nome del provider.";btn.style.display="none";return}
       if(!candidates.length){
