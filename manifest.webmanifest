@@ -1,0 +1,31 @@
+{
+  "id": "/home-odds.html",
+  "name": "MBrain Tracker",
+  "short_name": "MBrain",
+  "description": "Strumenti e community MBrain Tracker",
+  "lang": "it-IT",
+  "start_url": "/home-odds.html",
+  "scope": "/",
+  "display": "standalone",
+  "display_override": [
+    "standalone",
+    "minimal-ui"
+  ],
+  "background_color": "#060708",
+  "theme_color": "#060708",
+  "orientation": "any",
+  "icons": [
+    {
+      "src": "/assets/mbrain-logo.png",
+      "type": "image/png",
+      "sizes": "any",
+      "purpose": "any"
+    },
+    {
+      "src": "/mbrain-icon.svg",
+      "type": "image/svg+xml",
+      "sizes": "any",
+      "purpose": "any maskable"
+    }
+  ]
+}
