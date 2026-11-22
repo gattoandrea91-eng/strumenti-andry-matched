@@ -17,7 +17,7 @@ function n(v){const x=Number(v);return Number.isFinite(x)?x:0}
 const INITIAL_CAPITAL=1000;
 const STAKE=50;
 const NEW_RULE_START_UTC='2026-11-22T02:21:00.000Z'; // 22 Nov 2026 03:21 Italy; do not rewrite historical entries
-const LATE_MINUTE=80;
+const LATE_MINUTE=89;
 const LATE_STAKE=20;
 const FIXED_30_START_UTC='2026-11-14T23:00:00.000Z'; // 15 novembre 2026, ora italiana
 const PROGRESSION_START_UTC='2026-11-02T15:03:00.000Z';
@@ -60,5 +60,5 @@ const total=wins+losses;
 const winRate=total?Math.round((wins/total)*1000)/10:0;
 const capital=Math.round((INITIAL_CAPITAL+profit)*100)/100;
 res.setHeader('Cache-Control','no-store');
-return res.status(200).json({success:true,wins,losses,total,winRate,initialCapital:INITIAL_CAPITAL,stake:STAKE,stakeChangedOn:'2026-11-22',previousStake:30,lateStake:LATE_STAKE,lateFromMinute:LATE_MINUTE,stakingStrategy:'FIXED_50_BEFORE_80_FIXED_20_AFTER_80',maxSignalMinute:MAX_SIGNAL_MINUTE,trackingFrom:'2026-10-27',profit,capital,source:official?'OFFICIAL_RECAP_RECONCILED':'NEW_CYCLE_FROM_2026_10_27',officialRecap:official?{date:officialDay,wins:n(official.touches),losses:n(official.big_chances),winProfit:n(official.shots)/100,lossAmount:n(official.sot)/100,dayProfit:n(official.corners)/100,previousCapital:Math.round((officialCapital-n(official.corners)/100)*100)/100,closingCapital:officialCapital,postRecapProfit:Math.round(postOfficialProfit*100)/100,calculatedRawProfit:calculatedProfit}:null,bets});
+return res.status(200).json({success:true,wins,losses,total,winRate,initialCapital:INITIAL_CAPITAL,stake:STAKE,stakeChangedOn:'2026-11-22',previousStake:30,lateStake:LATE_STAKE,lateFromMinute:LATE_MINUTE,lossStreakStake:70,stakingStrategy:'BASE_50_AFTER_2_LOSSES_70_FROM_89_20',maxSignalMinute:MAX_SIGNAL_MINUTE,trackingFrom:'2026-10-27',profit,capital,source:official?'OFFICIAL_RECAP_RECONCILED':'NEW_CYCLE_FROM_2026_10_27',officialRecap:official?{date:officialDay,wins:n(official.touches),losses:n(official.big_chances),winProfit:n(official.shots)/100,lossAmount:n(official.sot)/100,dayProfit:n(official.corners)/100,previousCapital:Math.round((officialCapital-n(official.corners)/100)*100)/100,closingCapital:officialCapital,postRecapProfit:Math.round(postOfficialProfit*100)/100,calculatedRawProfit:calculatedProfit}:null,bets});
 }catch(error){return res.status(500).json({success:false,error:String(error?.message||error)})}};
