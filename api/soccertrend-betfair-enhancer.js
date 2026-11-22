@@ -19,7 +19,7 @@ async function progressiveStake(minute){
  const rows=await db(`soccertrend_signals?select=match_id,score,created_at,message_id,market&created_at=gte.${encodeURIComponent(PROGRESSION_START_UTC)}&message_id=lt.0&order=created_at.asc&limit=1000`)||[];
  let streak=0;
  for(const r of rows){
-   if(!/^\\d+$/.test(String(r.match_id))||quoteFromScore(r.score)<=1)continue;
+   if(!/^\d+$/.test(String(r.match_id))||quoteFromScore(r.score)<=1)continue;
    streak=n(r.score)>0?0:streak+1;
  }
  return {stake:streak>=2?70:50,consecutiveLosses:streak,method:'FIXED_50_AFTER_2_LOSSES_70_UNTIL_WIN'};
