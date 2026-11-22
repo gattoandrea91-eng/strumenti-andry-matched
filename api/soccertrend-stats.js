@@ -28,22 +28,32 @@ function entryQuote(score){const x=Math.abs(n(score));return x>=10000?(x%10000)/
 module.exports=async(req,res)=>{if(String(req.query?.oddsMBrain||'')==='1')return oddsCacheHandler(req,res,getAdmin);if(String(req.query?.nba||'')==='1')return nbaMatrixHandler(req,res);try{
 const signals=await db(`soccertrend_signals?message_id=lt.0&created_at=gte.${encodeURIComponent(TRACKING_START_UTC)}&signal_minute=lte.${MAX_SIGNAL_MINUTE}&select=score,signal_minute,match_id,home,away,market,created_at&order=created_at.asc&limit=1000`)||[];
 const savedStakes=await db('soccertrend_signals?market=eq.PROGRESSION_STAKE&select=match_id,corners&limit=1000')||[];
+const officialRows=await db('soccertrend_signals?market=eq.OFFICIAL_RECAP&select=match_id,away,score,corners,touches,big_chances,shots,sot&order=created_at.desc&limit=1')||[];
+const official=officialRows[0]||null;
+const officialDay=official?String(official.away||''):'';
+const officialCapital=official?n(official.score)/100:null;
 const stakeByMatch=new Map(savedStakes.map(r=>[String(r.match_id).replace(/^STAKE_/,''),n(r.corners)/100]));
-let profit=0,wins=0,losses=0;const bets=[];
+let profit=0,postOfficialProfit=0,wins=0,losses=0;const bets=[];
+const romeDate=iso=>new Intl.DateTimeFormat('en-CA',{timeZone:'Europe/Rome',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date(iso));
 for(const s of signals){
-  if(String(s.market||'')==='DAILY_REPORT')continue;
+  if(['DAILY_REPORT','OFFICIAL_RECAP','PROGRESSION_STAKE','KELLY_STAKE'].includes(String(s.market||'')))continue;
   const q=entryQuote(s.score);
   if(!q)continue;
   const result=n(s.score)>0?'WIN':'LOSS';
   const savedStake=stakeByMatch.get(String(s.match_id));
   const betStake=String(s.created_at||'')>=FIXED_30_START_UTC?STAKE:(String(s.created_at||'')>=PROGRESSION_START_UTC&&savedStake>0?savedStake:stakeForDate(s.created_at));
-  if(result==='WIN'){wins++;profit+=betStake*(q-1)}else{losses++;profit-=betStake}
+  const betProfit=result==='WIN'?betStake*(q-1):-betStake;
+  if(result==='WIN')wins++;else losses++;
+  profit+=betProfit;
+  if(official&&romeDate(s.created_at)>officialDay)postOfficialProfit+=betProfit;
   bets.push({match_id:String(s.match_id),match:`${s.home||''} - ${s.away||''}`,market:s.market||'',minute:n(s.signal_minute),quote:q,result,stake:betStake,created_at:s.created_at})
 }
-profit=Math.round(profit*100)/100;
+const calculatedProfit=Math.round(profit*100)/100;
+if(official&&Number.isFinite(officialCapital)&&/^\d{4}-\d{2}-\d{2}$/.test(officialDay))profit=Math.round(((officialCapital-INITIAL_CAPITAL)+postOfficialProfit)*100)/100;
+else profit=calculatedProfit;
 const total=wins+losses;
 const winRate=total?Math.round((wins/total)*1000)/10:0;
 const capital=Math.round((INITIAL_CAPITAL+profit)*100)/100;
 res.setHeader('Cache-Control','no-store');
-return res.status(200).json({success:true,wins,losses,total,winRate,initialCapital:INITIAL_CAPITAL,stake:STAKE,stakeChangedOn:'2026-11-15',previousStake:50,stakingStrategy:'FIXED_30_EUR_NO_PROGRESSION',maxSignalMinute:MAX_SIGNAL_MINUTE,trackingFrom:'2026-10-27',profit,capital,source:'NEW_CYCLE_FROM_2026_10_27',bets});
+return res.status(200).json({success:true,wins,losses,total,winRate,initialCapital:INITIAL_CAPITAL,stake:STAKE,stakeChangedOn:'2026-11-15',previousStake:50,stakingStrategy:'FIXED_30_EUR_NO_PROGRESSION',maxSignalMinute:MAX_SIGNAL_MINUTE,trackingFrom:'2026-10-27',profit,capital,source:official?'OFFICIAL_RECAP_RECONCILED':'NEW_CYCLE_FROM_2026_10_27',officialRecap:official?{date:officialDay,wins:n(official.touches),losses:n(official.big_chances),winProfit:n(official.shots)/100,lossAmount:n(official.sot)/100,dayProfit:n(official.corners)/100,previousCapital:Math.round((officialCapital-n(official.corners)/100)*100)/100,closingCapital:officialCapital,postRecapProfit:Math.round(postOfficialProfit*100)/100,calculatedRawProfit:calculatedProfit}:null,bets});
 }catch(error){return res.status(500).json({success:false,error:String(error?.message||error)})}};
