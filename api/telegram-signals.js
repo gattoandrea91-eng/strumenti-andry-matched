@@ -2,6 +2,9 @@ const QUALIFIED_OFFSET=1000000000;
 const MAX_SIGNAL_MINUTE=99; // includes stoppage-time opportunities
 const DAILY_START_BANKROLL=1000;
 const DAILY_STAKE=50;
+const NEW_RULE_START_UTC='2026-11-22T02:21:00.000Z';
+const LATE_MINUTE=80;
+function newStakeForSignal(signal){return n(signal.signal_minute)>=LATE_MINUTE?20:50}
 const STAKE_CHANGE_DAY='2026-11-02';
 const PROGRESSION_START_UTC='2026-11-02T15:03:00.000Z';
 const FIXED_30_START_UTC='2026-11-14T23:00:00.000Z';
@@ -85,7 +88,7 @@ async function sendDailyReport(day,force=false){
    const betDay=romeDate(bet.created_at);
    if(official&&betDay<=officialDay&&officialDay<=day)continue;
    const savedStake=stakes.get(String(bet.match_id));
-   const stake=String(bet.created_at)>=FIXED_30_START_UTC?30:(String(bet.created_at)>=PROGRESSION_START_UTC&&savedStake>0?savedStake:fixedStakeForDay(betDay));
+   const stake=String(bet.created_at)>=NEW_RULE_START_UTC?(savedStake>0?savedStake:newStakeForSignal(bet)):(String(bet.created_at)>=FIXED_30_START_UTC?30:(String(bet.created_at)>=PROGRESSION_START_UTC&&savedStake>0?savedStake:fixedStakeForDay(betDay)));
    const amount=n(bet.score)>0?stake*(entryQuote(bet.score)-1):-stake;
    bank=Math.round((bank+amount)*100)/100;
    if(betDay===day){dayProfit=Math.round((dayProfit+amount)*100)/100;if(n(bet.score)>0)wins++;else losses++;}
@@ -95,7 +98,7 @@ async function sendDailyReport(day,force=false){
    dayOpening=opening;
    for(const bet of earlier){
      const savedStake=stakes.get(String(bet.match_id));
-     const stake=String(bet.created_at)>=FIXED_30_START_UTC?30:(String(bet.created_at)>=PROGRESSION_START_UTC&&savedStake>0?savedStake:fixedStakeForDay(romeDate(bet.created_at)));
+     const stake=String(bet.created_at)>=NEW_RULE_START_UTC?(savedStake>0?savedStake:newStakeForSignal(bet)):(String(bet.created_at)>=FIXED_30_START_UTC?30:(String(bet.created_at)>=PROGRESSION_START_UTC&&savedStake>0?savedStake:fixedStakeForDay(romeDate(bet.created_at))));
      dayOpening=Math.round((dayOpening+(n(bet.score)>0?stake*(entryQuote(bet.score)-1):-stake))*100)/100;
    }
  }
@@ -118,7 +121,7 @@ async function sendDailyReport(day,force=false){
  'https://mbrain-tracker.vercel.app/home-odds.html';
  const sent=await telegramSend(message);
  if(!(await dailyMarker(day)))await claimSignal({match_id:'DAILY_REPORT_'+day,message_id:-Math.abs(n(sent.message_id)||1),home:'SOCCERTREND',away:day,start_home_goals:0,start_away_goals:0,start_goals:0,signal_minute:0,market:'DAILY_REPORT',score:Math.round(bank*100),corners:0,touches:0,big_chances:0,shots:0,sot:0});
- return {day,wins,losses,winRate:rate,profit:dayProfit,opening:dayOpening,closing:bank,official:!!officialToday,telegramMessageId:sent.message_id,pending};
+ return {day,wins,losses,winRate:rate,profit:dayProfit,opening:dayOpening,closing:bank,official:!!officialToday,telegramMessageId:sent.message_id,pending,regularStake:50,lateStake:20};
 }
 async function maybeSendDailyReport(){const now=romeParts();if(now.date<DAILY_TRACKING_START)return null;if(now.hour===0&&now.minute>=5){const prior=previousRomeDay(now.date);if(prior>=DAILY_TRACKING_START&&!await dailyMarker(prior))return await sendDailyReport(prior,false)}if(now.hour<23||(now.hour===23&&now.minute<55))return null;return await sendDailyReport(now.date,false)}
 async function claimSignal(row){try{const d=await db('soccertrend_signals',{method:'POST',headers:{Prefer:'return=representation'},body:JSON.stringify(row)});return Array.isArray(d)&&d[0]?d[0]:row}catch(e){if(String(e.message).includes('23505')||String(e.message).includes('409'))return null;throw e}}
