@@ -4,6 +4,7 @@ const DAILY_START_BANKROLL=1000;
 const DAILY_STAKE=50;
 const STAKE_CHANGE_DAY='2026-11-02';
 const PROGRESSION_START_UTC='2026-11-02T15:03:00.000Z';
+const FIXED_30_START_UTC='2026-11-14T23:00:00.000Z';
 function fixedStakeForDay(day){return day>=STAKE_CHANGE_DAY?50:20}
 const DAILY_TRACKING_START='2026-10-27';
 const ROME_TZ='Europe/Rome';
@@ -63,31 +64,61 @@ async function dailyRows(day){const start=zonedMidnightUtc(day).toISOString(),en
 function romeDate(iso){return romeParts(new Date(iso)).date}
 async function cycleRows(day){const start=zonedMidnightUtc(DAILY_TRACKING_START).toISOString(),end=zonedMidnightUtc(nextDayString(day)).toISOString();return await db(`soccertrend_signals?select=match_id,created_at,message_id,score,market,signal_minute&created_at=gte.${encodeURIComponent(start)}&created_at=lt.${encodeURIComponent(end)}&signal_minute=lte.${MAX_SIGNAL_MINUTE}&order=created_at.asc&limit=1000`)||[]}
 async function sendDailyReport(day,force=false){
-if(!/^\d{4}-\d{2}-\d{2}$/.test(day)||day<DAILY_TRACKING_START)throw Error('Invalid report day');
-if(!force&&await dailyMarker(day))return null;
-const all=await cycleRows(day),saved=await db('soccertrend_signals?market=eq.PROGRESSION_STAKE&select=match_id,corners&limit=1000')||[];
-const stakeByMatch=new Map(saved.map(r=>[String(r.match_id).replace(/^STAKE_/,''),n(r.corners)/100]));
-const bets=all.filter(r=>String(r.market)!=='DAILY_REPORT'&&String(r.market)!=='PROGRESSION_STAKE'&&hasEntryQuote(r.score)&&entryQuote(r.score)>1);
-let bank=DAILY_START_BANKROLL,dayStartBank=bank,dayWins=0,dayLosses=0,dayPending=0,dayBets=0;
-for(const r of bets){
- const iso=String(r.created_at||'');
- const isToday=romeDate(r.created_at)===day;
- if(n(r.message_id)>=0){if(isToday&&n(r.message_id)>=QUALIFIED_OFFSET)dayPending++;continue}
- const savedStake=stakeByMatch.get(String(r.match_id));
- const stake=iso>=PROGRESSION_START_UTC&&savedStake>0?savedStake:fixedStakeForDay(romeDate(r.created_at));
- const win=n(r.score)>0;
- if(isToday){dayBets++;if(win)dayWins++;else dayLosses++}
- bank=Math.round((bank+(win?stake*(entryQuote(r.score)-1):-stake))*100)/100;
-}
-const dayBetsBefore=bets.filter(r=>romeDate(r.created_at)<day&&n(r.message_id)<0);
-let prevBank=DAILY_START_BANKROLL;
-for(const r of dayBetsBefore){const savedStake=stakeByMatch.get(String(r.match_id));const stake=String(r.created_at||'')>=PROGRESSION_START_UTC&&savedStake>0?savedStake:fixedStakeForDay(romeDate(r.created_at));prevBank=Math.round((prevBank+(n(r.score)>0?stake*(entryQuote(r.score)-1):-stake))*100)/100}
-dayStartBank=prevBank;
-const dayProfit=Math.round((bank-dayStartBank)*100)/100,totalProfit=Math.round((bank-DAILY_START_BANKROLL)*100)/100;
-const message=`📊 <b>ADF Academy — BILANCIO SOCCERTREND</b>\\n\\n📅 ${day.split('-').reverse().join('/')}\\n🎟 Giocate concluse: <b>${dayBets}</b> | ✅ ${dayWins} WIN • ❌ ${dayLosses} LOSS\\n⏳ Ingressi aperti: <b>${dayPending}</b>\\n\\n💶 <b>STAKE BASE 50 € — 70 € DOPO 2 LOSS (80'+ SEMPRE 50 €)</b>\\n🏦 Inizio giornata: <b>${euro(dayStartBank)}</b>\\n📈 Giorno: <b>${dayProfit>=0?'+':''}${euro(dayProfit)}</b>\\n💰 Cassa simulata: <b>${euro(bank)}</b>\\n📊 Da 27/10: <b>${totalProfit>=0?'+':''}${euro(totalProfit)}</b>\\n\\n<i>Dal 2 novembre: base 50 €. Dopo 2 LOSS concluse consecutive, 70 € fino alla prima WIN, poi 50 €. Dal minuto 80 in poi lo stake resta sempre 50 €. Lo storico precedente conserva lo stake originale. Simulazione teorica, nessuna puntata automatica.</i>`;
-const sent=await telegramSend(message);
-if(!(await dailyMarker(day)))await claimSignal({match_id:'DAILY_REPORT_'+day,message_id:-Math.abs(n(sent.message_id)||1),home:'SOCCERTREND',away:day,start_home_goals:0,start_away_goals:0,start_goals:0,signal_minute:0,market:'DAILY_REPORT',score:Math.round(bank*100),corners:0,touches:0,big_chances:0,shots:0,sot:0});
-return{day,wins:dayWins,losses:dayLosses,closed:dayBets,open:dayPending,bankroll:bank,profit:dayProfit,stake:50,lossStreakStake:70};
+ if(!/^\d{4}-\d{2}-\d{2}$/.test(day)||day<DAILY_TRACKING_START)throw Error('Invalid report day');
+ if(!force&&await dailyMarker(day))return null;
+ const all=await cycleRows(day);
+ const stakeRows=await db('soccertrend_signals?market=eq.PROGRESSION_STAKE&select=match_id,corners&limit=1000')||[];
+ const stakes=new Map(stakeRows.map(r=>[String(r.match_id).replace(/^STAKE_/,''),n(r.corners)/100]));
+ const corrections=await db('soccertrend_signals?market=eq.OFFICIAL_RECAP&select=match_id,away,score,corners,touches,big_chances,shots,sot&order=created_at.desc&limit=1')||[];
+ const official=corrections[0]||null,officialDay=official?String(official.away):'';
+ const finished=all.filter(r=>/^\d+$/.test(String(r.match_id))&&n(r.message_id)<0&&hasEntryQuote(r.score)&&entryQuote(r.score)>1);
+ const opening=DAILY_START_BANKROLL;
+ let bank=opening,dayOpening=opening,wins=0,losses=0,dayProfit=0,pending=0;
+ if(official&&officialDay<=day){
+   bank=n(official.score)/100;
+   if(day===officialDay){
+     dayOpening=Math.round((bank-n(official.corners)/100)*100)/100;
+     wins=n(official.touches);losses=n(official.big_chances);dayProfit=n(official.corners)/100;
+   } else dayOpening=bank;
+ }
+ for(const bet of finished){
+   const betDay=romeDate(bet.created_at);
+   if(official&&betDay<=officialDay&&officialDay<=day)continue;
+   const savedStake=stakes.get(String(bet.match_id));
+   const stake=String(bet.created_at)>=FIXED_30_START_UTC?30:(String(bet.created_at)>=PROGRESSION_START_UTC&&savedStake>0?savedStake:fixedStakeForDay(betDay));
+   const amount=n(bet.score)>0?stake*(entryQuote(bet.score)-1):-stake;
+   bank=Math.round((bank+amount)*100)/100;
+   if(betDay===day){dayProfit=Math.round((dayProfit+amount)*100)/100;if(n(bet.score)>0)wins++;else losses++;}
+ }
+ if(!official||officialDay>day){
+   const earlier=finished.filter(b=>romeDate(b.created_at)<day);
+   dayOpening=opening;
+   for(const bet of earlier){
+     const savedStake=stakes.get(String(bet.match_id));
+     const stake=String(bet.created_at)>=FIXED_30_START_UTC?30:(String(bet.created_at)>=PROGRESSION_START_UTC&&savedStake>0?savedStake:fixedStakeForDay(romeDate(bet.created_at)));
+     dayOpening=Math.round((dayOpening+(n(bet.score)>0?stake*(entryQuote(bet.score)-1):-stake))*100)/100;
+   }
+ }
+ if(official&&officialDay<day){dayOpening=Math.round((bank-dayProfit)*100)/100;}
+ for(const bet of all)if(romeDate(bet.created_at)===day&&n(bet.message_id)>=QUALIFIED_OFFSET&&/^\d+$/.test(String(bet.match_id)))pending++;
+ const officialToday=official&&day===officialDay;
+ const winProfit=officialToday?n(official.shots)/100:null;
+ const lossAmount=officialToday?n(official.sot)/100:null;
+ const total=wins+losses,rate=total?Math.round(wins/total*1000)/10:0;
+ const message='⚽ <b>MBRAIN BETMATRIX — SOCCERTREND</b>\n'+
+ '📊 <b>'+(officialToday?'RECAP UFFICIALE RETTIFICATO':'RECAP GIORNALIERO')+'</b>\n'+
+ '📅 '+day.split('-').reverse().join('/')+'\n\n'+
+ '☑ WIN: <b>'+wins+'</b>\n❌ LOSS: <b>'+losses+'</b>\n🎯 WIN RATE: <b>'+rate.toFixed(1).replace('.',',')+'%</b>\n'+
+ (officialToday?'💰 Profitto WIN: <b>+'+euro(winProfit)+'</b>\n📉 Perdite LOSS: <b>−'+euro(lossAmount)+'</b>\n':'')+
+ '\n🟢 <b>PROFITTO GIORNALIERO: '+(dayProfit>=0?'+':'')+euro(dayProfit)+'</b>\n\n'+
+ '━━━━━━━━━━━━━━\n💼 <b>SITUAZIONE CASSA</b>\n\n'+
+ 'Cassa precedente: '+euro(dayOpening)+'\nRisultato giornata: '+(dayProfit>=0?'+':'')+euro(dayProfit)+'\n\n'+
+ '💚 <b>CASSA ATTUALE: '+euro(bank)+'</b>\n━━━━━━━━━━━━━━\n\n'+
+ '🚀 MBrain – BetMatrix SoccerTrend\n'+
+ 'https://mbrain-tracker.vercel.app/home-odds.html';
+ const sent=await telegramSend(message);
+ if(!(await dailyMarker(day)))await claimSignal({match_id:'DAILY_REPORT_'+day,message_id:-Math.abs(n(sent.message_id)||1),home:'SOCCERTREND',away:day,start_home_goals:0,start_away_goals:0,start_goals:0,signal_minute:0,market:'DAILY_REPORT',score:Math.round(bank*100),corners:0,touches:0,big_chances:0,shots:0,sot:0});
+ return {day,wins,losses,winRate:rate,profit:dayProfit,opening:dayOpening,closing:bank,official:!!officialToday,telegramMessageId:sent.message_id,pending};
 }
 async function maybeSendDailyReport(){const now=romeParts();if(now.date<DAILY_TRACKING_START)return null;if(now.hour<23||(now.hour===23&&now.minute<55))return null;return await sendDailyReport(now.date,false)}
 async function claimSignal(row){try{const d=await db('soccertrend_signals',{method:'POST',headers:{Prefer:'return=representation'},body:JSON.stringify(row)});return Array.isArray(d)&&d[0]?d[0]:row}catch(e){if(String(e.message).includes('23505')||String(e.message).includes('409'))return null;throw e}}
