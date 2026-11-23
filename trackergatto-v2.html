@@ -108,8 +108,8 @@ function renderThreeway(){
  tbody.innerHTML=threewayGroups.length?threewayGroups.map(g=>{
   const legs=(Array.isArray(g.legs)?g.legs:[]).sort((a,b)=>['1','X','2'].indexOf(a.outcome)-['1','X','2'].indexOf(b.outcome));
   const accountLines=legs.map(l=>`<div style="margin-bottom:5px"><b>${esc(l.outcome)}</b> · ${esc(accountName(l.account_id))}<br><span class="sub">Stake ${euro(l.stake)} + bonus ${euro(l.bonus)} @ ${Number(l.odds).toFixed(2)}</span></div>`).join('');
-  const settled=g.status==='SETTLED';const p=threewayProfit(g);
-  return`<tr><td>${esc(g.bet_date)}</td><td><b>${esc(g.event_name)}</b></td><td>${accountLines}</td><td>${euro(g.refund_amount||0)}${Number(g.refund_amount)>0?'<br><span class="sub">'+esc(accountName(g.refund_account_id))+'</span>':''}</td>
+  const settled=g.status==='SETTLED';const p=threewayProfit(g);const service=betServices.find(s=>s.id===g.service_id)?.name||'3 Vie';
+  return`<tr><td>${esc(g.bet_date)}</td><td><b>${esc(g.event_name)}</b><div class="sub">Servizio: ${esc(service)}</div></td><td>${accountLines}</td><td>${euro(g.refund_amount||0)}${Number(g.refund_amount)>0?'<br><span class="sub">'+esc(accountName(g.refund_account_id))+'</span>':''}</td>
   <td><span class="pill ${settled?'win':'pending'}">${settled?'ESITO '+esc(g.winner):'IN CORSO'}</span></td>
   <td class="${p===null?'':p<0?'neg':'money'}">${p===null?'—':(p>0?'+':'')+euro(p)}</td>
   <td><div class="actions">
@@ -159,7 +159,8 @@ function openThreewayModal(id){
  showModal(existing?'Modifica 3 Vie in corso':'Nuova giocata 3 Vie',`
  <div class="row"><div class="field"><label>Evento</label><input id="twEvent" maxlength="180" placeholder="Es. Torino - Lecce" value="${esc(existing?.event_name||'')}"></div>
  <div class="field"><label>Data</label><input id="twDate" type="date" value="${esc(existing?.bet_date||romeDate())}"></div></div>
- <div class="sub" style="margin-bottom:10px">La stessa giocata 1 / X / 2 può essere distribuita fra intestatari e bookmaker differenti.</div>
+ ${serviceBetField('twService',existing?.service_id?(betServices.find(s=>s.id===existing.service_id)?.name||'3 Vie'):'')}
+ <div class="sub" style="margin-bottom:10px">Se lasci vuoto il servizio, sarà utilizzato “3 Vie”. La stessa giocata 1 / X / 2 può essere distribuita fra intestatari e bookmaker differenti.</div>
  ${threewayLegField('1',leg('1'))}${threewayLegField('X',leg('X'))}${threewayLegField('2',leg('2'))}
  <div class="row"><div class="field"><label>Rimborso effettivo (€)</label><input id="twRefund" type="number" min="0" step="0.01" value="${Number(existing?.refund_amount||0)}" oninput="threewayRecalc()"></div>
  <div class="field"><label>Conto sul quale accreditare il rimborso</label><select id="twRefundAccount">${threewayAccountOptions(existing?.refund_account_id)}</select></div></div>
@@ -175,13 +176,13 @@ async function saveThreeway(existingId=''){
  const button=document.getElementById('twSave');if(button?.disabled)return;
  const id=existingId||crypto.randomUUID();
  const name=document.getElementById('twEvent').value.trim(),date=document.getElementById('twDate').value;
- const legs=threewayDraftLegs(),refund=Number(document.getElementById('twRefund').value||0),refundAccount=document.getElementById('twRefundAccount').value||null;
+ const legs=threewayDraftLegs(),refund=Number(document.getElementById('twRefund').value||0),refundAccount=document.getElementById('twRefundAccount').value||null,serviceName=document.getElementById('twService').value.trim();
  if(!name||name.length<3||!date||legs.some(l=>!l.account_id||l.odds<=1||!Number.isFinite(l.odds)||l.stake<0||l.bonus<0||!Number.isFinite(l.stake)||!Number.isFinite(l.bonus)))return alert('Controlla evento, data, tre bookmaker, stake, bonus e quote.');
  if(refund<0||!Number.isFinite(refund)||(refund>0&&!refundAccount))return alert('Per un rimborso positivo seleziona anche il conto di accredito.');
  if(!confirm('Salvare la giocata 3 Vie IN CORSO?\nGli stake in denaro saranno scalati dai bookmaker scelti.'))return;
  button.disabled=true;
  try{
-  const {error}=await SUPA.rpc('tracker_threeway_save',{p_id:id,p_event:name,p_date:date,p_legs:legs,p_refund:refund,p_refund_account:refundAccount});
+  const {error}=await SUPA.rpc('tracker_threeway_save_with_service',{p_id:id,p_event:name,p_date:date,p_legs:legs,p_refund:refund,p_refund_account:refundAccount,p_service_name:serviceName});
   if(error)throw error;
   closeModal();await loadAll();showTab('threeway');
  }catch(e){alert('Impossibile salvare la giocata: '+String(e.message||e));}
