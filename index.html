@@ -938,7 +938,7 @@ body{background-image:linear-gradient(90deg,rgba(3,11,6,.91),rgba(4,17,9,.83) 52
               <strong>Spin</strong>
               <div class="result-value" id="spin">—</div>
             </div>
-            <div class="result" style="text-align:left"><strong>🎰 Slot da verificare</strong><div id="slotBookInfo" style="font-size:12px;color:#b7c8d3;margin-top:8px"></div><div id="slotSuggestion" style="margin-top:12px;line-height:1.45;color:#d6e7df;font-size:16px;overflow-wrap:anywhere">Seleziona un provider per visualizzare i titoli con dati verificabili.</div><div id="bookRtpEntry" style="display:none;margin-top:10px;padding:12px;background:#172633;border-radius:10px"><label for="bookRtpValue" style="font-size:12px">RTP rilevato nel bookmaker per questa slot (%)</label><div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap"><input id="bookRtpValue" type="number" min="0" max="100" step="0.01" placeholder="Es. 96,09" style="width:128px"><button type="button" onclick="saveBookSlotRtp()">Salva RTP</button></div><div style="font-size:12px;margin-top:6px">Valore inserito dall’utente, salvato solo in questo browser; non verificato automaticamente.</div></div><button id="nextSlotBtn" class="action" type="button" onclick="nextSlotSuggestion()" style="margin-top:12px;display:none">Non disponibile, proponine un’altra</button><div style="margin-top:10px;font-size:12px;color:#aebdca">Controlla nel bookmaker RTP effettivo e requisiti del bonus. RTP e volatilità sono caratteristiche teoriche, non garanzie di vincita o di conservazione del saldo.</div></div>
+            <div class="result" style="text-align:left"><strong>🎰 Slot da verificare</strong><div id="slotBookInfo" style="font-size:12px;color:#b7c8d3;margin-top:8px"></div><div id="slotSuggestion" style="margin-top:12px;line-height:1.45;color:#d6e7df;font-size:16px;overflow-wrap:anywhere">Seleziona un provider per visualizzare i titoli con dati verificabili.</div><div id="bookRtpEntry" style="display:none;margin-top:10px;padding:12px;background:#172633;border-radius:10px"><label for="bookRtpValue" style="font-size:12px">RTP rilevato nel bookmaker per questa slot (%)</label><div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap"><input id="bookRtpValue" type="number" min="0" max="100" step="0.01" placeholder="Es. 96,09" style="width:128px"><button type="button" onclick="saveBookSlotRtp()">Salva RTP</button></div><div style="font-size:12px;margin-top:6px">Valore inserito dall’utente, salvato solo in questo browser; non verificato automaticamente.</div></div><button id="nextSlotBtn" class="action" type="button" onclick="nextSlotSuggestion()" style="margin-top:12px;display:none">Non disponibile, proponine un’altra</button><button id="slotPromoToggle" class="action" type="button" onclick="togglePromoSlotPanel()" aria-expanded="false" style="margin-top:10px;background:#174432">📝 Inserisci le slot della promo</button><div id="slotPromoPanel" style="display:none;margin-top:12px;background:#10202b;padding:14px;border:1px solid #34765d;border-radius:12px"><label for="slotPromoNames" style="font-weight:700">Slot ammesse nella promozione</label><p style="font-size:12px;color:#b8cbd6;margin:7px 0">Inserisci una slot per riga, oppure separa con virgola o punto e virgola.</p><textarea id="slotPromoNames" rows="5" placeholder="Starburst&#10;Blood Suckers&#10;Twin Spin" style="width:100%;box-sizing:border-box;background:#09151c;color:white;padding:10px;border:1px solid #47647a;border-radius:8px;resize:vertical"></textarea><button class="action" type="button" onclick="comparePromoSlots()" style="margin-top:10px">Confronta queste slot</button><div id="slotPromoComparison" aria-live="polite" style="margin-top:12px;line-height:1.5"></div></div><div style="margin-top:10px;font-size:12px;color:#aebdca">Controlla nel bookmaker RTP effettivo e requisiti del bonus. RTP e volatilità sono caratteristiche teoriche, non garanzie di vincita o di conservazione del saldo.</div></div>
           </div>
         </div>
 
@@ -1664,6 +1664,68 @@ body{background-image:linear-gradient(90deg,rgba(3,11,6,.91),rgba(4,17,9,.83) 52
         (slot.note?'<div style="font-size:12px;color:#eecb89">'+slot.note+'</div>':'')+
         '<div style="font-size:12px;margin-top:8px">'+(suggestedSlotIndex+1)+' di '+candidates.length+(slot.source?' · <a href="'+slot.source+'" target="_blank" rel="noopener noreferrer" style="color:#8cd2ff">Fonte del produttore</a>':'')+'</div>';
       btn.style.display=suggestedSlotIndex+1<candidates.length?"block":"none";
+    }
+
+    function promoSlotKey(v){return String(v||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().replace(/&/g,"and").replace(/[^a-z0-9]/g,"")}
+    function promoSlotVol(s){
+      if(typeof s.vol==="number"&&s.vol>=1&&s.vol<=6)return s.vol;
+      const v=String(s.vol||"").toLowerCase();
+      return v.includes("bassa")?2:v.includes("media")?3.5:v.includes("alta")?5:null;
+    }
+    function promoSlotRtp(s,book){
+      const override=book?knownBookRtp(book,s):null;
+      if(override!==null)return override;
+      if(s.rtp===null||s.rtp===undefined)return null;
+      const value=Number(s.rtp);return Number.isFinite(value)&&value>0&&value<=100?value:null;
+    }
+    function togglePromoSlotPanel(){
+      const p=document.getElementById("slotPromoPanel");
+      const show=p.style.display==="none";
+      p.style.display=show?"block":"none";
+      document.getElementById("slotPromoToggle").setAttribute("aria-expanded",String(show));
+      if(show)document.getElementById("slotPromoNames").focus();
+    }
+    function comparePromoSlots(){
+      const output=document.getElementById("slotPromoComparison");output.replaceChildren();
+      const message=(v,color)=>{const el=document.createElement("p");el.textContent=v;if(color)el.style.color=color;output.appendChild(el)};
+      const names=[...new Map(document.getElementById("slotPromoNames").value.split(/[\n;,]+/).map(v=>v.trim()).filter(Boolean).map(v=>[promoSlotKey(v),v]).filter(v=>v[0])).values()].slice(0,60);
+      if(!names.length){message("Inserisci almeno una slot della promozione.");return}
+      const book=selectedSlotBook(),catalog=[...importedSlotRows,...unifiedSlotCatalog];
+      if(!catalog.length){message("Catalogo non disponibile, riprova dopo il caricamento.");return}
+      const matched=[],missing=[];
+      for(const name of names){
+        const found=catalog.filter(s=>promoSlotKey(s.name)===promoSlotKey(name));
+        if(!found.length){missing.push(name);continue}
+        const specialized=book?found.filter(s=>String(s.book||"").toLowerCase()===book.toLowerCase()):[];
+        const entries=(specialized.length?specialized:found).map(s=>({
+          s,vol:promoSlotVol(s),rtp:promoSlotRtp(s,book),
+          specific:!!(book&&String(s.book||"").toLowerCase()===book.toLowerCase()),
+          overridden:book?knownBookRtp(book,s)!==null:false
+        }));
+        entries.sort((a,b)=>Number(b.vol!==null&&b.rtp!==null)-Number(a.vol!==null&&a.rtp!==null)||Number(b.specific)-Number(a.specific)||(a.vol??9)-(b.vol??9)||(b.rtp??0)-(a.rtp??0));
+        matched.push(entries[0]);
+      }
+      const complete=matched.filter(x=>x.vol!==null&&x.rtp!==null).sort((a,b)=>a.vol-b.vol||b.rtp-a.rtp||a.s.name.localeCompare(b.s.name,"it"));
+      if(complete.length){
+        const headline=document.createElement("div");headline.style.cssText="font-weight:bold;color:#7bf0aa;font-size:18px";
+        headline.textContent="Prima scelta comparativa: "+complete[0].s.name;output.appendChild(headline);
+        message("Tra quelle indicate con dati completi: volatilità più bassa, poi RTP più alto. Non è una previsione di vincita.");
+      }else message("Non ci sono slot con entrambi i dati disponibili: nessuna prima scelta attendibile.", "#eecb89");
+      const list=document.createElement("ol");list.style.paddingLeft="22px";
+      for(const x of [...complete,...matched.filter(v=>!complete.includes(v))]){
+        const li=document.createElement("li");li.style.marginBottom="10px";
+        const title=document.createElement("strong");title.textContent=x.s.name;li.appendChild(title);
+        const details=document.createElement("div");
+        details.textContent="RTP: "+(x.rtp===null?"non disponibile":x.rtp.toFixed(2).replace(".",",")+"%")+" · Volatilità: "+(x.vol===null?"non disponibile":typeof x.s.vol==="number"?x.s.vol+"/6":x.s.vol)+" · "+(x.s.provider||"provider da verificare");
+        li.appendChild(details);
+        const source=document.createElement("div");source.style.cssText="font-size:12px;color:#b8cbd6";
+        source.textContent=book?(x.specific?"Catalogata per "+book:x.overridden?"RTP manuale per "+book+"; altre caratteristiche da catalogo":"Dati generali, da verificare per "+book):"Dati da catalogo storico";
+        li.appendChild(source);list.appendChild(li);
+      }
+      output.appendChild(list);
+      if(missing.length)message("Non trovate in catalogo: "+missing.join(", ")+". Verifica l'esatto nome della slot.","#eecb89");
+      if(book)message("Controlla su "+book+" l'RTP effettivo, la disponibilità e i termini della promozione.");
+      message("RTP e volatilità sono valori teorici: nessuna slot garantisce vincite o il mantenimento del saldo.","#b8cbd6");
     }
     function calcola(){
       let saldo = Number(document.getElementById("saldo").value || 0);
