@@ -922,22 +922,6 @@ body{background-image:linear-gradient(90deg,rgba(3,11,6,.91),rgba(4,17,9,.83) 52
             <div class="result"><strong>Stima quota bancata</strong><div class="result-value" id="fsLayOdds">—</div></div>
             <div class="result"><strong>Stima profitto (€)</strong><div class="result-value" id="fsProfit">—</div></div>
           </div>
-          <p id="fsVerdict" role="status" aria-live="polite" style="margin:18px 0 8px;font-weight:bold"></p>
-          <p style="color:#cbd5e1;font-size:13px;line-height:1.55;margin-bottom:0">
-            Il risultato riproduce le <strong>stime matematiche</strong> del modello Excel allegato, non quote live né un rendimento certo.
-            Controlla sempre condizioni della promozione, liquidità, limiti, commissioni e quote reali prima di operare.
-          </p>
-          <details style="margin-top:16px;color:#cbd5e1">
-            <summary style="cursor:pointer">Come vengono calcolati i risultati</summary>
-            <p style="font-size:13px;line-height:1.65">
-              Quota minima = massimo tra quota minima inserita e (cap + bonus × (rollover Fun − 1)) / bonus.<br>
-              Puntata bonus = cap × [1 + rollover Real × (rating ^ eventi Real − 1)].<br>
-              Fun senza copertura = bonus × (rollover Fun − 1).<br>
-              Quota bancata stimata = (nuova quota minima × 1,05 / rating ^ eventi Fun − 1) × (1 − commissione) + 1.<br>
-              Profitto stimato = puntata bonus / {[(quota bancata × (1 + eventi Fun / 100) − 1) / (1 − commissione)] + 1}.<br>
-              Nelle formule il rating e la commissione sono frazioni: 92% = 0,92 e 4,5% = 0,045.
-            </p>
-          </details>
         </div>
         <button class="back" onclick="goBack()">← Torna al menu</button>
       </div>
@@ -1635,7 +1619,6 @@ body{background-image:linear-gradient(90deg,rgba(3,11,6,.91),rgba(4,17,9,.83) 52
         err.style.display="block";
         err.textContent="Controlla i valori: bonus e rating maggiori di zero, quota minima maggiore di 1, eventi interi non negativi e commissione inferiore al 100%.";
         outputs.forEach(id=>document.getElementById(id).textContent="—");
-        document.getElementById("fsVerdict").textContent="";
         return;
       }
       const rating=ratingPct/100, commission=commissionPct/100;
@@ -1650,7 +1633,6 @@ body{background-image:linear-gradient(90deg,rgba(3,11,6,.91),rgba(4,17,9,.83) 52
         err.style.display="block";
         err.textContent="Il modello non produce una stima valida con questi parametri.";
         outputs.forEach(id=>document.getElementById(id).textContent="—");
-        document.getElementById("fsVerdict").textContent="";
         return;
       }
       err.style.display="none";
@@ -1661,9 +1643,6 @@ body{background-image:linear-gradient(90deg,rgba(3,11,6,.91),rgba(4,17,9,.83) 52
       document.getElementById("fsUncoveredFun").textContent=fmtMoney(uncoveredFun)+" €";
       document.getElementById("fsLayOdds").textContent=fmtOdds(layOdds);
       document.getElementById("fsProfit").textContent=fmtMoney(profit)+" €";
-      const verdict=document.getElementById("fsVerdict");
-      verdict.textContent=profit>0?"Sfruttabile secondo la stima del foglio Excel.":"Non sfruttabile secondo la stima del foglio Excel.";
-      verdict.style.color=profit>0?"#86efac":"#fca5a5";
     }
 
     function openSection(id){
