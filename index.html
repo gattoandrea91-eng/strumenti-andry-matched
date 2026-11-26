@@ -874,6 +874,7 @@ body{background-image:linear-gradient(90deg,rgba(3,11,6,.91),rgba(4,17,9,.83) 52
 
     <div id="menu" class="menu">
       <button onclick="openSection('bonus')">Calcolatore Fun Bonus</button>
+      <button onclick="openSection('funbonusSport')">Funbonus Sport</button>
       <button onclick="openSection('surebet')">Surebet</button>
       <button onclick="openSection('puntabanca')">Punta Banca</button>
       <button onclick="openSection('freebet')">Freebet</button>
@@ -886,6 +887,60 @@ body{background-image:linear-gradient(90deg,rgba(3,11,6,.91),rgba(4,17,9,.83) 52
       <button onclick="window.open('https://www.top-bonus.it','_blank')">Affiliazioni</button>
       <button onclick="window.location.href='soccertrend.html'">⚽ SoccerTrend</button>
       
+    </div>
+
+
+    <!-- Funbonus Sport: modello di calcolo riprodotto dal foglio Excel fornito -->
+    <div id="funbonusSport" class="section">
+      <div class="section-wrap">
+        <div class="hero-bonus" style="background:linear-gradient(135deg,#102c25 0%,#102139 85%);">
+          <h3 style="margin:0 0 8px">Calcolatore Funbonus Sport</h3>
+          <p style="margin:0;color:#cbd5e1">Rollover Fun e Real, cap e rating: simulazione basata sul modello Excel.</p>
+        </div>
+
+        <div class="box" style="padding:22px;margin-bottom:16px">
+          <div class="card-grid" style="margin:0">
+            <div class="field"><label for="fsBonus">Importo Fun Bonus (€)</label><input id="fsBonus" type="number" step="0.01" min="0.01" value="50" oninput="calculateFunbonusSport()"></div>
+            <div class="field"><label for="fsRolloverFun">Rollover Fun (numero)</label><input id="fsRolloverFun" type="number" step="0.01" min="1" value="3" oninput="calculateFunbonusSport()"></div>
+            <div class="field"><label for="fsEventsFun">Eventi Fun (numero)</label><input id="fsEventsFun" type="number" step="1" min="0" value="3" oninput="calculateFunbonusSport()"></div>
+            <div class="field"><label for="fsMinQuota">Quota minima Fun</label><input id="fsMinQuota" type="number" step="0.01" min="1.01" value="2" oninput="calculateFunbonusSport()"></div>
+            <div class="field"><label for="fsCap">Cap Real (€)</label><input id="fsCap" type="number" step="0.01" min="0" value="150" oninput="calculateFunbonusSport()"></div>
+            <div class="field"><label for="fsRolloverReal">Rollover Real (numero)</label><input id="fsRolloverReal" type="number" step="0.01" min="0" value="1" oninput="calculateFunbonusSport()"></div>
+            <div class="field"><label for="fsEventsReal">Eventi Real (numero)</label><input id="fsEventsReal" type="number" step="1" min="0" value="1" oninput="calculateFunbonusSport()"></div>
+            <div class="field"><label for="fsRating">Rating medio (%)</label><input id="fsRating" type="number" step="0.01" min="0.01" max="100" value="92" oninput="calculateFunbonusSport()"></div>
+            <div class="field"><label for="fsCommission">Commissione exchange (%)</label><input id="fsCommission" type="number" step="0.01" min="0" max="99.99" value="4.5" oninput="calculateFunbonusSport()"></div>
+          </div>
+          <div id="fsError" role="status" aria-live="polite" style="display:none;color:#fca5a5;margin-top:12px"></div>
+        </div>
+
+        <div class="box" style="padding:22px;margin-bottom:16px">
+          <h3 style="margin:0 0 16px">Risultati della simulazione</h3>
+          <div class="card-grid" style="margin:0">
+            <div class="result"><strong>Nuova quota minima</strong><div class="result-value" id="fsNewMinQuota">—</div></div>
+            <div class="result"><strong>Puntata bonus nel calcolatore (€)</strong><div class="result-value" id="fsBonusStake">—</div></div>
+            <div class="result"><strong>Puntate Fun senza coprire (€)</strong><div class="result-value" id="fsUncoveredFun">—</div></div>
+            <div class="result"><strong>Stima quota bancata</strong><div class="result-value" id="fsLayOdds">—</div></div>
+            <div class="result"><strong>Stima profitto (€)</strong><div class="result-value" id="fsProfit">—</div></div>
+          </div>
+          <p id="fsVerdict" role="status" aria-live="polite" style="margin:18px 0 8px;font-weight:bold"></p>
+          <p style="color:#cbd5e1;font-size:13px;line-height:1.55;margin-bottom:0">
+            Il risultato riproduce le <strong>stime matematiche</strong> del modello Excel allegato, non quote live né un rendimento certo.
+            Controlla sempre condizioni della promozione, liquidità, limiti, commissioni e quote reali prima di operare.
+          </p>
+          <details style="margin-top:16px;color:#cbd5e1">
+            <summary style="cursor:pointer">Come vengono calcolati i risultati</summary>
+            <p style="font-size:13px;line-height:1.65">
+              Quota minima = massimo tra quota minima inserita e (cap + bonus × (rollover Fun − 1)) / bonus.<br>
+              Puntata bonus = cap × [1 + rollover Real × (rating ^ eventi Real − 1)].<br>
+              Fun senza copertura = bonus × (rollover Fun − 1).<br>
+              Quota bancata stimata = (nuova quota minima × 1,05 / rating ^ eventi Fun − 1) × (1 − commissione) + 1.<br>
+              Profitto stimato = puntata bonus / {[(quota bancata × (1 + eventi Fun / 100) − 1) / (1 − commissione)] + 1}.<br>
+              Nelle formule il rating e la commissione sono frazioni: 92% = 0,92 e 4,5% = 0,045.
+            </p>
+          </details>
+        </div>
+        <button class="back" onclick="goBack()">← Torna al menu</button>
+      </div>
     </div>
 
     <div id="bonus" class="section">
@@ -1561,6 +1616,55 @@ body{background-image:linear-gradient(90deg,rgba(3,11,6,.91),rgba(4,17,9,.83) 52
     let bookmakerChart = null;
     let typeChart = null;
     let cumulativeChart = null;
+
+
+    // Funbonus Sport — conversione fedele delle celle D5, D6, I6, D9 e G8
+    // del modello Excel ROBIN fun-bonus-con-rollover-e-cap.xlsx.
+    function calculateFunbonusSport(){
+      const ids=["fsBonus","fsRolloverFun","fsEventsFun","fsMinQuota","fsCap","fsRolloverReal","fsEventsReal","fsRating","fsCommission"];
+      const values=ids.map(id=>Number(document.getElementById(id).value));
+      const [bonus,rollFun,eventsFun,minQuota,cap,rollReal,eventsReal,ratingPct,commissionPct]=values;
+      const err=document.getElementById("fsError");
+      const outputs=["fsNewMinQuota","fsBonusStake","fsUncoveredFun","fsLayOdds","fsProfit"];
+      const valid=ids.every(id=>document.getElementById(id).value.trim()!=="") &&
+        values.every(Number.isFinite) && bonus>0 && rollFun>=1 &&
+        Number.isInteger(eventsFun) && eventsFun>=0 && minQuota>1 &&
+        cap>=0 && rollReal>=0 && Number.isInteger(eventsReal) && eventsReal>=0 &&
+        ratingPct>0 && ratingPct<=100 && commissionPct>=0 && commissionPct<100;
+      if(!valid){
+        err.style.display="block";
+        err.textContent="Controlla i valori: bonus e rating maggiori di zero, quota minima maggiore di 1, eventi interi non negativi e commissione inferiore al 100%.";
+        outputs.forEach(id=>document.getElementById(id).textContent="—");
+        document.getElementById("fsVerdict").textContent="";
+        return;
+      }
+      const rating=ratingPct/100, commission=commissionPct/100;
+      const newMinQuota=Math.max((cap+bonus*(rollFun-1))/bonus,minQuota);
+      const bonusStake=cap*(1+rollReal*(Math.pow(rating,eventsReal)-1));
+      const uncoveredFun=bonus*(rollFun-1);
+      const layOdds=(newMinQuota*1.05/Math.pow(rating,eventsFun)-1)*(1-commission)+1;
+      const divisor=((layOdds*(1+eventsFun/100)-1)/(1-commission))+1;
+      const profit=bonusStake/divisor;
+      const computed=[newMinQuota,bonusStake,uncoveredFun,layOdds,profit];
+      if(computed.some(v=>!Number.isFinite(v)) || layOdds<=1 || divisor<=0){
+        err.style.display="block";
+        err.textContent="Il modello non produce una stima valida con questi parametri.";
+        outputs.forEach(id=>document.getElementById(id).textContent="—");
+        document.getElementById("fsVerdict").textContent="";
+        return;
+      }
+      err.style.display="none";
+      const fmtMoney=x=>x.toLocaleString("it-IT",{minimumFractionDigits:2,maximumFractionDigits:2});
+      const fmtOdds=x=>x.toLocaleString("it-IT",{minimumFractionDigits:2,maximumFractionDigits:4});
+      document.getElementById("fsNewMinQuota").textContent=fmtOdds(newMinQuota);
+      document.getElementById("fsBonusStake").textContent=fmtMoney(bonusStake)+" €";
+      document.getElementById("fsUncoveredFun").textContent=fmtMoney(uncoveredFun)+" €";
+      document.getElementById("fsLayOdds").textContent=fmtOdds(layOdds);
+      document.getElementById("fsProfit").textContent=fmtMoney(profit)+" €";
+      const verdict=document.getElementById("fsVerdict");
+      verdict.textContent=profit>0?"Sfruttabile secondo la stima del foglio Excel.":"Non sfruttabile secondo la stima del foglio Excel.";
+      verdict.style.color=profit>0?"#86efac":"#fca5a5";
+    }
 
     function openSection(id){
       document.getElementById("menu").style.display = "none";
@@ -2913,6 +3017,7 @@ body{background-image:linear-gradient(90deg,rgba(3,11,6,.91),rgba(4,17,9,.83) 52
       }
     }
 
+    calculateFunbonusSport();
     renderBlackjackButtons();
     updateDeckMemoryUI();
     initProfitTracker();
