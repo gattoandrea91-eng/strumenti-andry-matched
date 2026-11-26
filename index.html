@@ -1157,6 +1157,25 @@ body{background-image:linear-gradient(90deg,rgba(3,11,6,.91),rgba(4,17,9,.83) 52
                 </div>
               </div>
               <button type="button" class="action" style="margin-top:12px" onclick="calcolaRoulette()">Calcola</button>
+              <div style="margin-top:18px">
+                <div class="field"><label>🔴 Rosso — Intestatario</label><input id="rouletteOwnerRed" type="text" placeholder="Nome intestatario"></div>
+                <div class="field"><label>🔴 Rosso — Bookmaker</label><input id="rouletteBookRed" type="text" placeholder="Bookmaker"></div>
+                <div class="field"><label>⚫ Nero — Intestatario</label><input id="rouletteOwnerBlack" type="text" placeholder="Nome intestatario"></div>
+                <div class="field"><label>⚫ Nero — Bookmaker</label><input id="rouletteBookBlack" type="text" placeholder="Bookmaker"></div>
+                <div class="field"><label>🟢 Zero — Intestatario</label><input id="rouletteOwnerZero" type="text" placeholder="Nome intestatario"></div>
+                <div class="field"><label>🟢 Zero — Bookmaker</label><input id="rouletteBookZero" type="text" placeholder="Bookmaker"></div>
+                <div class="field">
+                  <label for="rouletteOutcome">Risultato uscito</label>
+                  <select id="rouletteOutcome" onchange="rouletteResetSaveState()">
+                    <option value="">Seleziona dopo la giocata</option>
+                    <option value="red">🔴 Rosso</option>
+                    <option value="black">⚫ Nero</option>
+                    <option value="zero">🟢 Zero</option>
+                  </select>
+                </div>
+                <button type="button" class="action" id="rouletteProfitSave" onclick="saveRouletteToProfit()">Invia al Profit Tracker</button>
+                <div class="auth-note" id="rouletteProfitMessage" role="status" aria-live="polite"></div>
+              </div>
             </div>
             <div class="result-box" aria-live="polite">
               <div class="result"><strong>🔴 Rosso</strong><div class="result-value" id="rouletteRed">—</div></div>
@@ -1961,6 +1980,78 @@ body{background-image:linear-gradient(90deg,rgba(3,11,6,.91),rgba(4,17,9,.83) 52
         rouletteNetRed:2*red-total,rouletteNetBlack:2*black-total,rouletteNetZero:36*zero-total
       };
       for(const [id,cents] of Object.entries(outputs))document.getElementById(id).textContent=eur(cents);
+    }
+
+    document.addEventListener('input',event=>{if(event.target?.closest?.('#casinoRoulettePanel'))rouletteResetSaveState();});
+        let rouletteSavedFingerprint='';
+    let rouletteSaveBusy=false;
+    function rouletteResetSaveState(){
+      rouletteSavedFingerprint='';
+      const msg=document.getElementById('rouletteProfitMessage');
+      if(msg)msg.textContent='';
+    }
+    function rouletteStakeCents(){
+      const value=Number(document.getElementById(rouletteMode==='budget'?'rouletteBudget':'rouletteFixedStake').value);
+      if(!Number.isFinite(value)||value<0.01||value>1e8)return null;
+      const amount=Math.round(value*100);
+      let red,black,zero;
+      if(rouletteMode==='budget'){
+        zero=Math.round(amount/37);
+        red=Math.floor((amount-zero)/2);
+        black=amount-zero-red;
+      }else{
+        const side=document.getElementById('rouletteFixedSide').value;
+        if(side==='zero'){zero=amount;red=18*amount;black=18*amount;}
+        else{red=amount;black=amount;zero=Math.round(amount/18);}
+      }
+      return {red,black,zero};
+    }
+    async function saveRouletteToProfit(){
+      const msg=document.getElementById('rouletteProfitMessage');
+      const btn=document.getElementById('rouletteProfitSave');
+      if(rouletteSaveBusy)return;
+      if(!currentProfitUser){msg.textContent='Accedi al Profit Tracker prima di inviare.';return;}
+      const stakes=rouletteStakeCents();
+      if(!stakes){msg.textContent='Capitale non valido.';return;}
+      const outcome=document.getElementById('rouletteOutcome').value;
+      if(!['red','black','zero'].includes(outcome)){msg.textContent='Seleziona il risultato uscito.';return;}
+      const sides=['red','black','zero'];
+      const labels={red:'Rosso',black:'Nero',zero:'Zero'};
+      const owners={},books={};
+      for(const side of sides){
+        const id=side[0].toUpperCase()+side.slice(1);
+        owners[side]=document.getElementById('rouletteOwner'+id).value.trim();
+        books[side]=document.getElementById('rouletteBook'+id).value.trim();
+        if(stakes[side]>0&&(!owners[side]||!books[side])){
+          msg.textContent='Compila intestatario e bookmaker per ogni puntata.';
+          return;
+        }
+      }
+      const signature=JSON.stringify({stakes,outcome,owners,books});
+      if(signature===rouletteSavedFingerprint){msg.textContent='Questa giocata è già stata inviata.';return;}
+      const today=new Date();
+      const entryDate=[today.getFullYear(),String(today.getMonth()+1).padStart(2,'0'),String(today.getDate()).padStart(2,'0')].join('-');
+      const batchId='R-'+Date.now().toString(36);
+      const rows=sides.filter(side=>stakes[side]>0).map(side=>({
+        user_id:currentProfitUser.id,
+        entry_date:entryDate,
+        bookmaker:books[side],
+        operation_type:'Casino',
+        stake:stakes[side]/100,
+        profit:((side===outcome?stakes[side]*(side==='zero'?36:2):0)-stakes[side])/100,
+        note:'Roulette '+batchId+' | Intestatario: '+owners[side]+' | Esito puntato: '+labels[side]+' | Uscito: '+labels[outcome]
+      }));
+      rouletteSaveBusy=true;
+      btn.disabled=true;
+      msg.textContent='Invio in corso...';
+      try{
+        const {error}=await supabaseClient.from('profit_entries').insert(rows);
+        if(error){msg.textContent='Errore: '+error.message;return;}
+        rouletteSavedFingerprint=signature;
+        msg.textContent=rows.length+' puntate salvate nel Profit Tracker.';
+        await loadProfitEntries();
+      }catch(e){msg.textContent='Invio non confermato. Controlla il Profit Tracker prima di riprovare.';}
+      finally{rouletteSaveBusy=false;btn.disabled=false;}
     }
 
     function renderButtons(containerId, handler){
