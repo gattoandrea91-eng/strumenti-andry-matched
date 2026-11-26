@@ -1,0 +1,206 @@
+<!doctype html>
+<html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>MBrain Poker — Texas Hold'em</title>
+<style>
+:root{color-scheme:dark;--bg:#0e1114;--panel:#1b2024;--line:#35414a;--text:#f4f7f9;--muted:#a9b5bf;--green:#51e88d}
+*{box-sizing:border-box}body{margin:0;padding:16px;background:var(--bg);color:var(--text);font:14px system-ui,Arial,sans-serif}
+.wrap{max-width:1180px;margin:auto}h1{font-size:26px;margin:0 0 4px}p{color:var(--muted);line-height:1.55}.panel{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:17px;margin:14px 0}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px}.field label{display:block;color:#cad3db;font-size:12px;margin:0 0 6px;font-weight:650}
+input,select{width:100%;background:#10171d;border:1px solid #48545d;color:white;border-radius:9px;padding:10px;font-size:14px;min-width:0}
+input:focus,select:focus{outline:2px solid #53dc91}.cards{display:flex;flex-wrap:wrap;gap:7px}.cards select{width:69px;padding:9px 5px}
+button{border:1px solid #3c8760;background:#244934;color:white;border-radius:10px;padding:11px 15px;cursor:pointer;font-weight:700}
+button.primary{color:#082116;background:linear-gradient(#89f8ac,#22af60);border:0}
+button:disabled{opacity:.5;cursor:default}
+.toptitle{display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap}
+.table{height:435px;max-width:940px;margin:18px auto 10px;position:relative;background:radial-gradient(ellipse at 50% 40%,#197a50,#0c4934 72%);border:14px solid #65452a;box-shadow:0 0 0 5px #292018, inset 0 0 0 4px #75b996;border-radius:50%}
+.board-center{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:62%;text-align:center;z-index:1}
+.board-center .cards{justify-content:center;flex-wrap:nowrap}.board-center .cards select{width:58px;background:#eff8f2;color:#13271a;font-size:12px;min-height:44px}
+.pot-value{font-size:17px;font-weight:800;margin-bottom:12px;color:#fff4bf}
+.seat{position:absolute;transform:translate(-50%,-50%);width:145px;background:#162024eF;border:1px solid #7d9991;border-radius:13px;padding:7px 8px;z-index:2;min-height:62px;text-align:center;cursor:pointer}
+.seat.hero{border:2px solid #80f5a9;box-shadow:0 0 15px #1ce56e50}.seat.inactive{opacity:.43}.seat strong{display:block;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.seat small{font-size:11px;color:#cedfd3}.seat .chip{display:inline-block;background:#163e25;color:#d1ffe0;border-radius:99px;padding:2px 6px;font-size:10px;margin-top:3px}
+.seat.selected{outline:2px solid #ffdf71}
+.out{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,.7fr);gap:14px}
+.num{font-size:22px;font-weight:850;color:#9cf4b5}.status{border-left:3px solid #76dc9a;padding-left:13px;line-height:1.55}
+.controls{display:flex;gap:10px;flex-wrap:wrap;margin-top:15px;align-items:center}.controls button{flex:1}
+.notice{color:#c4cbd0;font-size:12px}.error{color:#ffb5a7}
+#playersEditor{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:10px}
+.player-edit{padding:12px;background:#131a1f;border:1px solid #35414a;border-radius:12px}.player-edit h3{margin:0 0 10px;font-size:14px}
+.player-edit .grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+.player-edit .field{margin-bottom:8px}.player-edit label{font-size:11px}
+.resultgrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.metric{border:1px solid #354c40;padding:14px;background:#132019;border-radius:12px}
+#recommendation{font-size:17px;font-weight:750;color:#a8f3bc}#riskDetail{white-space:pre-line}
+@media(max-width:720px){body{padding:9px}.table{height:330px;border-width:9px}.seat{width:105px;padding:5px 3px}.seat strong{font-size:10px}.seat small{font-size:9px}.seat .chip{font-size:9px}.board-center{width:67%}.board-center .cards{gap:2px}.board-center .cards select{width:36px;padding:5px 0;font-size:9px;min-height:35px}.pot-value{font-size:12px;margin-bottom:7px}.out{grid-template-columns:1fr}.resultgrid{grid-template-columns:1fr 1fr}.cards select{width:65px}}
+</style></head>
+<body><main class="wrap">
+<div class="toptitle"><div><h1>♠ MBrain Poker — Texas Hold'em</h1><p style="margin:3px 0">Tavolo, puntate, azioni e analisi della mano</p></div><button type="button" onclick="resetHand()">Nuova mano</button></div>
+<section class="panel"><div class="grid">
+<div class="field"><label for="numPlayers">Giocatori al tavolo (incluso te)</label><select id="numPlayers" onchange="buildPlayers()"></select></div>
+<div class="field"><label for="street">Fase</label><select id="street" onchange="syncStreet()"><option value="preflop">Preflop</option><option value="flop">Flop</option><option value="turn">Turn</option><option value="river">River</option></select></div>
+<div class="field"><label for="pot">Pot attuale (€), comprese puntate del round</label><input id="pot" type="number" min="0" step="0.01" value="15" oninput="refreshVisual()"></div>
+<div class="field"><label for="heroStack">Tuo stack residuo (€)</label><input id="heroStack" type="number" min="0" step="0.01" value="100"></div>
+</div></section>
+<section class="panel"><div class="toptitle"><h2 style="margin:0">Tavolo</h2><span class="notice">Tocca un posto per modificare il giocatore</span></div>
+<div class="table" id="pokerTable">
+<div class="board-center"><div class="pot-value" id="potLabel">POT 15,00 €</div><div class="cards" id="boardCards"></div></div>
+<div id="seats"></div></div>
+<div class="grid"><div class="field"><label>Le tue carte</label><div class="cards" id="heroCards"></div></div>
+<div class="field"><label for="yourContribution">La tua puntata in questo round (€)</label><input id="yourContribution" type="number" min="0" step="0.01" value="0" oninput="refreshVisual()"></div></div></section>
+<section class="panel"><div class="toptitle"><h2 style="margin:0">Giocatori e azioni</h2><span class="notice">Importi già presenti nel pot</span></div>
+<div id="playersEditor" style="margin-top:14px"></div></section>
+<section class="panel"><div class="toptitle"><h2 style="margin:0">Analisi</h2><button class="primary" type="button" id="analyze" onclick="analyzeHand()">Calcola</button></div>
+<div class="resultgrid" style="margin:15px 0"><div class="metric"><div class="notice">Da chiamare</div><div class="num" id="toCall">—</div></div>
+<div class="metric"><div class="notice">Pot odds richieste</div><div class="num" id="potOdds">—</div></div><div class="metric"><div class="notice">Equity stimata</div><div class="num" id="equity">—</div></div></div>
+<div class="status"><div id="recommendation">Inserisci le carte e premi Calcola.</div><p id="riskDetail" class="notice"></p></div>
+</section>
+<p class="notice">Stima Texas Hold'em standard su avversari con mani casuali, non previsione delle loro carte o azioni future. Le puntate e i raise osservati possono indicare forza, ma non consentono di ricostruire un range esatto. Non eseguire azioni automaticamente dal suggerimento.</p>
+</main><script>
+'use strict';
+const ranks='23456789TJQKA',suits=['♠','♥','♦','♣'],deck=[];
+for(const r of ranks)for(let s=0;s<4;s++)deck.push(r+s);
+let players=[],selectedSeat=0;
+const $=id=>document.getElementById(id);
+const money=n=>(Number(n)||0).toLocaleString('it-IT',{style:'currency',currency:'EUR'});
+function n(v){const x=Number(v);return Number.isFinite(x)?Math.max(0,x):0}
+function escapeHtml(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function cardOptions(){return '<option value="">—</option>'+deck.map(c=>'<option value="'+c+'">'+c[0]+suits[Number(c[1])]+'</option>').join('')}
+function cardInput(id,cb){return '<select id="'+id+'" aria-label="Carta '+id+'" onchange="'+cb+'">'+cardOptions()+'</select>'}
+function buildCards(){
+ $('heroCards').innerHTML=cardInput('hero0','refreshVisual()')+cardInput('hero1','refreshVisual()');
+ $('boardCards').innerHTML=Array.from({length:5},(_,i)=>cardInput('board'+i,'refreshVisual()')).join('');
+ syncStreet();
+}
+function buildPlayers(){
+ const count=Number($('numPlayers').value)||6;
+ const old=players;
+ players=Array.from({length:count},(_,i)=>old[i]||{name:i===0?'TU':'Giocatore '+(i+1),stack:100,bet:0,action:i===0?'hero':'check'});
+ players[0].name='TU';selectedSeat=Math.min(selectedSeat,count-1);renderPlayers();
+}
+function renderPlayers(){
+ const wrap=$('playersEditor');
+ wrap.innerHTML=players.map((p,i)=>'<div class="player-edit" id="editor'+i+'"><h3>'+(i===0?'🟢 TU':'Posto '+(i+1))+'</h3><div class="grid">'+
+ (i===0?'':'<div class="field"><label>Nome</label><input id="pn'+i+'" value="'+escapeHtml(p.name)+'" oninput="updatePlayer('+i+')"></div>')+
+ '<div class="field"><label>Stack residuo (€)</label><input id="ps'+i+'" type="number" step="0.01" min="0" value="'+p.stack+'" oninput="updatePlayer('+i+')"></div>'+
+ '<div class="field"><label>Puntata nel round (€)</label><input id="pb'+i+'" type="number" step="0.01" min="0" value="'+p.bet+'" oninput="updatePlayer('+i+')"></div>'+
+ '<div class="field"><label>Azione osservata</label><select id="pa'+i+'" onchange="updatePlayer('+i+')">'+
+ (i===0?'<option value="hero">Da decidere</option>':[['check','Check'],['call','Call'],['bet','Bet'],['raise','Raise'],['allin','All-in'],['fold','Fold']].map(([value,label])=>'<option value="'+value+'" '+(p.action===value?'selected':'')+'>'+label+'</option>').join(''))+
+ '</select></div></div></div>').join('');
+ players.forEach((p,i)=>{if(i===0){$('ps0').value=$('heroStack').value;$('pb0').value=$('yourContribution').value}});
+ refreshVisual();
+}
+function updatePlayer(i){
+ if(i===0){$('heroStack').value=$('ps0').value;$('yourContribution').value=$('pb0').value;}
+ else{players[i].name=$('pn'+i).value.trim()||'Giocatore '+(i+1)}
+ players[i].stack=n($('ps'+i).value);players[i].bet=n($('pb'+i).value);
+ players[i].action=$('pa'+i).value;refreshVisual();
+}
+function refreshVisual(){
+ if(!players.length)return;
+ players[0].bet=n($('yourContribution').value);players[0].stack=n($('heroStack').value);
+ if($('ps0')){$('ps0').value=players[0].stack;$('pb0').value=players[0].bet}
+ $('potLabel').textContent='POT '+money(n($('pot').value));
+ const count=players.length;
+ $('seats').innerHTML=players.map((p,i)=>{
+ const angle=(Math.PI/2)+(i*2*Math.PI/count);
+ const x=50+43*Math.cos(angle),y=50+42*Math.sin(angle);
+ return '<div class="seat '+(i===0?'hero ':'')+(p.action==='fold'?'inactive ':'')+(i===selectedSeat?'selected':'')+'" style="left:'+x+'%;top:'+y+'%" onclick="selectSeat('+i+')"><strong>'+escapeHtml(p.name)+'</strong><small>'+money(p.stack)+' · '+escapeHtml(p.action==='hero'?'Attesa':p.action.toUpperCase())+'</small><div class="chip">'+money(p.bet)+'</div></div>';
+ }).join('');
+}
+function selectSeat(i){selectedSeat=i;refreshVisual();$('editor'+i)?.scrollIntoView({behavior:'smooth',block:'center'})}
+function syncStreet(){
+ const needed=({preflop:0,flop:3,turn:4,river:5})[$('street').value]||0;
+ for(let i=0;i<5;i++)$('board'+i).disabled=i>=needed;
+}
+function resetHand(){
+ $('street').value='preflop';$('pot').value='15';$('heroStack').value='100';$('yourContribution').value='0';
+ $('hero0').value='';$('hero1').value='';for(let i=0;i<5;i++)$('board'+i).value='';
+ players=players.map((p,i)=>({...p,bet:0,action:i===0?'hero':'check'}));
+ $('equity').textContent=$('potOdds').textContent=$('toCall').textContent='—';
+ $('recommendation').textContent='Inserisci le carte e premi Calcola.';$('riskDetail').textContent='';
+ renderPlayers();syncStreet();
+}
+function evalFive(cards){
+ const vals=cards.map(c=>ranks.indexOf(c[0])+2).sort((a,b)=>b-a),s=cards.map(c=>c[1]);
+ const freq={};for(const v of vals)freq[v]=(freq[v]||0)+1;
+ const uniq=[...new Set(vals)];if(uniq.includes(14))uniq.push(1);
+ let straight=0;for(let i=0;i<=uniq.length-5;i++)if(uniq[i]-uniq[i+4]===4){straight=uniq[i];break}
+ const flush=s.every(c=>c===s[0]);
+ if(flush&&straight)return [8,straight];
+ const groups=Object.entries(freq).map(([v,f])=>[Number(f),Number(v)]).sort((a,b)=>b[0]-a[0]||b[1]-a[1]);
+ if(groups[0][0]===4)return [7,groups[0][1],groups[1][1]];
+ if(groups[0][0]===3&&groups[1][0]>=2)return [6,groups[0][1],groups[1][1]];
+ if(flush)return [5,...vals];
+ if(straight)return [4,straight];
+ if(groups[0][0]===3)return [3,groups[0][1],...groups.filter(g=>g[0]===1).map(g=>g[1]).sort((a,b)=>b-a)];
+ if(groups[0][0]===2&&groups[1][0]===2)return [2,Math.max(groups[0][1],groups[1][1]),Math.min(groups[0][1],groups[1][1]),groups.find(g=>g[0]===1)?.[1]||0];
+ if(groups[0][0]===2)return [1,groups[0][1],...groups.filter(g=>g[0]===1).map(g=>g[1]).sort((a,b)=>b-a)];
+ return [0,...vals];
+}
+function compare(a,b){for(let i=0;i<Math.max(a.length,b.length);i++){const d=(a[i]||0)-(b[i]||0);if(d)return Math.sign(d)}return 0}
+function evalHand(cards){
+ let best=null;
+ for(let a=0;a<cards.length-4;a++)for(let b=a+1;b<cards.length-3;b++)
+ for(let c=b+1;c<cards.length-2;c++)for(let d=c+1;d<cards.length-1;d++)for(let e=d+1;e<cards.length;e++){
+ const rank=evalFive([cards[a],cards[b],cards[c],cards[d],cards[e]]);
+ if(!best||compare(rank,best)>0)best=rank;
+ }
+ return best;
+}
+const names=['Carta alta','Coppia','Doppia coppia','Tris','Scala','Colore','Full','Poker','Scala colore'];
+function analyzeHand(){
+ const hand=[$('hero0').value,$('hero1').value];const needed=({preflop:0,flop:3,turn:4,river:5})[$('street').value];
+ const board=Array.from({length:needed},(_,i)=>$('board'+i).value);
+ const selected=[...hand,...board];
+ const output=$('recommendation');const detail=$('riskDetail');
+ if(selected.some(c=>!c)){output.textContent='Completa le tue 2 carte e le carte del board previste dalla fase.';detail.textContent='';return}
+ if(new Set(selected).size!==selected.length){output.textContent='Hai inserito carte duplicate.';detail.textContent='';return}
+ const pot=n($('pot').value),ownBet=n($('yourContribution').value),stack=n($('heroStack').value);
+ const opponents=players.slice(1).filter(p=>p.action!=='fold');
+ if(opponents.length<1){output.textContent='Tutti gli avversari sono fuori dalla mano.';detail.textContent='Nessun confronto da simulare.';return}
+ const highest=Math.max(ownBet,...opponents.map(p=>p.bet));
+ const toCall=Math.max(0,highest-ownBet);
+ const pay=Math.min(stack,toCall);
+ const neededOdds=pay>0?pay/(pot+pay):0;
+ $('toCall').textContent=money(toCall);
+ $('potOdds').textContent=(100*neededOdds).toFixed(1)+'%';
+ // Monte Carlo against uniformly random opponent hands; the visible bets do not imply ranges.
+ const used=new Set(selected),remaining=deck.filter(c=>!used.has(c));
+ const cardsNeeded=5-board.length+opponents.length*2;
+ if(remaining.length<cardsNeeded){output.textContent='Non ci sono abbastanza carte per questa simulazione.';return}
+ const iterations=opponents.length>5?500:1000;
+ let shares=0;
+ for(let it=0;it<iterations;it++){
+   const drawn=[];const bag=remaining.slice();
+   for(let j=0;j<cardsNeeded;j++){const pos=Math.floor(Math.random()*bag.length);drawn.push(bag[pos]);bag[pos]=bag[bag.length-1];bag.pop()}
+   const completeBoard=board.concat(drawn.slice(0,5-board.length));
+   const heroRank=evalHand(hand.concat(completeBoard));
+   let winners=1,beat=false;
+   for(let k=0;k<opponents.length;k++){
+     const pair=drawn.slice(5-board.length+2*k,7-board.length+2*k);
+     const rivalRank=evalHand(pair.concat(completeBoard));
+     const cmp=compare(rivalRank,heroRank);
+     if(cmp>0){beat=true;break}
+     if(cmp===0)winners++;
+   }
+   if(!beat)shares+=1/winners;
+ }
+ const equity=shares/iterations;
+ $('equity').textContent=(equity*100).toFixed(1)+'%';
+ const rank=board.length>=3?names[evalHand(hand.concat(board))?.[0]||0]:'Preflop';
+ const pressure=opponents.filter(p=>['raise','bet','allin'].includes(p.action));
+ let advice='',prefix='';
+ if(toCall>stack)prefix='La chiamata richiede più del tuo stack; ';
+ if(!toCall){advice='CHECK possibile';if(equity>0.67)advice='Valuta una puntata di valore';}
+ else if(equity+0.04<neededOdds)advice='FOLD da valutare';
+ else if(equity>=neededOdds+0.17)advice='CALL favorevole in questa simulazione; valuta il RAISE con prudenza';
+ else advice='CALL marginale: dipende dal range avversario';
+ if(pressure.length)advice+=' — cautela: '+pressure.length+' avversari hanno puntato o rilanciato';
+ output.textContent=prefix+advice;
+ detail.textContent='Mano: '+rank+' | Avversari attivi: '+opponents.length+' | '+iterations+' simulazioni.\n'
+ +'Equity calcolata contro mani avversarie casuali: una puntata o un raise reale può indicare un range molto più forte. '
+ +'Le percentuali ignorano rake, side pot, fold equity e decisioni future. Non sono un profitto garantito.';
+}
+(function init(){
+ $('numPlayers').innerHTML=Array.from({length:8},(_,i)=>'<option value="'+(i+2)+'" '+(i+2===6?'selected':'')+'>'+(i+2)+'</option>').join('');
+ buildCards();buildPlayers();
+})();
+</script></body></html>
