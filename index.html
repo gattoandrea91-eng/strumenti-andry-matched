@@ -1129,6 +1129,34 @@ body{background-image:linear-gradient(90deg,rgba(3,11,6,.91),rgba(4,17,9,.83) 52
           </div>
         </div>
 
+        <div style="max-width:1020px;margin:20px auto 0">
+          <button type="button" class="action" onclick="toggleCasinoRoulette()" aria-controls="casinoRoulettePanel" aria-expanded="false" id="casinoRouletteToggle">🎯 Roulette — Rosso / Nero / Zero</button>
+          <div id="casinoRoulettePanel" style="display:none;margin-top:16px">
+            <div class="section-header">
+              <h2>Casino Live – Roulette europea</h2>
+              <p>Bilancia rosso, nero e zero con puntate esterne 1:1 e numero pieno 35:1.</p>
+            </div>
+            <div class="card-grid">
+              <div class="box">
+                <div class="field">
+                  <label for="rouletteBudget">Budget totale da distribuire (€)</label>
+                  <input id="rouletteBudget" type="number" min="0.37" step="0.01" value="100" oninput="calcolaRoulette()">
+                </div>
+                <button class="action" onclick="calcolaRoulette()">Calcola ripartizione</button>
+                <p class="crypto-note">Roulette europea con un solo zero (37 numeri). La copertura di tutti gli esiti comporta una perdita teorica di circa il 2,70% del totale puntato, anche distribuendo perfettamente le puntate. Non è una surebet. Verifica eventuali regole speciali del tavolo.</p>
+              </div>
+              <div class="result-box" aria-live="polite">
+                <div class="result"><strong>🔴 Rosso</strong><div class="result-value" id="rouletteRed">—</div></div>
+                <div class="result"><strong>⚫ Nero</strong><div class="result-value" id="rouletteBlack">—</div></div>
+                <div class="result"><strong>🟢 Zero</strong><div class="result-value" id="rouletteZero">—</div></div>
+                <div class="result"><strong>Profitto / perdita netta se esce rosso</strong><div class="result-value" id="rouletteNetRed">—</div></div>
+                <div class="result"><strong>Profitto / perdita netta se esce nero</strong><div class="result-value" id="rouletteNetBlack">—</div></div>
+                <div class="result"><strong>Profitto / perdita netta se esce zero</strong><div class="result-value" id="rouletteNetZero">—</div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <button class="back" onclick="goBack()">← Torna al menu</button>
       </div>
     </div>
@@ -1866,6 +1894,38 @@ body{background-image:linear-gradient(90deg,rgba(3,11,6,.91),rgba(4,17,9,.83) 52
 
       document.getElementById("bankerStake").innerHTML = bankerStake;
       document.getElementById("baccaratProfit").innerHTML = profit.toFixed(2);
+    }
+
+    function toggleCasinoRoulette(){
+      const panel=document.getElementById('casinoRoulettePanel');
+      const button=document.getElementById('casinoRouletteToggle');
+      const visible=panel.style.display!=='none';
+      panel.style.display=visible?'none':'block';
+      button.setAttribute('aria-expanded',String(!visible));
+      if(!visible)calcolaRoulette();
+    }
+
+    function calcolaRoulette(){
+      const value=Number(document.getElementById('rouletteBudget').value);
+      const ids=['rouletteRed','rouletteBlack','rouletteZero','rouletteNetRed','rouletteNetBlack','rouletteNetZero'];
+      if(!Number.isFinite(value)||value<0.37||value>1e9){
+        ids.forEach(id=>document.getElementById(id).textContent='Inserisci un budget valido (almeno 0,37 €)');
+        return;
+      }
+      const total=Math.round(value*100);
+      // European roulette: red/black gross returns 2x, straight-up zero 36x.
+      // Equal gross returns require red=black=18*zero, hence total=37*zero.
+      const zero=Math.round(total/37);
+      const remaining=total-zero;
+      const red=Math.floor(remaining/2);
+      const black=remaining-red;
+      const eur=cents=>(cents/100).toLocaleString('it-IT',{style:'currency',currency:'EUR'});
+      document.getElementById('rouletteRed').textContent=eur(red);
+      document.getElementById('rouletteBlack').textContent=eur(black);
+      document.getElementById('rouletteZero').textContent=eur(zero);
+      document.getElementById('rouletteNetRed').textContent=eur(red*2-total);
+      document.getElementById('rouletteNetBlack').textContent=eur(black*2-total);
+      document.getElementById('rouletteNetZero').textContent=eur(zero*36-total);
     }
 
     function renderButtons(containerId, handler){
