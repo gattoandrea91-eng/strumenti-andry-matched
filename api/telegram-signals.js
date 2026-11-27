@@ -63,19 +63,22 @@ async function settlementMatches(base,existing,currentMatches){
 
 async function cleanupLateQueued(){try{await db(`soccertrend_signals?created_at=lt.${encodeURIComponent('2026-10-26T23:00:00.000Z')}`,{method:'DELETE',headers:{Prefer:'return=minimal'}});await db(`soccertrend_signals?signal_minute=gte.80&message_id=is.null`,{method:'DELETE',headers:{Prefer:'return=minimal'}});const cutoff=new Date(Date.now()-6*60*60*1000).toISOString();await db(`soccertrend_signals?message_id=is.null&created_at=lt.${encodeURIComponent(cutoff)}`,{method:'DELETE',headers:{Prefer:'return=minimal'}})}catch(e){console.error('cleanupLateQueued',e)}}
 async function latestDailyMarker(){const rows=await db('soccertrend_signals?match_id=like.DAILY_REPORT_*&select=match_id,score,created_at&order=created_at.desc&limit=1')||[];return rows[0]||null}
-async function dailyMarker(day){const rows=await db(`soccertrend_signals?match_id=eq.${encodeURIComponent('DAILY_REPORT_'+day)}&select=match_id&limit=1`)||[];return rows[0]||null}
+async function dailyMarker(day){const rows=await db(`soccertrend_signals?match_id=eq.${encodeURIComponent('DAILY_REPORT_'+day)}&select=match_id,message_id,score&limit=1`)||[];return rows[0]||null}
 async function dailyRows(day){const start=zonedMidnightUtc(day).toISOString(),end=zonedMidnightUtc(nextDayString(day)).toISOString();return await db(`soccertrend_signals?select=*&created_at=gte.${encodeURIComponent(start)}&created_at=lt.${encodeURIComponent(end)}&signal_minute=lte.${MAX_SIGNAL_MINUTE}&limit=1000`)||[]}
 function romeDate(iso){return romeParts(new Date(iso)).date}
 async function cycleRows(day){const start=zonedMidnightUtc(day>='2026-11-21'?'2026-11-21':DAILY_TRACKING_START).toISOString(),end=zonedMidnightUtc(nextDayString(day)).toISOString();const rows=[];for(let offset=0;offset<10000;offset+=1000){const page=await db(`soccertrend_signals?select=match_id,created_at,message_id,score,market,signal_minute&created_at=gte.${encodeURIComponent(start)}&created_at=lt.${encodeURIComponent(end)}&signal_minute=lte.${MAX_SIGNAL_MINUTE}&order=created_at.asc,match_id.asc&limit=1000&offset=${offset}`)||[];rows.push(...page);if(page.length<1000)break}return rows}
-async function sendDailyReport(day,force=false){
+async function sendDailyReport(day,force=false,editExisting=false){
  if(!/^\d{4}-\d{2}-\d{2}$/.test(day)||day<DAILY_TRACKING_START)throw Error('Invalid report day');
- if(!force&&await dailyMarker(day))return null;
+ const priorMarker=await dailyMarker(day);
+ if(!force&&priorMarker)return null;
  const all=await cycleRows(day);
  const stakeRows=await db('soccertrend_signals?market=eq.PROGRESSION_STAKE&select=match_id,corners&limit=1000')||[];
  const stakes=new Map(stakeRows.map(r=>[String(r.match_id).replace(/^STAKE_/,''),n(r.corners)/100]));
  const corrections=await db('soccertrend_signals?market=eq.OFFICIAL_RECAP&select=match_id,away,score,corners,touches,big_chances,shots,sot&order=created_at.desc&limit=1')||[];
  const official=corrections[0]||null,officialDay=official?String(official.away):'';
- const finished=all.filter(r=>/^\d+$/.test(String(r.match_id))&&n(r.message_id)<0&&hasEntryQuote(r.score)&&entryQuote(r.score)>1);
+ const finished=all.filter(r=>/^\d+$/.test(String(r.match_id))&&n(r.message_id)<0&&hasEntryQuote(r.score)&&entryQuote(r.score)>1)
+   // Non considerare la WIN Marítimo-Nacional 27/11: gol già avvenuto al momento dell'avviso.
+   .filter(r=>!(String(r.match_id)==='5887685'&&String(r.created_at||'').startsWith('2026-11-27')&&String(r.market||'')==='Over 2.5'));
  const opening=DAILY_START_BANKROLL;
  let bank=opening,dayOpening=opening,wins=0,losses=0,dayProfit=0,pending=0;
  if(official&&officialDay<=day){
@@ -120,11 +123,24 @@ async function sendDailyReport(day,force=false){
  '💚 <b>CASSA ATTUALE: '+euro(bank)+'</b>\n━━━━━━━━━━━━━━\n\n'+
  '🚀 MBrain – BetMatrix SoccerTrend\n'+
  'https://mbrain-tracker.vercel.app/home-odds.html';
- const sent=await telegramSend(message);
+ // Modifica il recap Telegram originale anziché inviare un duplicato.
+ const sent=editExisting&&priorMarker&&n(priorMarker.message_id)<0
+   ?await telegramEdit(Math.abs(n(priorMarker.message_id)),message)
+   :await telegramSend(message);
+ if(editExisting&&priorMarker){
+   await db(`soccertrend_signals?match_id=eq.${encodeURIComponent('DAILY_REPORT_'+day)}`,{method:'PATCH',headers:{Prefer:'return=minimal'},body:JSON.stringify({score:Math.round(bank*100)})});
+ }
  if(!(await dailyMarker(day)))await claimSignal({match_id:'DAILY_REPORT_'+day,message_id:-Math.abs(n(sent.message_id)||1),home:'SOCCERTREND',away:day,start_home_goals:0,start_away_goals:0,start_goals:0,signal_minute:0,market:'DAILY_REPORT',score:Math.round(bank*100),corners:0,touches:0,big_chances:0,shots:0,sot:0});
  return {day,wins,losses,winRate:rate,profit:dayProfit,opening:dayOpening,closing:bank,official:!!officialToday,telegramMessageId:sent.message_id,pending,regularStake:50,lossStreakStake:70,lateFromMinute:89,lateStake:20};
 }
-async function maybeSendDailyReport(){const now=romeParts();if(now.date<DAILY_TRACKING_START)return null;const prior=previousRomeDay(now.date);if(prior>=DAILY_TRACKING_START&&(now.hour>0||(now.hour===0&&now.minute>=10))&&!await dailyMarker(prior))return await sendDailyReport(prior,false);return null}
+async function maybeSendDailyReport(){
+ // Rettifica una sola volta il recap già pubblicato il 27/11, mantenendo lo stesso messaggio.
+ // Il marker della vecchia cassa (1635,20) identifica la correzione ancora da eseguire.
+ const wrong=await dailyMarker('2026-11-27');
+ if(wrong&&n(wrong.score)===163520&&n(wrong.message_id)<0){
+   await sendDailyReport('2026-11-27',true,true);
+ }
+ const now=romeParts();if(now.date<DAILY_TRACKING_START)return null;const prior=previousRomeDay(now.date);if(prior>=DAILY_TRACKING_START&&(now.hour>0||(now.hour===0&&now.minute>=10))&&!await dailyMarker(prior))return await sendDailyReport(prior,false);return null}
 async function claimSignal(row){try{const d=await db('soccertrend_signals',{method:'POST',headers:{Prefer:'return=representation'},body:JSON.stringify(row)});return Array.isArray(d)&&d[0]?d[0]:row}catch(e){if(String(e.message).includes('23505')||String(e.message).includes('409'))return null;throw e}}
 async function setMessageId(matchId,messageId){await db(`soccertrend_signals?match_id=eq.${encodeURIComponent(matchId)}`,{method:'PATCH',headers:{Prefer:'return=minimal'},body:JSON.stringify({message_id:messageId})})}
 async function markSettled(matchId,messageId,score,result){const marker=messageId?-Math.abs(telegramMessageId(messageId)):-1;const body={message_id:marker};if(hasEntryQuote(score))body.score=settledScore(score,result);await db(`soccertrend_signals?match_id=eq.${encodeURIComponent(matchId)}`,{method:'PATCH',headers:{Prefer:'return=minimal'},body:JSON.stringify(body)})}
