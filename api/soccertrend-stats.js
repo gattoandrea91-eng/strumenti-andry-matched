@@ -43,6 +43,9 @@ const byDay=new Map();
 const romeDate=iso=>new Intl.DateTimeFormat('en-CA',{timeZone:'Europe/Rome',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date(iso));
 for(const s of signals){
   if(['DAILY_REPORT','OFFICIAL_RECAP','PROGRESSION_STAKE','KELLY_STAKE'].includes(String(s.market||'')))continue;
+  // Segnale Marítimo-Nacional 27/11/2026: la rete era già arrivata prima dell'avviso.
+  // Non conteggiare questa WIN a quota 9,00; conserva il dato originale nel DB.
+  if(String(s.match_id)==='5887685' && String(s.created_at||'').startsWith('2026-11-27') && String(s.market||'')==='Over 2.5')continue;
   const q=entryQuote(s.score);
   if(!q)continue;
   const result=n(s.score)>0?'WIN':'LOSS';
